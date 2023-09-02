@@ -7,7 +7,7 @@
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { APP_NAME } from '$lib/constants';
+	import { APP_NAME, ROUTES } from '$lib/constants';
 
 	import ETH from '$lib/eth.svelte';
 	import USDC from '$lib/usdc.svelte';
@@ -69,8 +69,10 @@
 		</CardContent>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button class="w-1/2 mr-1">Buy</Button>
-			<Button class="w-1/2 ml-1" variant="secondary">Send/Receive</Button>
+			<Button disabled class="w-1/2 mr-1">Buy (Soon)</Button>
+			<Button class="w-1/2 ml-1" variant="secondary">
+				<a href={ROUTES.PROFILE}>Send/Receive</a>
+			</Button>
 		</CardFooter>
 	</Card>
 
@@ -98,8 +100,10 @@
 		</CardContent>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button class="w-1/2 mr-1">Sell</Button>
-			<Button class="w-1/2 ml-1" variant="secondary">Send/Receive</Button>
+			<Button disabled class="w-1/2 mr-1">Sell (Soon)</Button>
+			<Button class="w-1/2 ml-1" variant="secondary">
+				<a href={ROUTES.PROFILE}>Send/Receive</a>
+			</Button>
 		</CardFooter>
 	</Card>
 </section>

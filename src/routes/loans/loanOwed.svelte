@@ -9,12 +9,11 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { cn, f } from '$lib/utils';
 	import { web3Store } from '$stores/web3';
+	import { ROUTES } from '$lib/constants';
 
-
-  $: owed =  $web3Store.userPoolData?.totalDebtBase.small ?? 0;
-  $: availableToBorrow = $web3Store.userPoolData?.availableBorrowBase.small ?? 0;
-  $: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0;
-
+	$: owed = $web3Store.userPoolData?.totalDebtBase.small ?? 0;
+	$: availableToBorrow = $web3Store.userPoolData?.availableBorrowBase.small ?? 0;
+	$: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0;
 </script>
 
 <Card class={cn('w-full')}>
@@ -43,7 +42,9 @@
 	</CardContent>
 	<Separator class=" mb-5" />
 	<CardFooter>
-		<Button class="w-1/2 mr-1">Repay</Button>
-		<Button class="w-1/2 ml-1" variant="secondary">Borrow More</Button>
+		<Button disabled class="w-1/2 mr-1">Repay (Soon)</Button>
+		<Button class="w-1/2 ml-1" variant="secondary">
+			<a href={ROUTES.NEW_LOAN}> Borrow More</a></Button
+		>
 	</CardFooter>
 </Card>

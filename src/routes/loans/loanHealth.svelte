@@ -73,11 +73,11 @@ import { Card } from "$lib/components/ui/card";
         </ul>
       </CardContent>
       <CardFooter>
-        <Button class="w-1/2 mr-1">
-          Add Principal
+        <Button disabled class="w-1/2 mr-1">
+          Add Eth (Soon)
         </Button>
-        <Button class="w-1/2 ml-1" variant="secondary">
-          Remove Principal
+        <Button disabled class="w-1/2 ml-1" variant="secondary">
+          Remove Eth (Soon)
         </Button>
       </CardFooter>
     </Card>
