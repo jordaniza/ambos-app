@@ -61,6 +61,7 @@
     "highlight.js": "11.8.0",
     "lucide-svelte": "^0.274.0",
     "svelte-icons": "^2.1.0",
+    "svelte-sonner": "^0.1.4",
     "tailwind-merge": "^1.14.0",
     "tailwind-variants": "^0.1.13",
     "tailwindcss-animate": "^1.0.7"

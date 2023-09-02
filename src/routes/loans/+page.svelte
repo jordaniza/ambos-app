@@ -6,7 +6,7 @@
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { APP_NAME, WHAT_IS_AAVE } from '$lib/constants';
+	import { APP_NAME, ROUTES, WHAT_IS_AAVE } from '$lib/constants';
 	import { cn } from '$lib/utils';
 	import LoanHealth from './loanHealth.svelte';
 	import LoanOwed from './loanOwed.svelte';
@@ -35,7 +35,9 @@
 		</CardHeader>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button class="w-1/2 mr-1">Get Started</Button>
+			<Button class="w-1/2 mr-1">
+        <a href={ROUTES.NEW_LOAN} class="w-full">Get Started</a>
+      </Button>
 			<Button class="w-1/2 ml-1" variant="secondary">
 				<a href={WHAT_IS_AAVE} target="_blank" class="w-full"> More Info </a>
 			</Button>

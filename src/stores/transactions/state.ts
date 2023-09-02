@@ -11,7 +11,7 @@ export const TX_STATES_FULL = [
   "FAILED",
 ] as const;
 
-type TXStateFull = typeof TX_STATES_FULL[number];
+export type TXStateFull = typeof TX_STATES_FULL[number];
 
 /// most components will use these
 

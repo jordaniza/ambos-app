@@ -8,11 +8,12 @@
 	import { web3Store } from '$stores/web3';
 	import { watchSupportedTokenBalances } from '$stores/web3/getBalances';
 	import { watchEthPrice } from '$stores/web3/getPrices';
-  import { watchPoolData } from '$stores/web3/getPoolData';
-
+	import { watchPoolData } from '$stores/web3/getPoolData';
+	import Toast from './toast.svelte';
+	
 	$: provider = $accountStore?.provider;
 	$: address = $accountStore?.address;
-  $: isConnected = $accountStore?.isConnected;
+	$: isConnected = $accountStore?.isConnected;
 	// attemp to connect when the user loads the page
 	onMount(async () => {
 		try {
@@ -21,13 +22,16 @@
 				console.log('Connected');
 				watchSupportedTokenBalances(address, provider, web3Store, 30);
 				watchEthPrice(provider, web3Store, 30);
-        watchPoolData(address, provider, web3Store, 30)
+				watchPoolData(address, provider, web3Store, 30);
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);
 		}
 	});
 </script>
-{#if !isConnected}<div class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur" />{/if}
+<Toast />
+{#if !isConnected}<div
+		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
+	/>{/if}
 <Nav />
 <slot />

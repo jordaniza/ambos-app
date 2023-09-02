@@ -5,7 +5,12 @@ export const ROUTES = {
   WALLET: "/wallet",
   MY_LOANS: "/loans",
   PROFILE: "/profile",
+  // fallback
+  NEW_LOAN: "/loans/new",
 }
+
+// child routes require instantiation
+ROUTES.NEW_LOAN = `${ROUTES.MY_LOANS}/new`;
 
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice
