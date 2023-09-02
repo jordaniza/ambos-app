@@ -19,7 +19,6 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^2.0.0",
-    "@sveltejs/kit": "^1.20.4",
     "@tailwindcss/forms": "0.5.6",
     "@tailwindcss/typography": "0.5.9",
     "@typechain/ethers-v5": "^11.1.1",
@@ -50,6 +49,7 @@
   "dependencies": {
     "@biconomy/account": "3.1.1-alpha.0",
     "@biconomy/bundler": "3.1.1-alpha.0",
+    "@sveltejs/kit": "^1.20.4",
     "@biconomy/common": "3.1.1-alpha.0",
     "@biconomy/core-types": "3.1.1-alpha.0",
     "@biconomy/particle-auth": "3.0.1-alpha.0",
