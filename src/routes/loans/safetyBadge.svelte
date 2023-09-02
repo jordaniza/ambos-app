@@ -4,7 +4,7 @@
 </script>
 
 <div
-	class={`rounded-md w-1/6 text-sm text-center border font-bold
+	class={`rounded-md w-1/6 text-sm md:text-xl text-center border font-bold
           ${
 						theme === 'dark'
 							? /* dark mode */

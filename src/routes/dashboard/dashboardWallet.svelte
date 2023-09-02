@@ -26,22 +26,24 @@
 </script>
 
 <Card class="w-full">
+  <div class="flex flex-col justify-between flex-grow">
 	<CardHeader>
-		<CardTitle class="mb-5">Wallet Overview</CardTitle>
+		<CardTitle class="mb-5 md:text-2xl">Wallet Overview</CardTitle>
 		<CardDescription>
-			A summary of your balances not currently in use. Go to your wallet to deposit more funds or
+			<p class="md:text-xl">A summary of your balances not currently in use. Go to your wallet to deposit more funds or
 			withdraw.
+      </p>
 		</CardDescription>
 	</CardHeader>
-	<CardContent class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<CardContent class="grid grid-cols-1  gap-4">
 		<div class="flex items-center space-x-4">
 			<div class="h=5 w-8 p-1">
 				<Eth />
 			</div>
 			<div class="flex flex-col">
-				<p class="text-sm font-medium leading-none">Ether in Wallet</p>
-				<p class="text-xl font-bold">{ethBalance} ETH</p>
-				<p class="text-sm italic">{format(ethBalanceUSD)}</p>
+				<p class="text-sm md:text-xl font-medium leading-none">Ether in Wallet</p>
+				<p class="text-xl md:tex-4xl font-bold">{ethBalance} ETH</p>
+				<p class="text-sm md:text-xl italic">{format(ethBalanceUSD)}</p>
 			</div>
 		</div>
 		<div class="flex items-center space-x-4">
@@ -49,15 +51,18 @@
 				<Usdc dark={theme === 'dark' ? 'transparent' : 'black'} light="white" />
 			</div>
 			<div class="flex flex-col">
-				<p class="text-sm font-medium leading-none">USDC in Wallet</p>
-				<p class="text-xl font-bold">{format(usdcBalance)}</p>
+				<p class="text-sm md:text-xl font-medium leading-none">USDC in Wallet</p>
+				<p class="text-xl md:text-xl font-bold">{format(usdcBalance)}</p>
 			</div>
 		</div>
 	</CardContent>
-	<Separator class="mb-5" />
-	<CardFooter>
-		<Button class="w-full">
-			<a class="w-full" href={ROUTES.WALLET}>Go To Wallet</a>
+  </div>
+  <div>
+	<Separator class="mb-5 md:mb-9" />
+	<CardFooter class="md:mt-5">
+		<Button class="w-full md:py-7">
+			<a class="w-full md:text-xl md:py-3"  href={ROUTES.WALLET}>Go To Wallet</a>
 		</Button>
 	</CardFooter>
+  </div>
 </Card>

@@ -102,7 +102,7 @@
 
 	// methods
 	function submit() {
-    console.log("CLICKED SUBMIT")
+		console.log('CLICKED SUBMIT');
 		if (!address || !provider || !smartAccount) {
 			console.warn('Missing address, provider, or smartAccount');
 			return;
@@ -128,14 +128,17 @@
 	<Card class={cn('w-full')}>
 		<CardHeader>
 			<div class="flex justify-between mb-5">
-				<CardTitle>New Loan</CardTitle>
+				<CardTitle><h1 class="md:text-2xl">New Loan</h1></CardTitle>
 			</div>
 			<CardDescription>
-				With {APP_NAME} you can deposit ETH and borrow USDC. You can borrow up to 50% of the current
-				value of your deposit.
-				<br />
-				<br />
-				Adjust the parameters below to set the dollar value of the amounts you want to deposit and borrow.
+				<p class="md:text-xl">
+					With {APP_NAME} you can deposit ETH and borrow USDC. You can borrow up to 50% of the current
+					value of your deposit.
+					<br />
+					<br />
+					Adjust the parameters below to set the dollar value of the amounts you want to deposit and
+					borrow.
+				</p>
 			</CardDescription>
 		</CardHeader>
 
@@ -143,91 +146,91 @@
 		<CardContent>
 			<section class="pt-5 pb-10 flex flex-col gap-10">
 				<div class="grid w-full max-w-sm items-center gap-1.5">
-					<Label for="supply">How much do you want to supply in USD?</Label>
-					<p class="italic text-sm">Max {f(maxDepositUSD)} ({wethBalance?.small ?? 0} ETH)</p>
+					<Label for="supply" class="md:text-xl">How much do you want to supply in USD?</Label>
+					<p class="italic text-sm md:text-lg">Max {f(maxDepositUSD)} ({wethBalance?.small ?? 0} ETH)</p>
 					{#if warnDeposit}
-						<p class="text-red-500 text-sm">You can only supply up to {f(maxDepositUSD)}</p>
+						<p class="text-red-500 text-sm md:text-lg">You can only supply up to {f(maxDepositUSD)}</p>
 					{/if}
 					<div class="flex gap-1">
 						<Input
-							class="w-3/4"
+							class="w-3/4 md:text-xl"
 							type="text"
 							id="supply"
 							placeholder="0"
 							bind:value={valueDepositUSD}
 						/>
 						<Button
-							class="w-1/4"
+							class="w-1/4 md:text-xl"
 							variant="secondary"
 							on:click={() => (valueDepositUSD = maxDepositUSD)}>Max</Button
 						>
 					</div>
 				</div>
 				<div class="grid w-full max-w-sm items-center gap-1">
-					<Label for="borrow">How much do you want to borrow in USD?</Label>
-					<p class="italic text-sm">Max {f(maxBorrowUSD)}</p>
+					<Label for="borrow" class="md:text-xl">How much do you want to borrow in USD?</Label>
+					<p class="italic text-sm md:text-lg">Max {f(maxBorrowUSD)}</p>
 					{#if warnBorrow}
-						<p class="text-red-500 text-sm">You can only borrow up to {f(maxBorrowUSD)}</p>
+						<p class="text-red-500 text-sm md:text-lg">You can only borrow up to {f(maxBorrowUSD)}</p>
 					{/if}
 					<div class="flex gap-1">
 						<Input
-							class="w-3/4"
+							class="w-3/4 md:text-xl"
 							type="text"
 							id="borrow"
 							placeholder="0"
 							bind:value={valueBorrowUSD}
 						/>
 						<Button
-							class="w-1/4"
+							class="w-1/4 md:text-xl"
 							variant="secondary"
 							on:click={() => (valueBorrowUSD = maxBorrowUSD)}>Max</Button
 						>
 					</div>
 				</div>
 			</section>
-
 			<section class="p-4 flex flex-col gap-5 rounded border border-gray-300 my-3">
 				<div class="flex justify-between items-center">
-					<span class=" font-bold">Depositing</span>
-					<span class=" font-semibold">{f(valueDepositUSD)} ({valueDepositETH} ETH)</span>
+					<span class="md:text-xl font-bold">Depositing</span>
+					<span class="md:text-xl font-semibold">{f(valueDepositUSD)} ({valueDepositETH} ETH)</span>
 				</div>
 				<div class="flex justify-between items-center">
-					<span class="font-bold">Borrowing</span>
-					<span class="font-semibold">{f(valueBorrowUSD ?? 0)}</span>
+					<span class="md:text-xl font-bold">Borrowing</span>
+					<span class="md:text-xl font-semibold">{f(valueBorrowUSD ?? 0)}</span>
 				</div>
 			</section>
 		</CardContent>
 		<CardFooter>
 			<AlertDialog>
 				<AlertDialogTrigger asChild let:builder>
-					<Button disabled={valueBorrowUSD==0} class="w-full mr-1" builders={[builder]}>Submit</Button>
+					<Button disabled={valueBorrowUSD == 0} class="w-full mr-1" builders={[builder]}
+						>Submit</Button
+					>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Confirm Loan</AlertDialogTitle>
+						<AlertDialogTitle><p class="md:text-xl md:my-2">Confirm Loan</p></AlertDialogTitle>
 						<section class="p-4 flex flex-col gap-5 rounded border border-gray-300 my-3">
 							<div class="flex justify-between items-center">
-								<span class=" font-bold">Depositing</span>
-								<span class=" font-semibold">{f(valueDepositUSD)} ({valueDepositETH} ETH)</span>
+								<span class="md:text-xl font-bold">Depositing</span>
+								<span class="md:text-xl font-semibold">{f(valueDepositUSD)} ({valueDepositETH} ETH)</span>
 							</div>
 							<div class="flex justify-between items-center">
-								<span class=" font-bold">Borrowing</span>
-								<span class=" font-semibold">{f(valueBorrowUSD ?? 0)}</span>
+								<span class="md:text-xl font-bold">Borrowing</span>
+								<span class="md:text-xl font-semibold">{f(valueBorrowUSD ?? 0)}</span>
 							</div>
 						</section>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogCancel><p class="md:text-xl">Cancel</p></AlertDialogCancel>
 						<AlertDialogAction>
-              <Button variant="ghost" on:click={submit}>Confirm</Button>  
-            </AlertDialogAction>
+							<Button variant="ghost" class="md:text-xl" on:click={submit}>Confirm</Button>
+						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-			<Button class="w-full ml-1" variant="secondary" on:click={reset}>Reset</Button>
+			<Button class="w-full ml-1 md:text-xl" variant="secondary" on:click={reset}>Reset</Button>
 		</CardFooter>
 	</Card>
-
 
 	{#if state}
 		<div class="card m-2 p-2 rounded">

@@ -17,32 +17,34 @@
 
 </script>
 
-<Card class={cn('w-full')}>
+<Card class="w-full">
 	<CardHeader>
-		<CardTitle class="mb-5">Loans Overview</CardTitle>
-		<CardDescription>A summary of your current outstanding loan balances.</CardDescription>
+		<CardTitle class="mb-5 md:text-2xl">Loans Overview</CardTitle>
+		<CardDescription class="md:text-xl">
+			A summary of your current outstanding loan balances.
+		</CardDescription>
 	</CardHeader>
 	<section class="grid grid-cols-2 gap-0">
 		<CardContent class="grid grid-cols-1 gap-4">
 			<div class="flex flex-col">
-				<p class="text-sm font-medium leading-none">Owed</p>
-				<p class="text-xl font-bold">{f(owedUSD)}</p>
+				<p class="text-sm md:text-xl font-medium leading-none">Owed</p>
+				<p class="text-xl md:text-xl font-bold">{f(owedUSD)}</p>
 			</div>
 			<div class="flex flex-col">
-				<p class="text-sm font-medium leading-none">Supplied</p>
-				<p class="text-xl font-bold">{f(collateralValueUSD)}</p>
+				<p class="text-sm md:text-xl font-medium leading-none">Supplied</p>
+				<p class="text-xl md:text-xl font-bold">{f(collateralValueUSD)}</p>
 			</div>
 			<div class="flex flex-col">
-				<p class="text-sm font-medium leading-none">Interest Rate</p>
-				<p class="text-xl font-bold">{variableRateIR.toFixed(3)}%</p>
+				<p class="text-sm md:text-xl font-medium leading-none">Interest Rate</p>
+				<p class="text-xl md:text-xl font-bold">{variableRateIR.toFixed(3)}%</p>
 			</div>
 		</CardContent>
 		<div class="ml-10 mt-6" />
 	</section>
 	<Separator class="mb-5" />
 	<CardFooter>
-		<Button class="w-full" variant="default">
-			<a class="w-full" href={ROUTES.MY_LOANS}>Manage Loans</a>
+		<Button class="w-full md:py-7">
+			<a class="w-full md:text-xl md:py-3" href={ROUTES.MY_LOANS}>Manage Loans</a>
 		</Button>
 	</CardFooter>
 </Card>

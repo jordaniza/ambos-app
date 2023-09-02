@@ -13,11 +13,12 @@
 	let maxLTV = 50;
 </script>
 
-<section class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<section class="p-4 grid grid-cols-1  gap-4">
 	<Card class={cn('w-full')}>
 		<CardHeader>
-			<CardTitle>Loans</CardTitle>
+			<CardTitle><h1 class="md:text-2xl">Loans</h1></CardTitle>
 			<CardDescription>
+        <p class="md:text-xl">
 				Here you can see your loan positions and manage your loan balances. Loans are made in ETH
 				and allow you to withdraw USDC, which can be converted for a currency of your choice.
 				<br />
@@ -31,18 +32,21 @@
 				{APP_NAME}{' '}
 				places restrictions on the amount you can borrow to give you a safety buffer, this is currently
 				set at {maxLTV}%.
-			</CardDescription>
+			  </p>
+      </CardDescription>
 		</CardHeader>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button class="w-1/2 mr-1">
+			<Button class="w-1/2 mr-1 md:text-xl md:py-7">
         <a href={ROUTES.NEW_LOAN} class="w-full">Get Started</a>
       </Button>
-			<Button class="w-1/2 ml-1" variant="secondary">
+			<Button class="w-1/2 ml-1 md:text-xl md:py-7" variant="secondary">
 				<a href={WHAT_IS_AAVE} target="_blank" class="w-full"> More Info </a>
 			</Button>
 		</CardFooter>
 	</Card>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
   <LoanOwed />
   <LoanHealth />
+  </div>
 </section>

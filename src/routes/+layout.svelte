@@ -34,4 +34,8 @@
 		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
 	/>{/if}
 <Nav />
-<slot />
+
+<div class="md:max-w-[1990px] flex flex-col items-center md:mt-10 w-full h-screen mx-auto">
+  <slot />
+</div>
+

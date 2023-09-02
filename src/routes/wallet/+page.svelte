@@ -27,7 +27,7 @@
 	let theme = 'dark';
 </script>
 
-<section class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+<section class="p-4 grid grid-cols-1  gap-4">
 	<Card class={cn('w-full')}>
 		<CardHeader>
 			<CardTitle>Your Wallet</CardTitle>

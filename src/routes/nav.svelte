@@ -59,7 +59,7 @@
 								</div>
 								<a
 									href={ROUTES.DASHBOARD}
-									class={`ml-2 text-md ${selected === ROUTES.DASHBOARD ? 'underline' : ''} `}
+									class={`ml-2 text-md w-full text-left ${selected === ROUTES.DASHBOARD ? 'underline' : ''} `}
 									>Dashboard</a
 								>
 							</Button>
@@ -77,7 +77,7 @@
 								</div>
 								<a
 									href={ROUTES.MY_LOANS}
-									class={`ml-2 text-md ${selected === ROUTES.MY_LOANS ? 'underline' : ''} `}
+									class={`ml-2 text-md w-full text-left ${selected === ROUTES.MY_LOANS ? 'underline' : ''} `}
 									>My Loans</a
 								>
 							</Button>
@@ -95,7 +95,7 @@
 								</div>
 								<a
 									href={ROUTES.WALLET}
-									class={`ml-2 text-md bold ${selected === ROUTES.WALLET ? 'underline' : ''} `}
+									class={`ml-2 text-md bold w-full text-left ${selected === ROUTES.WALLET ? 'underline' : ''} `}
 									>Wallet</a
 								>
 							</Button>
@@ -111,7 +111,7 @@
 			</SheetContent>
 		</Sheet>
 	</div>
-	<h1>
+	<h1 class="md:text-2xl">
 		{APP_NAME}
 	</h1>
 	<div class="flex items-center">

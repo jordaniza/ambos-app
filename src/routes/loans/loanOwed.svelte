@@ -18,32 +18,36 @@
 
 <Card class={cn('w-full')}>
 	<CardHeader>
-		<CardTitle>Owed</CardTitle>
+		<CardTitle>
+      <h1 class="md:text-2xl">Loans</h1>
+    </CardTitle>
 		<CardDescription>
+      <p class="md:text-xl">
 			This is the total amount you need to repay in USDC to unlock and reclaim your ETH. It is the
 			original amount in USD, plus accumulated interest.
+      </p>
 		</CardDescription>
 	</CardHeader>
 	<CardContent>
 		<ul class="list-disc list-inside">
 			<li class="flex justify-between">
-				<div>Total Borrowed</div>
-				<div>{f(owed)}</div>
+				<div class="md:text-xl" >Total Borrowed</div>
+				<div class="md:text-xl">{f(owed)}</div>
+			</li>
+			<li class="flex justify-between md:my-5">
+				<div class="md:text-xl" >Available To Borrow</div>
+				<div class="md:text-xl">{f(availableToBorrow)}</div>
 			</li>
 			<li class="flex justify-between">
-				<div>Available To Borrow</div>
-				<div>{f(availableToBorrow)}</div>
-			</li>
-			<li class="flex justify-between">
-				<div>Interest Rate</div>
-				<div>{variableRateIR.toFixed(2)}%</div>
+				<div class="md:text-xl">Interest Rate</div>
+				<div class="md:text-xl">{variableRateIR.toFixed(2)}%</div>
 			</li>
 		</ul>
 	</CardContent>
 	<Separator class=" mb-5" />
 	<CardFooter>
-		<Button disabled class="w-1/2 mr-1">Repay (Soon)</Button>
-		<Button class="w-1/2 ml-1" variant="secondary">
+		<Button disabled class="w-1/2 mr-1 md:text-xl">Repay (Soon)</Button>
+		<Button class="w-1/2 ml-1 md:text-xl" variant="secondary">
 			<a href={ROUTES.NEW_LOAN}> Borrow More</a></Button
 		>
 	</CardFooter>
