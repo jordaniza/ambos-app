@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import CardDescription from '$lib/components/ui/card/card-description.svelte';
@@ -8,11 +8,13 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ROUTES } from '$lib/constants';
-	import { cn } from '$lib/utils';
+	import { cn, f } from '$lib/utils';
+  import { web3Store } from '$stores/web3';
 
-	let owed = 0;
-	let collateralValueUSD = 0;
-	let variableRateIR = 0;
+  $: owedUSD =  $web3Store.userPoolData?.totalDebtBase.small ?? 0;
+  $: collateralValueUSD = $web3Store.userPoolData?.totalCollateralBase.small ?? 0;
+  $: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0; 
+
 </script>
 
 <Card class={cn('w-full')}>
@@ -24,22 +26,22 @@
 		<CardContent class="grid grid-cols-1 gap-4">
 			<div class="flex flex-col">
 				<p class="text-sm font-medium leading-none">Owed</p>
-				<p class="text-xl font-bold">{owed}</p>
+				<p class="text-xl font-bold">{f(owedUSD)}</p>
 			</div>
 			<div class="flex flex-col">
 				<p class="text-sm font-medium leading-none">Supplied</p>
-				<p class="text-xl font-bold">{collateralValueUSD}</p>
+				<p class="text-xl font-bold">{f(collateralValueUSD)}</p>
 			</div>
 			<div class="flex flex-col">
 				<p class="text-sm font-medium leading-none">Interest Rate</p>
-				<p class="text-xl font-bold">{variableRateIR}%</p>
+				<p class="text-xl font-bold">{variableRateIR.toFixed(3)}%</p>
 			</div>
 		</CardContent>
 		<div class="ml-10 mt-6" />
 	</section>
 	<Separator class="mb-5" />
 	<CardFooter>
-		<Button class="w-full">
+		<Button class="w-full" variant="default">
 			<a class="w-full" href={ROUTES.MY_LOANS}>Manage Loans</a>
 		</Button>
 	</CardFooter>

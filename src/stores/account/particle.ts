@@ -8,7 +8,6 @@ export const initParticle = (chainId: ChainId) => {
   const projectId = process.PUBLIC_PARTICLE_PROJECT_ID;
   const clientKey = process.PUBLIC_PARTICLE_CLIENT_KEY;
   const appId = process.PUBLIC_PARTICLE_APP_ID;
-  console.log("here")
 
   if (!projectId || !clientKey || !appId) {
     throw new Error("Missing environment variables for Particle provider");

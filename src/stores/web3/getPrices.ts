@@ -1,8 +1,7 @@
 import { type Oracle, Oracle__factory } from "$lib/abis/ts";
 import { ADDRESSES } from "$lib/contracts";
 import { type BigNumber, ethers } from "ethers";
-import type { Web3Store, web3Store } from ".";
-import { get } from "svelte/store";
+import type { web3Store } from ".";
 
 export async function getOracleWETHPrice(
   provider: ethers.providers.Web3Provider,
@@ -23,6 +22,7 @@ export async function getOracleWETHPrice(
     decimals,
   };
 }
+
 export const shouldUpdatePrice = (
   newVal: BigNumber | null,
   prevVal: string | null,

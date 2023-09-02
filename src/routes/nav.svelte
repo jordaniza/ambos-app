@@ -30,8 +30,10 @@
 		}
 	}
 
-	function logout(): void {
-		disconnect(chainId);
+	async function logout(): Promise<void> {
+		await disconnect(chainId);
+    // reload the page
+    window.location.reload();
 	}
 </script>
 
@@ -102,8 +104,8 @@
 				</ul>
 				<section class="flex flex-col">
 					<Separator class="my-5" />
-					<div class="flex justify-between">
-						<Button variant="ghost" class="text-xl" on:click={logout}>Logout</Button>
+					<div class="flex justify-between w-full items-center">
+						<Button variant="ghost" class="text-xl w-full text-center" on:click={logout}>Logout</Button>
 					</div>
 				</section>
 			</SheetContent>

@@ -10,6 +10,11 @@ export const N = (n: BigNumberish) => ethers.utils.formatEther(n);
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+const { format } = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+export const f = (n: number) => format(n);
 
 type FlyAndScaleParams = {
   y?: number;

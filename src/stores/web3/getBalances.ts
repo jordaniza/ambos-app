@@ -132,6 +132,5 @@ export async function watchSupportedTokenBalances(
   tokens.forEach(([token, name]) => {
     watchTokenBalance(token, name, userAddress, store, interval);
   });
-  console.log(store);
 }
 

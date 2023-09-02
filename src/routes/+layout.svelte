@@ -8,6 +8,7 @@
 	import { web3Store } from '$stores/web3';
 	import { watchSupportedTokenBalances } from '$stores/web3/getBalances';
 	import { watchEthPrice } from '$stores/web3/getPrices';
+  import { watchPoolData } from '$stores/web3/getPoolData';
 
 	$: provider = $accountStore?.provider;
 	$: address = $accountStore?.address;
@@ -20,6 +21,7 @@
 				console.log('Connected');
 				watchSupportedTokenBalances(address, provider, web3Store, 30);
 				watchEthPrice(provider, web3Store, 30);
+        watchPoolData(address, provider, web3Store, 30)
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);

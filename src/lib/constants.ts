@@ -6,3 +6,13 @@ export const ROUTES = {
   MY_LOANS: "/loans",
   PROFILE: "/profile",
 }
+
+/**
+ * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice
+ * All V3 markets use USD based oracles which return values with 8 decimals.
+ */
+export const BASE_CURRENCY_DECIMALS = 8;
+export const LTV_DECIMALS = 4;  
+/// rates are returned with 27 decimals
+export const RAY_DECIMALS = 27;
+
