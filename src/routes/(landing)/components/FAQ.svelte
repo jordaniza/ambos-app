@@ -81,7 +81,7 @@
 
 		{
 			idx: 15,
-			Q: "Why the name 'Ambos Finance '?",
+			Q: "Why the name 'Ambos Finance'?",
 			A: "Ambos is a Spanish word meaning 'both', because Ambos let's you have it both ways - you are able to get cash out of your crypto without selling it, and still have the upside of your crypto investments."
 		}
 	];
