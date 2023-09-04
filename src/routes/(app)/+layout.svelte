@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../app.postcss';
+	import '../../app.postcss';
 	import Nav from './nav.svelte';
 
 	import { connect, accountStore } from '$stores/account';

@@ -112,7 +112,7 @@
 		</Sheet>
 	</div>
 	<h1 class="md:text-2xl">
-		{APP_NAME}
+		{APP_NAME}  
 	</h1>
 	<div class="flex items-center">
 		{#if address}

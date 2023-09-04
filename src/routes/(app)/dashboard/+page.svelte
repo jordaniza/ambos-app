@@ -5,8 +5,8 @@
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import { APP_NAME, WHAT_IS_AAVE } from '$lib/constants';
-	import DashboardLoans from './dashboard/dashboardLoans.svelte';
-	import DashboardWallet from './dashboard/dashboardWallet.svelte';
+	import DashboardLoans from './dashboardLoans.svelte';
+	import DashboardWallet from './dashboardWallet.svelte';
 </script>
 
 <section class="p-4 grid grid-cols-1 gap-2">
