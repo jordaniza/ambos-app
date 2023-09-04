@@ -17,13 +17,13 @@
   ${navFloat && 'bg-white'}
   `}
 >
-	<div class="px-5 w-full mx-auto flex flex-wrap items-center justify-between mt-0 py-5">
+	<div class="px-5 w-full mx-auto flex flex-wrap items-center justify-between mt-0 py-2 lg:py-5">
 		<div class="flex items-center justify-center sm:justify-between">
 			<!-- svelte-ignore a11y-invalid-attribute -->
 			<a
 				class:text-gray-800={navFloat}
 				class:text-white={!navFloat}
-				class="no-underline hover:no-underline font-bold text-2xl lg:text-4xl"
+				class="no-underline hover:no-underline font-bold text-lg lg:text-2xl"
 				href="#"
 			>
 				<div class="flex gap-4 items-center">
@@ -32,7 +32,7 @@
 				</div>
 			</a>
 		</div>
-		<Button class="hidden sm:flex sm:text-xl sm:py-6" on:click={goToCTA} variant="outline"
+		<Button class="hidden sm:flex sm:text-xl sm:py-4" on:click={goToCTA} variant="outline"
 			>Sign Up</Button
 		>
 	</div>

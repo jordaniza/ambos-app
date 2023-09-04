@@ -8,16 +8,16 @@
 	<div class="container px-3 mx-auto flex flex-wrap flex-col lg:flex-row items-center">
 		<!--Left Col-->
 		<div
-			class="flex flex-col w-full lg:w-2/5 justify-center lg:items-start text-center lg:text-left gap-5"
+			class="flex flex-col w-full lg:w-2/5 justify-center items-center lg:items-start text-center lg:text-left gap-5"
 		>
-			<h1 class="my-4 pt-10 lg:pt-0 text-5xl xl:text-7xl w-full font-bold leading-tight">
+			<h1 class="my-4 pt-10 lg:pt-0 text-4xl xl:text-5xl w-full font-bold leading-tight">
 				Save for tomorrow<br />Live for today
 			</h1>
-			<p class="leading-normal text-center lg:text-left w-full text-2xl lg:text-4xl mb-8">
+			<p class="leading-normal text-center lg:text-left w-full text-xl lg:text-3xl mb-8">
 				Get cash without selling your crypto
 			</p>
 			<Button
-				class="text-2xl lg:text-3xl mx-10 lg:mx-0 text-white py-8"
+				class="text-xl lg:text-2xl mx-0 max-w-[50%] lg:mx-0 text-white lg:py-8 py-5"
 				variant="primary"
 				on:click={goToCTA}>Join The Waitlist</Button
 			>
