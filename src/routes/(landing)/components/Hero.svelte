@@ -1,19 +1,30 @@
+<script lang="ts">
+	import Button from '$lib/components/ui/button/button.svelte';
+	export let goToCTA: () => void;
+</script>
+
 <!--Hero-->
-<div class="pt-24">
-	<div class="container px-3 mx-auto flex flex-wrap flex-col md:flex-row items-center">
+<div class="pt-24 lg:pl-5">
+	<div class="container px-3 mx-auto flex flex-wrap flex-col lg:flex-row items-center">
 		<!--Left Col-->
-		<div class="flex flex-col w-full md:w-2/5 justify-center items-start text-center md:text-left">
-			<h1 class="my-4 text-5xl font-bold leading-tight">Save for tomorrow, Live for today</h1>
-			<p class="leading-normal text-2xl mb-8">Get cash without selling your crypto</p>
-			<button
-				class="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+		<div
+			class="flex flex-col w-full lg:w-2/5 justify-center lg:items-start text-center lg:text-left gap-5"
+		>
+			<h1 class="my-4 pt-10 lg:pt-0 text-5xl xl:text-7xl w-full font-bold leading-tight">
+				Save for tomorrow<br />Live for today
+			</h1>
+			<p class="leading-normal text-center lg:text-left w-full text-2xl lg:text-4xl mb-8">
+				Get cash without selling your crypto
+			</p>
+			<Button
+				class="text-2xl lg:text-3xl mx-10 lg:mx-0 text-white py-8"
+				variant="primary"
+				on:click={goToCTA}>Join The Waitlist</Button
 			>
-				Join The Waitlist
-			</button>
 		</div>
 		<!--Right Col-->
-		<div class="w-full md:w-3/5 py-6 md:px-20 my-10 text-center">
-			<img src="features/MoneyOut.svg" alt="Ambos Lets you get money out" />
+		<div class="w-full lg:w-3/5 py-6 md:px-20 my-10 text-center">
+			<img src="features/Treasure.svg" alt="Ambos Lets you get money out" />
 		</div>
 	</div>
 </div>

@@ -1,6 +1,17 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import Button from './Button.svelte';
+	import { Button } from '$lib/components/ui/button';
+	let email = '';
+	let submitted = false;
+
+	function isValidEmail(email: string) {
+		const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+		return re.test(email);
+	}
+
+	function handleSubmit() {
+		submitted = true;
+	}
 </script>
 
 <!-- Change the colour #f8fafc to match the previous section colour -->
@@ -41,18 +52,33 @@
 </svg>
 <section class="container mx-auto text-center py-6 mb-12">
 	<h1 class="w-full my-2 text-5xl font-bold leading-tight text-center text-white">Sign Up</h1>
-	<div class="w-full my-4">
-		<div class="h-1 mx-auto bg-white w-1/6 opacity-25 my-0 py-0 rounded-t" />
+	<div class="w-full my-10">
+		<div class="h-[1px] mx-auto bg-white w-1/6 opacity-25 my-0 py-0 rounded-t" />
 	</div>
-	<h3 class="my-10 text-xl leading-tight">
+	<h3 class="my-10 text-xl md:text-2xl leading-tight">
 		Ambos is currenly in final testing and we will be rolling out to early access users soon.
 		<br />
 		<br />
 		To join our early access programme or get notified about our full launch, please enter your email
 		address below:
 	</h3>
+
 	<div class="flex items-center flex-col justify-center my-10 gap-3">
-		<Input placeholder="Email Address" class="max-w-md" />
-		<Button>Join Waitlist</Button>
+		<Input
+			bind:value={email}
+			placeholder="Email Address"
+			class="max-w-md text-xl md:text-2xl py-7 mb-5"
+		/>
+		<a
+			href={`mailto:j@jordaniza.com?subject=Please add me to the Ambos Finance Early Access list&body=${email}`}
+			on:click={handleSubmit}
+		>
+			<Button class="text-white text-xl md:text-2xl py-7" disabled={!isValidEmail(email)}>
+				Join Waitlist
+			</Button>
+		</a>
+		{#if submitted}
+			<p class="text-green-500">Submitted, thank you</p>
+		{/if}
 	</div>
 </section>
