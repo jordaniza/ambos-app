@@ -17,8 +17,8 @@
 				Get cash without selling your crypto
 			</p>
 			<Button
-				class="text-xl lg:text-2xl mx-0 max-w-[50%] lg:mx-0 text-white lg:py-8 py-8"
-				on:click={goToCTA}>Join The Waitlist</Button
+				class="text-xl lg:text-2xl mx-0 sm:max-w-[66%] lg:mx-0 text-white lg:py-8 py-5"
+				on:click={goToCTA}>Join Waitlist</Button
 			>
 		</div>
 		<!--Right Col-->

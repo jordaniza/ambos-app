@@ -10,6 +10,7 @@
 	}
 
 	function handleSubmit() {
+		if (isValidEmail(email)) return;
 		submitted = true;
 	}
 </script>
