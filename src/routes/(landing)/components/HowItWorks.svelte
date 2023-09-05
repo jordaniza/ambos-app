@@ -57,7 +57,7 @@
 	</div>
 	<div class="mt-5">
 		<p class="italic text-sm text-center">
-			*Subject to minimum deposit balances and liqudations, see 'what are liqudidations' in the FAQ
+			*Subject to minimum deposit balances and liquidations, see 'what are liquidations' in the FAQ
 			below
 		</p>
 	</div>
