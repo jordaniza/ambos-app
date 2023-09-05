@@ -22,7 +22,7 @@
 			>
 		</div>
 		<!--Right Col-->
-		<div class="w-full lg:w-3/5 py-6 md:px-20 my-10 text-center">
+		<div class="w-full lg:w-3/5 md:px-20 text-center">
 			<img src="features/InvestETH.svg" alt="Ambos Lets you get money out" />
 		</div>
 	</div>
