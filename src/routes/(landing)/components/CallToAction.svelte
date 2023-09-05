@@ -1,20 +1,71 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
+	import { createClient } from '@supabase/supabase-js';
+
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
+
+	const SUPABASE_ANON_KEY =
+		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvcGplYnN0bHB3ZG56ZHhmY3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTM5MzEwODYsImV4cCI6MjAwOTUwNzA4Nn0.ktx4vqVNKooKpYLm5Iwk0guc61FH4KMXitSeXrHB8Rs';
+	const SUPABASE_URL = 'https://yopjebstlpwdnzdxfcte.supabase.co';
+	const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 	let email = '';
+	let isSubmitting = false;
+	let emailError = false;
 	let submitted = false;
+	let dialogOpen = false;
 
 	function isValidEmail(email: string) {
 		const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 		return re.test(email);
 	}
 
-	function handleSubmit() {
-		if (isValidEmail(email)) return;
+	async function handleSubmit() {
+		if (!isValidEmail(email)) return;
+
+		submitted = false;
+		emailError = false;
+		isSubmitting = true;
+
+		const { error } = await supabase.from('emails').insert([{ email }]);
+
+		isSubmitting = false;
+
+		if (error) {
+			console.error('Error inserting email: ', error);
+			emailError = true;
+			return;
+		}
+
 		submitted = true;
+		dialogOpen = true; // Open the dialog
+		email = ''; // Reset the email field
+	}
+
+	// To test inserting data
+	async function testInsert() {
+		const { data, error } = await supabase.from('emails').insert([{ email: 'j@test.com' }]);
+
+		if (error) {
+			console.error('Insert Error:', error);
+		} else {
+			console.log('Insert Data:', data);
+		}
 	}
 </script>
 
+<Dialog.Root open={dialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Thank You</Dialog.Title>
+			<Dialog.Description>Your email has been submitted.</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer>
+			<Button on:click={() => (dialogOpen = false)}>Close</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
 <!-- Change the colour #f8fafc to match the previous section colour -->
 <svg
 	class="wave-top"
@@ -70,16 +121,18 @@
 			placeholder="Email Address"
 			class="max-w-md text-xl md:text-2xl py-7 mb-5"
 		/>
-		<a
-			href={`mailto:j@jordaniza.com?subject=Please add me to the Ambos Finance Early Access list&body=${email}`}
+		<Button
+			class="text-white text-xl md:text-2xl py-7"
+			disabled={!isValidEmail(email) || isSubmitting}
 			on:click={handleSubmit}
 		>
-			<Button class="text-white text-xl md:text-2xl py-7" disabled={!isValidEmail(email)}>
-				Join Waitlist
-			</Button>
-		</a>
-		{#if submitted}
-			<p class="text-green-500">Submitted, thank you</p>
-		{/if}
+			{isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+		</Button>
 	</div>
+
+	{#if submitted}
+		<p class="text-green-500">Submitted, thank you</p>
+	{:else if emailError}
+		<p class="text-red-500">Error submitting email</p>
+	{/if}
 </section>
