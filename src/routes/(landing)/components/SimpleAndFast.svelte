@@ -2,26 +2,27 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { Workflow, Waves, Key } from 'lucide-svelte';
 	const features = [
 		{
 			idx: 1,
-			title: 'Simple login',
+			title: 'Simple',
 			description:
 				'No private keys required - use your Google account or a simple email & password login.'
 		},
 		{
 			idx: 2,
-			title: 'Secured with 2FA',
-			description: 'Two-factor authentication gives you extra security against attackers.'
-		},
-		{
-			idx: 3,
 			title: 'Streamlined',
 			description:
 				'Borrow in just a few clicks, then buy and sell directly within our application or send to any other address you like.'
+		},
+		{
+			idx: 3,
+			title: 'Secured',
+			description: 'Two-factor authentication gives you extra security against attackers.'
 		}
 	];
+	const size = 50;
 </script>
 
 <section class="bg-white py-10">
@@ -43,15 +44,28 @@
 			<div class="h-1 mx-auto gradient w-64 opacity-25 my-0 py-0 rounded-t" />
 		</div>
 
-		<div class="grid grid-cols-1 gap-3 lg:grid-cols-3 lg:text-center">
+		<div class="grid grid-cols-1 gap-3 lg:grid-cols-3 text-center">
 			{#each features as feature}
-				<Card class="p-3 flex flex-col h-full justify-between">
-					<CardTitle class="my-3 md:text-2xl">
-						<h1>{feature.title}</h1>
-					</CardTitle>
-					<CardContent>
-						<p class="md:text-xl">{feature.description}</p>
-					</CardContent>
+				<Card
+					class="flex gap-y-4 items-center rounded-xl shadow-md relative isolate md:-ml-8 lg:ml-0"
+				>
+					<div class="flex flex-shrink-0 mr-5 items-center justify-center p-3 relative left-6">
+						{#if feature.idx === 1}
+							<Workflow {size} />
+						{/if}
+						{#if feature.idx === 2}
+							<Waves {size} />
+						{/if}
+						{#if feature.idx === 3}
+							<Key {size} />
+						{/if}
+					</div>
+					<div class="relative w-full pl-8 pr-4 py-3 bg-bottom bg-no-repeat rounded-lg text-left">
+						<h3 class="text-xl md:text-2xl font-bold">
+							{feature.title}
+						</h3>
+						<p class="my-3 md:text-xl">{feature.description}</p>
+					</div>
 				</Card>
 			{/each}
 		</div>

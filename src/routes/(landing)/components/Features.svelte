@@ -5,12 +5,13 @@
 	const features = [
 		{
 			idx: 0,
-			headline: 'No time limits',
-			description: 'Pay off the loan when you want to: there are no time limits to repay.'
+			headline: 'No fixed time limits',
+			description:
+				'Pay off the loan when you want: provided your deposits stay above the liquidation threshold, there are no time limits to repay.'
 		},
 		{
 			idx: 1,
-			headline: 'Provably secure',
+			headline: 'Proven security',
 			description:
 				'Ambos is powered by some of the most robust lending platforms in the decentralised finance space - with over $6 Billion of assets secured.'
 		},
@@ -18,7 +19,7 @@
 			idx: 2,
 			headline: 'Your Money is yours',
 			description:
-				'Ambos never holds your money and never has access to it. If we disappear tomorrow, your money is still safe and still accessible by you.'
+				'Ambos never holds your money directly and never has access to it without your approval.'
 		},
 		{
 			idx: 3,
@@ -37,7 +38,7 @@
 		</h1>
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
 			<div class="p-5 h-full flex flex-col items-center justify-center">
-				<img src="features/MoneyOut.svg" alt="Your Money, Your Control" />
+				<img src="features/Control.svg" alt="Your Money, Your Control" />
 			</div>
 			<div class="w-full flex flex-col justify-evenly gap-5">
 				{#each features as feature}

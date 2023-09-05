@@ -10,11 +10,11 @@
 		<div
 			class="flex flex-col w-full lg:w-2/5 justify-center items-center lg:items-start text-center lg:text-left gap-5"
 		>
-			<h1 class="my-4 pt-10 lg:pt-0 text-4xl xl:text-5xl w-full font-bold leading-tight">
-				Save for tomorrow<br />Live for today
+			<h1 class="my-4 pt-10 lg:pt-0 text-5xl xl:text-6xl w-full font-bold leading-tight">
+				Invest for tomorrow.<br />Live for today.
 			</h1>
 			<p class="leading-normal text-center lg:text-left w-full text-xl lg:text-3xl mb-8">
-				Get cash without selling your crypto
+				Get cash without selling your crypto.
 			</p>
 			<Button
 				class="text-xl lg:text-2xl mx-0 sm:max-w-[66%] lg:mx-0 text-white lg:py-8 py-5"
@@ -23,7 +23,7 @@
 		</div>
 		<!--Right Col-->
 		<div class="w-full lg:w-3/5 py-6 md:px-20 my-10 text-center">
-			<img src="features/Treasure.svg" alt="Ambos Lets you get money out" />
+			<img src="features/Invest.svg" alt="Ambos Lets you get money out" />
 		</div>
 	</div>
 </div>

@@ -13,21 +13,21 @@
 	const yieldFeatures = [
 		{
 			title: 'Deposit ETH',
-			description: 'Deposit ETH using our simple, streamlined, non-custodial platform',
+			description: 'Deposit ETH using our simple, streamlined, non-custodial platform.',
 			icon: 1,
 			background: 'pink-500'
 		},
 		{
 			title: 'Borrow USD',
 			description:
-				'Borrow up to 50% of the value of that ETH, in stablecoins or a fiat currency of your choice',
+				'Borrow up to 50% of the value of that ETH, in stablecoins or a fiat currency of your choice.',
 			icon: 2,
 			background: 'blue-500'
 		},
 		{
 			title: 'Repay When You Want',
 			description:
-				'Later, simply pay off your loan at any time, and you keep the full value of your investments.',
+				'Later, simply pay off your loan + interest at any time, and you keep the full value of your investments.*',
 			icon: 3,
 			background: 'red-200'
 		}
@@ -54,5 +54,11 @@
 				</div>
 			</Card>
 		{/each}
+	</div>
+	<div class="mt-5">
+		<p class="italic text-sm text-center">
+			*Subject to minimum deposit balances and liqudations, see 'what are liqudidations' in the FAQ
+			below
+		</p>
 	</div>
 </section>

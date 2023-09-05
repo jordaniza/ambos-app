@@ -59,6 +59,4 @@
 		<CallToAction />
 	</div>
 	<FAQ />
-
-	<Footer />
 </div>

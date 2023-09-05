@@ -71,7 +71,7 @@
 		{
 			idx: 13,
 			Q: 'How am I secured without a private key?',
-			A: 'When you login with Ambos, behind the scenes a private key is created for you using the Particle Auth network, which automatically shards and secures the key across multiple devices. See https://docs.particle.network/overview/security for more info.'
+			A: 'When you login with Ambos, behind the scenes a private key is created for you using our Auth network, which automatically shards and secures the key across multiple devices.'
 		},
 		{
 			idx: 14,
