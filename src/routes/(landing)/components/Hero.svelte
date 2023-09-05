@@ -23,7 +23,7 @@
 		</div>
 		<!--Right Col-->
 		<div class="w-full lg:w-3/5 py-6 md:px-20 my-10 text-center">
-			<img src="features/Invest.svg" alt="Ambos Lets you get money out" />
+			<img src="features/InvestETH.svg" alt="Ambos Lets you get money out" />
 		</div>
 	</div>
 </div>
