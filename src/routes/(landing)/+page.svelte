@@ -19,10 +19,33 @@
 
 <svelte:head>
 	<title>Ambos Finance</title>
+
+	<!-- Meta tags for SEO -->
 	<meta
-		name="Get cash without selling your crypto"
+		name="description"
 		content="Ambos finance is an application that lets you easily borrow USD against the value of your ETH holdings and withdraw to a fiat currency of your choice. Unlock the cash value of your ETH without selling. Live your life today, while your investments grow for tomorrow."
 	/>
+	<meta name="keywords" content="Ambos, Finance, Crypto, USD, ETH, Borrow, Invest, Fiat" />
+
+	<!-- Social media sharing -->
+	<meta property="og:title" content="Ambos Finance" />
+	<meta property="og:description" content="Unlock the cash value of your ETH without selling." />
+	<meta property="og:image" content="semicircle.png" />
+	<meta property="og:url" content="ambos.finance" />
+
+	<!-- Twitter specific meta tags -->
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="Ambos Finance" />
+	<meta name="twitter:description" content="Unlock the cash value of your ETH without selling." />
+	<meta name="twitter:image" content="semicircle.png" />
+
+	<!-- Analytics -->
+	<!-- Analytics -->
+	<script
+		async
+		src="https://analytics.umami.is/script.js"
+		data-website-id="e8b6a1b3-ed99-4185-843b-5e6651495eab"
+	></script>
 </svelte:head>
 
 <div
