@@ -2,7 +2,6 @@
 	import { APP_NAME } from '$lib/constants';
 	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
 	import type { EthereumAddress } from '$lib/utils';
-	import { accountStore } from '$stores/account';
 	import { ChainId } from '@biconomy/core-types';
 	import PersonIcon from 'svelte-icons/io/IoMdPerson.svelte';
 	import ClipboardCopyIcon from 'svelte-icons/io/IoMdClipboard.svelte';
@@ -13,10 +12,13 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import { cn } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 
+	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
 	let isCopied = false;
-	let chainId = ChainId.POLYGON_MUMBAI;
 
+	$: chainId = $web3Store.chainId ?? 1;
 	$: address = $accountStore?.address;
 	const truncateAddress = (address?: EthereumAddress) => {
 		if (!address) return 'Address goes here...';
@@ -61,10 +63,7 @@
 						<code class="font-mono ml-2">
 							{truncatedAddress}
 						</code>
-						<Button
-						variant="ghost"
-                    on:click={() => handleCopyClick(address)}
-						>
+						<Button variant="ghost" on:click={() => handleCopyClick(address)}>
 							<div class="h-8 w-8 mr-2">
 								<ClipboardCopyIcon class="w-8 h-8 mr-2" />
 							</div>

@@ -13,17 +13,20 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import AvatarPopover from './profile/avatarPopover.svelte';
 	import { page } from '$app/stores';
-	import { accountStore, connect, disconnect } from '$stores/account';
-	import { ChainId } from '@biconomy/core-types';
+	import { connect, disconnect } from '$stores/account';
 
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 
-	const chainId = ChainId.POLYGON_MUMBAI;
-	
-  $: address = $accountStore?.address;
+	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
+
+	$: chainId = $web3Store.chainId;
+	$: address = $accountStore?.address;
 	$: selected = $page.url.pathname;
-	
-  async function login() {
+
+	async function login() {
 		try {
+			if (!chainId) throw new Error('No chainId');
 			await connect(chainId);
 		} catch (error) {
 			console.log('Attempted Login Error: ', error);
@@ -31,9 +34,10 @@
 	}
 
 	async function logout(): Promise<void> {
+		if (!chainId) throw new Error('No chainId');
 		await disconnect(chainId);
-    // reload the page
-    window.location.reload();
+		// reload the page
+		window.location.reload();
 	}
 </script>
 
@@ -59,8 +63,9 @@
 								</div>
 								<a
 									href={ROUTES.DASHBOARD}
-									class={`ml-2 text-md w-full text-left ${selected === ROUTES.DASHBOARD ? 'underline' : ''} `}
-									>Dashboard</a
+									class={`ml-2 text-md w-full text-left ${
+										selected === ROUTES.DASHBOARD ? 'underline' : ''
+									} `}>Dashboard</a
 								>
 							</Button>
 						</li>
@@ -77,8 +82,9 @@
 								</div>
 								<a
 									href={ROUTES.MY_LOANS}
-									class={`ml-2 text-md w-full text-left ${selected === ROUTES.MY_LOANS ? 'underline' : ''} `}
-									>My Loans</a
+									class={`ml-2 text-md w-full text-left ${
+										selected === ROUTES.MY_LOANS ? 'underline' : ''
+									} `}>My Loans</a
 								>
 							</Button>
 						</li>
@@ -95,8 +101,9 @@
 								</div>
 								<a
 									href={ROUTES.WALLET}
-									class={`ml-2 text-md bold w-full text-left ${selected === ROUTES.WALLET ? 'underline' : ''} `}
-									>Wallet</a
+									class={`ml-2 text-md bold w-full text-left ${
+										selected === ROUTES.WALLET ? 'underline' : ''
+									} `}>Wallet</a
 								>
 							</Button>
 						</li>
@@ -105,14 +112,16 @@
 				<section class="flex flex-col">
 					<Separator class="my-5" />
 					<div class="flex justify-between w-full items-center">
-						<Button variant="ghost" class="text-xl w-full text-center" on:click={logout}>Logout</Button>
+						<Button variant="ghost" class="text-xl w-full text-center" on:click={logout}
+							>Logout</Button
+						>
 					</div>
 				</section>
 			</SheetContent>
 		</Sheet>
 	</div>
 	<h1 class="md:text-2xl">
-		{APP_NAME}  
+		{APP_NAME}
 	</h1>
 	<div class="flex items-center">
 		{#if address}

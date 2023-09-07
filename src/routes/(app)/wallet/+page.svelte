@@ -8,26 +8,24 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { APP_NAME, ROUTES } from '$lib/constants';
+	import { getWeb3Store } from '$lib/context/getStores';
 
 	import ETH from '$lib/eth.svelte';
 	import USDC from '$lib/usdc.svelte';
-	import { cn } from '$lib/utils';
-	import { web3Store } from '$stores/web3';
+	import { cn, f } from '$lib/utils';
 
-	const { format } = new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency: 'USD'
-	});
+	let web3Store = getWeb3Store();
 
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 	$: ethBalanceUSD = ethBalance * ethPrice;
+	$: isTestnet = $web3Store.isTestnet;
 
 	let theme = 'dark';
 </script>
 
-<section class="p-4 grid grid-cols-1  gap-4">
+<section class="p-4 grid grid-cols-1 gap-4">
 	<Card class={cn('w-full')}>
 		<CardHeader>
 			<CardTitle>Your Wallet</CardTitle>
@@ -62,7 +60,7 @@
 					<p class="text-md leading-none mb-2">Balance</p>
 					<div class="flex items-center space-x-4">
 						<p class="text-xl font-bold">{ethBalance} ETH</p>
-						<p class="text-xl">({format(ethBalanceUSD)})</p>
+						<p class="text-xl">({f(ethBalanceUSD)})</p>
 					</div>
 				</div>
 			</section>
@@ -71,7 +69,7 @@
 		<CardFooter>
 			<Button disabled class="w-1/2 mr-1">Buy (Soon)</Button>
 			<Button class="w-1/2 ml-1" variant="secondary">
-				<a href={ROUTES.PROFILE}>Send/Receive</a>
+				<a href={isTestnet ? ROUTES.FAUCET : ROUTES.PROFILE}>Get ETH</a>
 			</Button>
 		</CardFooter>
 	</Card>
@@ -94,7 +92,7 @@
 				</p>
 				<div class="flex flex-col mt-5">
 					<p class="text-md leading-none mb-2">Balance</p>
-					<p class="text-xl font-bold">{format(usdcBalance)}</p>
+					<p class="text-xl font-bold">{f(usdcBalance)}</p>
 				</div>
 			</section>
 		</CardContent>

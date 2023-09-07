@@ -2,6 +2,7 @@ import type { ChainId } from '@biconomy/core-types';
 import { ParticleAuthModule, ParticleProvider } from '@biconomy/particle-auth';
 import { providers } from 'ethers';
 import * as process from '$env/static/public';
+import { particleChainNames } from './particleChainNames';
 export type ParticleUserInfo = ParticleAuthModule.UserInfo;
 
 export const initParticle = (chainId: ChainId) => {
@@ -12,14 +13,17 @@ export const initParticle = (chainId: ChainId) => {
 	if (!projectId || !clientKey || !appId) {
 		throw new Error('Missing environment variables for Particle provider');
 	}
-	console.warn('Network is hardcoded to Polygon');
+	const chainName = particleChainNames[chainId];
+	if (!chainName) {
+		throw new Error('Missing chainName for Particle provider');
+	}
+
 	return new ParticleAuthModule.ParticleNetwork({
 		projectId,
 		clientKey,
 		appId,
 		chainId,
-		// IMPORTANT: THIS ALSO NEEDS TO BE SET SOMEWHERE
-		chainName: 'polygon',
+		chainName,
 		wallet: {
 			displayWalletEntry: true,
 			supportChains: [

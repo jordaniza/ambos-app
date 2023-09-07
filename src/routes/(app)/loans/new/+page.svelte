@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { txStoreFull, type TXStateFull } from '$stores/transactions/state';
-	import { accountStore } from '$stores/account';
+	import type { TXStateFull } from '$stores/transactions/state';
 	import { BN, cn, f } from '$lib/utils';
-	import { web3Store } from '$stores/web3';
 	import { getCashNow } from '$stores/transactions/batchActions';
 	import { InterestRateMode } from '$stores/web3/getPoolData';
 	import { ethers } from 'ethers';
@@ -28,20 +26,24 @@
 		AlertDialogFooter,
 		AlertDialogHeader,
 		AlertDialogContent,
-		AlertDialogDescription,
 		AlertDialogTitle,
 		AlertDialogTrigger
 	} from '$lib/components/ui/alert-dialog';
+	import { getAccountStore, getTxFullStore, getWeb3Store } from '$lib/context/getStores';
 
 	// local variables
 	const MAX_PERCENT_BORROW = 0.5; // 50% of the deposit
 	let valueDepositUSD = 0;
 	let valueBorrowUSD = 0;
-	const chainId = ChainId.POLYGON_MUMBAI;
 	let warnDeposit = false;
 	let warnBorrow = false;
 
+	let txStoreFull = getTxFullStore();
+	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
+
 	// reactive variables
+	$: chainId = $web3Store.chainId ?? 1;
 	$: state = $txStoreFull['INCREASE_DEBT']?.state;
 	$: address = $accountStore?.address;
 	$: provider = $accountStore?.provider;
@@ -54,6 +56,8 @@
 
 	$: maxDepositUSD = (wethBalance?.small ?? 0) * (ethPrice.small ?? 0);
 	$: maxBorrowUSD = valueDepositUSD * MAX_PERCENT_BORROW;
+
+	$: blockExplorer = BLOCK_EXPLORER_URLS[chainId];
 
 	// watchers
 	$: if (state !== undefined) {
@@ -147,9 +151,13 @@
 			<section class="pt-5 pb-10 flex flex-col gap-10">
 				<div class="grid w-full max-w-sm items-center gap-1.5">
 					<Label for="supply" class="md:text-xl">How much do you want to supply in USD?</Label>
-					<p class="italic text-sm md:text-lg">Max {f(maxDepositUSD)} ({wethBalance?.small ?? 0} ETH)</p>
+					<p class="italic text-sm md:text-lg">
+						Max {f(maxDepositUSD)} ({wethBalance?.small ?? 0} ETH)
+					</p>
 					{#if warnDeposit}
-						<p class="text-red-500 text-sm md:text-lg">You can only supply up to {f(maxDepositUSD)}</p>
+						<p class="text-red-500 text-sm md:text-lg">
+							You can only supply up to {f(maxDepositUSD)}
+						</p>
 					{/if}
 					<div class="flex gap-1">
 						<Input
@@ -170,7 +178,9 @@
 					<Label for="borrow" class="md:text-xl">How much do you want to borrow in USD?</Label>
 					<p class="italic text-sm md:text-lg">Max {f(maxBorrowUSD)}</p>
 					{#if warnBorrow}
-						<p class="text-red-500 text-sm md:text-lg">You can only borrow up to {f(maxBorrowUSD)}</p>
+						<p class="text-red-500 text-sm md:text-lg">
+							You can only borrow up to {f(maxBorrowUSD)}
+						</p>
 					{/if}
 					<div class="flex gap-1">
 						<Input
@@ -212,7 +222,9 @@
 						<section class="p-4 flex flex-col gap-5 rounded border border-gray-300 my-3">
 							<div class="flex justify-between items-center">
 								<span class="md:text-xl font-bold">Depositing</span>
-								<span class="md:text-xl font-semibold">{f(valueDepositUSD)} ({valueDepositETH} ETH)</span>
+								<span class="md:text-xl font-semibold"
+									>{f(valueDepositUSD)} ({valueDepositETH} ETH)</span
+								>
 							</div>
 							<div class="flex justify-between items-center">
 								<span class="md:text-xl font-bold">Borrowing</span>
@@ -241,7 +253,7 @@
 						<dd>State: {state}</dd>
 						{#if hash}
 							<a
-								href={`${BLOCK_EXPLORER_URLS[chainId]}/tx/${hash}`}
+								href={`${blockExplorer}/tx/${hash}`}
 								target="_blank"
 								class="text-blue-500 underline">View Transaction</a
 							>

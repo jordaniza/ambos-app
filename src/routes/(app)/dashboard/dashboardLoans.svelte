@@ -8,13 +8,14 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ROUTES } from '$lib/constants';
-	import { cn, f } from '$lib/utils';
-  import { web3Store } from '$stores/web3';
+	import { getWeb3Store } from '$lib/context/getStores';
+	import { f } from '$lib/utils';
 
-  $: owedUSD =  $web3Store.userPoolData?.totalDebtBase.small ?? 0;
-  $: collateralValueUSD = $web3Store.userPoolData?.totalCollateralBase.small ?? 0;
-  $: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0; 
+	const web3Store = getWeb3Store();
 
+	$: owedUSD = $web3Store.userPoolData?.totalDebtBase.small ?? 0;
+	$: collateralValueUSD = $web3Store.userPoolData?.totalCollateralBase.small ?? 0;
+	$: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0;
 </script>
 
 <Card class="w-full">

@@ -8,8 +8,10 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { cn, f } from '$lib/utils';
-	import { web3Store } from '$stores/web3';
 	import { ROUTES } from '$lib/constants';
+	import { getWeb3Store } from '$lib/context/getStores';
+
+	const web3Store = getWeb3Store();
 
 	$: owed = $web3Store.userPoolData?.totalDebtBase.small ?? 0;
 	$: availableToBorrow = $web3Store.userPoolData?.availableBorrowBase.small ?? 0;
@@ -19,23 +21,23 @@
 <Card class={cn('w-full')}>
 	<CardHeader>
 		<CardTitle>
-      <h1 class="md:text-2xl">Loans</h1>
-    </CardTitle>
+			<h1 class="md:text-2xl">Loans</h1>
+		</CardTitle>
 		<CardDescription>
-      <p class="md:text-xl">
-			This is the total amount you need to repay in USDC to unlock and reclaim your ETH. It is the
-			original amount in USD, plus accumulated interest.
-      </p>
+			<p class="md:text-xl">
+				This is the total amount you need to repay in USDC to unlock and reclaim your ETH. It is the
+				original amount in USD, plus accumulated interest.
+			</p>
 		</CardDescription>
 	</CardHeader>
 	<CardContent>
 		<ul class="list-disc list-inside">
 			<li class="flex justify-between">
-				<div class="md:text-xl" >Total Borrowed</div>
+				<div class="md:text-xl">Total Borrowed</div>
 				<div class="md:text-xl">{f(owed)}</div>
 			</li>
 			<li class="flex justify-between md:my-5">
-				<div class="md:text-xl" >Available To Borrow</div>
+				<div class="md:text-xl">Available To Borrow</div>
 				<div class="md:text-xl">{f(availableToBorrow)}</div>
 			</li>
 			<li class="flex justify-between">

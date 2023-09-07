@@ -7,9 +7,11 @@
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { getWeb3Store } from '$lib/context/getStores';
 	import { cn, f } from '$lib/utils';
-	import { web3Store } from '$stores/web3';
 	import SafetyBadge from './safetyBadge.svelte';
+
+	let web3Store = getWeb3Store();
 
 	$: aWethBalance = $web3Store.balances['aWETH'].small ?? 0;
 	$: etherPrice = $web3Store.ethPrice.small ?? 0;

@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 
-	// setup the login button
-	import { accountStore } from '$stores/account';
-	import { web3Store } from '$stores/web3';
+	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
 
 	$: tableArr = Object.entries($web3Store.balances).map(([id, balance]) => {
 		return {
@@ -11,8 +11,8 @@
 			lastUpdated: balance.lastUpdatedBlock
 		};
 	});
-
 </script>
+
 <div class="table-container">
 	<!-- Native Table Element -->
 	<table class="table table-hover">
