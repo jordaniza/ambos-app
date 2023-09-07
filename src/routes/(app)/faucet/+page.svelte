@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
-	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { BN, cn, f } from '$lib/utils';
 	import { requestWETHFromTestnetFaucet } from '$stores/transactions/actions';
 	import { FlaskConical } from 'lucide-svelte';
@@ -13,6 +13,7 @@
 
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();
+	let txStore = getTxStore();
 
 	$: isTestnet = $web3Store.isTestnet;
 	$: provider = $accountStore.provider;
@@ -30,7 +31,7 @@
 		}
 
 		try {
-			await requestWETHFromTestnetFaucet(BN(10), provider, address, smartAccount);
+			await requestWETHFromTestnetFaucet(txStore, BN(10), provider, address, smartAccount);
 		} catch (e) {
 			console.error('ERROR WITH REQUESTING FUNDS', e);
 		}

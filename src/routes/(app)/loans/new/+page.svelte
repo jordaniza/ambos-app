@@ -1,11 +1,10 @@
 <script lang="ts">
-	import type { TXStateFull } from '$stores/transactions/state';
+	import { getLatestTransactionOfType, type TXState } from '$stores/transactions/state';
 	import { BN, cn, f } from '$lib/utils';
 	import { getCashNow } from '$stores/transactions/batchActions';
 	import { InterestRateMode } from '$stores/web3/getPoolData';
 	import { ethers } from 'ethers';
 	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
-	import { ChainId } from '@biconomy/core-types';
 
 	import { toast } from 'svelte-sonner';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -29,7 +28,7 @@
 		AlertDialogTitle,
 		AlertDialogTrigger
 	} from '$lib/components/ui/alert-dialog';
-	import { getAccountStore, getTxFullStore, getWeb3Store } from '$lib/context/getStores';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 
 	// local variables
 	const MAX_PERCENT_BORROW = 0.5; // 50% of the deposit
@@ -38,17 +37,18 @@
 	let warnDeposit = false;
 	let warnBorrow = false;
 
-	let txStoreFull = getTxFullStore();
+	let txStore = getTxStore();
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 
 	// reactive variables
 	$: chainId = $web3Store.chainId ?? 1;
-	$: state = $txStoreFull['INCREASE_DEBT']?.state;
+	$: transaction = getLatestTransactionOfType(txStore, 'INCREASE_DEBT');
+	$: state = transaction?.state;
 	$: address = $accountStore?.address;
 	$: provider = $accountStore?.provider;
 	$: smartAccount = $accountStore?.smartAccount;
-	$: hash = $txStoreFull['INCREASE_DEBT']?.receiptHash;
+	$: hash = transaction?.finalTxHash;
 
 	$: wethBalance = $web3Store.balances['WETH'];
 	$: ethPrice = $web3Store.ethPrice;
@@ -83,7 +83,7 @@
 		}, 5000);
 	}
 
-	function updateMessage(state: TXStateFull): [string, boolean] {
+	function updateMessage(state: TXState): [string, boolean] {
 		switch (state) {
 			case 'STARTED':
 				return ['Started a new loan.', false];

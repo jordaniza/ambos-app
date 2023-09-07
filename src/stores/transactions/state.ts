@@ -1,7 +1,10 @@
-import { derived, writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
+import { v4 as uuid } from 'uuid';
+
+export type UUID = string;
 
 /// fine grained for specific components
-export const TX_STATES_FULL = [
+export const TX_STATES = [
 	'STARTED',
 	'SIGNING',
 	'SIGNED',
@@ -11,27 +14,15 @@ export const TX_STATES_FULL = [
 	'FAILED'
 ] as const;
 
-export type TXStateFull = (typeof TX_STATES_FULL)[number];
+export type TXState = (typeof TX_STATES)[number];
 
 /// most components will use these
 
-export type TXState = 'PENDING' | 'FULFILLED' | 'REJECTED';
-export const TX_STATES: Record<TXState, readonly TXStateFull[]> = {
+export type TXStateGroup = 'PENDING' | 'FULFILLED' | 'REJECTED';
+export const TX_STATES_SUMMARY: Record<TXStateGroup, readonly TXState[]> = {
 	PENDING: ['STARTED', 'SIGNING', 'SIGNED', 'CONFIRMED'],
 	FULFILLED: ['SUCCESSFUL'],
 	REJECTED: ['REJECTED', 'FAILED']
-};
-
-type TXDetailFull = {
-	state: TXStateFull;
-	responseHash: `0x${string}` | null;
-	receiptHash: `0x${string}` | null;
-};
-
-type TXDetail = {
-	state: TXState;
-	responseHash: `0x${string}` | null;
-	receiptHash: `0x${string}` | null;
 };
 
 export const SUPPORTED_SINGLE_TRANSACTIONS = [
@@ -86,111 +77,98 @@ const SUPPORTED_TRANSACTIONS = [
 ] as const;
 
 export type SupportedTransaction = SupportedSingleTransaction | SupportedBatchTransaction;
-
-export type TransactionStore = {
-	[key in (typeof SUPPORTED_TRANSACTIONS)[number]]?: TXDetailFull;
+type TXDetail = {
+	state: TXState;
+	error: string | null;
+	seen: boolean;
+	sponsored: boolean | null;
+	createdOn: number;
+	updatedOn: number;
+	txType: SupportedTransaction;
+	finalTxHash: `0x${string}` | null;
+	// sponsored only
+	userOpReceiptHash: `0x${string}` | null;
+	// not sponsored only
+	txReceiptHash: `0x${string}` | null;
 };
 
-export type TransactionStoreDerived = {
-	[key in (typeof SUPPORTED_TRANSACTIONS)[number]]?: TXDetail;
+export type TransactionStore = {
+	[id: UUID]: TXDetail;
 };
 
 export function isValidTransactionType(type: string): boolean {
 	return SUPPORTED_TRANSACTIONS.includes(type as any);
 }
 
-export const txStoreFull = writable<TransactionStore>({});
+export function exists(store: TxStore, key: string): boolean {
+	let hasKey = false;
+	store.subscribe((s) => {
+		hasKey = s.hasOwnProperty(key);
+	})();
+	return hasKey;
+}
 
-export const txStore = derived(txStoreFull, ($txStoreFull) => {
-	const derivedTxStore = {} as Record<SupportedTransaction, TXDetail>;
+export const txStore = writable<TransactionStore>({});
+export type TxStore = typeof txStore;
 
-	Object.keys($txStoreFull).forEach((transactionType) => {
-		const transactionDetail = $txStoreFull[transactionType as SupportedTransaction];
-
-		if (!transactionDetail) {
-			return;
-		}
-
-		const state: TXStateFull = transactionDetail.state as unknown as TXStateFull;
-
-		if (!TX_STATES_FULL.includes(state)) {
-			throw new Error(`Invalid transaction state: ${state}`);
-		}
-
-		const txType = transactionType as SupportedTransaction;
-
-		if (TX_STATES.PENDING.includes(state)) {
-			derivedTxStore[txType] = {
-				...transactionDetail,
-				state: 'PENDING'
-			};
-		} else if (TX_STATES.FULFILLED.includes(state)) {
-			derivedTxStore[txType] = {
-				...transactionDetail,
-				state: 'FULFILLED'
-			};
-		} else if (TX_STATES.REJECTED.includes(state)) {
-			derivedTxStore[txType] = {
-				...transactionDetail,
-				state: 'REJECTED'
-			};
-		} else {
-			console.error('unhandled transaction state');
-			return;
-		}
-	});
-
-	return derivedTxStore;
-});
-
-/// NOTE: we use SupportedSingleTransaction instead of SupportedTransaction
-/// because typescript infers the union type as string | string[] instead of
-/// the list of consts.
-
-export function setNewTransaction(type: string): void {
+export function setNewTransaction(store: TxStore, type: string): UUID {
 	if (!isValidTransactionType(type)) {
 		throw new Error(`Invalid transaction type: ${type}`);
 	}
-	txStoreFull.update((store) => {
-		store[type as SupportedTransaction] = {
-			responseHash: null,
+	console.log({ store });
+	const id = uuid();
+	store.update((s) => {
+		s[id] = {
+			error: null,
+			finalTxHash: null,
+			seen: false,
+			createdOn: Date.now(),
+			updatedOn: Date.now(),
+			sponsored: null,
+			txType: type as SupportedTransaction,
+			txReceiptHash: null,
 			state: 'STARTED',
-			receiptHash: null
+			userOpReceiptHash: null
 		};
-		return { ...store };
+		return { ...s };
+	});
+	return id;
+}
+
+export function updateTransaction(store: TxStore, id: UUID, detail: Partial<TXDetail>): void {
+	if (!exists(txStore, id)) {
+		throw new Error(`Transaction ${id} does not exist`);
+	}
+
+	if (detail.txType && !isValidTransactionType(detail.txType)) {
+		throw new Error(`Invalid transaction type: ${detail.txType}`);
+	}
+	store.update((s) => {
+		s[id] = {
+			...s[id],
+			...detail
+		};
+		return s;
 	});
 }
 
-// Updating txStoreFull
-export function updateTransaction(type: string, detail: TXDetailFull): void {
+// Retrieve transactions of a given type from txStore
+export function getTransactionsOfType(store: TxStore, type: string): TXDetail[] {
 	if (!isValidTransactionType(type)) {
 		throw new Error(`Invalid transaction type: ${type}`);
 	}
-	txStoreFull.update((store) => {
-		store[type as SupportedTransaction] = detail;
-		return { ...store };
-	});
+	const s = get(store);
+	return Object.values(s).filter((tx) => tx.txType === type);
 }
 
-// Retrieve a specific transaction from txStoreFull
-export function getTransactionFull(type: string): TXDetailFull | undefined {
-	if (!isValidTransactionType(type)) {
-		throw new Error(`Invalid transaction type: ${type}`);
+// Retrieve the latest transaction of a given type from txStore
+export function getLatestTransactionOfType(store: TxStore, type: string): TXDetail | undefined {
+	const allTransactions = getTransactionsOfType(store, type);
+	let latestTransaction: TXDetail | undefined;
+	if (allTransactions.length) {
+		// Sort transactions by createdOn in descending order to get the latest transaction
+		allTransactions.sort((a, b) => b.createdOn - a.createdOn);
+		latestTransaction = allTransactions[0];
 	}
-	let transaction: TXDetailFull | undefined;
-	txStoreFull.subscribe(($store) => {
-		transaction = $store[type as SupportedTransaction];
-	})();
-	return transaction;
-}
-
-export function getTransaction(type: string): TXDetail | undefined {
-	if (!isValidTransactionType(type)) {
-		throw new Error(`Invalid transaction type: ${type}`);
-	}
-	let transaction: TXDetail | undefined;
-	txStore.subscribe(($store) => {
-		transaction = $store[type as SupportedTransaction];
-	})();
-	return transaction;
+	return latestTransaction;
 }

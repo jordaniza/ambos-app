@@ -13,8 +13,8 @@
 	import { accountStore as _accountStore } from '$stores/account';
 	import { setContext } from 'svelte';
 	import { web3Store as _web3Store } from '$stores/web3';
-	import { txStore, txStoreFull } from '$stores/transactions/state';
-	import { ACCOUNT_KEY, TX_KEY, TX_KEY_FULL, WEB3_KEY } from '$lib/context/getStores';
+	import { txStore } from '$stores/transactions/state';
+	import { ACCOUNT_KEY, TX_KEY, WEB3_KEY } from '$lib/context/getStores';
 	import { setChainId } from '$stores/web3/actions';
 
 	/**
@@ -31,7 +31,6 @@
 	setContext(WEB3_KEY, _web3Store);
 	setContext(ACCOUNT_KEY, _accountStore);
 	setContext(TX_KEY, txStore);
-	setContext(TX_KEY_FULL, txStoreFull);
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
