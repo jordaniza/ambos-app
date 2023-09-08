@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { v4 as uuid } from 'uuid';
 
 export type UUID = string;
@@ -8,19 +8,16 @@ export const TX_STATES = [
 	'STARTED',
 	'SIGNING',
 	'SIGNED',
-	'CONFIRMED',
 	'REJECTED',
 	'SUCCESSFUL',
 	'FAILED'
 ] as const;
 
 export type TXState = (typeof TX_STATES)[number];
-
-/// most components will use these
-
 export type TXStateGroup = 'PENDING' | 'FULFILLED' | 'REJECTED';
+
 export const TX_STATES_SUMMARY: Record<TXStateGroup, readonly TXState[]> = {
-	PENDING: ['STARTED', 'SIGNING', 'SIGNED', 'CONFIRMED'],
+	PENDING: ['STARTED', 'SIGNING', 'SIGNED'],
 	FULFILLED: ['SUCCESSFUL'],
 	REJECTED: ['REJECTED', 'FAILED']
 };
@@ -60,7 +57,6 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 ] as const;
 
 export type SupportedSingleTransaction = (typeof SUPPORTED_SINGLE_TRANSACTIONS)[number];
-
 export type SupportedBatchTransaction = 'INCREASE_DEBT' | 'DECREASE_DEBT';
 
 export const SUPPORTED_BATCH_TRANSACTIONS: Record<
@@ -77,9 +73,10 @@ const SUPPORTED_TRANSACTIONS = [
 ] as const;
 
 export type SupportedTransaction = SupportedSingleTransaction | SupportedBatchTransaction;
-type TXDetail = {
+export type TXDetail = {
 	state: TXState;
 	error: string | null;
+	notes: string | null;
 	seen: boolean;
 	sponsored: boolean | null;
 	createdOn: number;
@@ -93,7 +90,10 @@ type TXDetail = {
 };
 
 export type TransactionStore = {
-	[id: UUID]: TXDetail;
+	transactions: {
+		[id: UUID]: TXDetail;
+	};
+	txCounter: number;
 };
 
 export function isValidTransactionType(type: string): boolean {
@@ -103,22 +103,25 @@ export function isValidTransactionType(type: string): boolean {
 export function exists(store: TxStore, key: string): boolean {
 	let hasKey = false;
 	store.subscribe((s) => {
-		hasKey = s.hasOwnProperty(key);
+		hasKey = s.transactions.hasOwnProperty(key);
 	})();
 	return hasKey;
 }
 
-export const txStore = writable<TransactionStore>({});
+export const txStore = writable<TransactionStore>({
+	transactions: {},
+	txCounter: 0
+});
 export type TxStore = typeof txStore;
 
 export function setNewTransaction(store: TxStore, type: string): UUID {
 	if (!isValidTransactionType(type)) {
 		throw new Error(`Invalid transaction type: ${type}`);
 	}
-	console.log({ store });
 	const id = uuid();
 	store.update((s) => {
-		s[id] = {
+		s.transactions[id] = {
+			notes: null,
 			error: null,
 			finalTxHash: null,
 			seen: false,
@@ -144,25 +147,29 @@ export function updateTransaction(store: TxStore, id: UUID, detail: Partial<TXDe
 		throw new Error(`Invalid transaction type: ${detail.txType}`);
 	}
 	store.update((s) => {
-		s[id] = {
-			...s[id],
-			...detail
+		s.transactions[id] = {
+			...s.transactions[id],
+			...detail,
+			updatedOn: Date.now()
 		};
 		return s;
 	});
 }
 
 // Retrieve transactions of a given type from txStore
-export function getTransactionsOfType(store: TxStore, type: string): TXDetail[] {
+export function getTransactionsOfType(store: TransactionStore, type: string): TXDetail[] {
 	if (!isValidTransactionType(type)) {
 		throw new Error(`Invalid transaction type: ${type}`);
 	}
-	const s = get(store);
-	return Object.values(s).filter((tx) => tx.txType === type);
+	return Object.values(store.transactions).filter((tx) => tx.txType === type);
 }
 
 // Retrieve the latest transaction of a given type from txStore
-export function getLatestTransactionOfType(store: TxStore, type: string): TXDetail | undefined {
+export function getLatestTransactionOfType(
+	store: TransactionStore,
+	type: SupportedTransaction
+): TXDetail | undefined {
+	if (!store.transactions) return;
 	const allTransactions = getTransactionsOfType(store, type);
 	let latestTransaction: TXDetail | undefined;
 	if (allTransactions.length) {
@@ -171,4 +178,43 @@ export function getLatestTransactionOfType(store: TxStore, type: string): TXDeta
 		latestTransaction = allTransactions[0];
 	}
 	return latestTransaction;
+}
+
+export function writeTransactionsToLocalStorage(store: TransactionStore) {
+	try {
+		const serializedData = JSON.stringify(store.transactions);
+		localStorage.setItem('transactions', serializedData);
+	} catch (error) {
+		console.error('Could not write to local storage:', error);
+	}
+}
+
+export function readTransactionsFromLocalStorage() {
+	try {
+		const serializedData = localStorage.getItem('transactions');
+		if (serializedData === null) {
+			return undefined;
+		}
+		return JSON.parse(serializedData);
+	} catch (error) {
+		console.error('Could not read from local storage:', error);
+		return undefined;
+	}
+}
+
+export function setTxToSeen(store: TxStore, id: UUID) {
+	updateTransaction(store, id, { seen: true });
+}
+
+export function setAllTxToSeen(store: TxStore) {
+	Object.keys(get(store)).forEach((id) => {
+		setTxToSeen(store, id);
+	});
+}
+
+export function increaseTxCounter(store: TxStore) {
+	store.update((s) => {
+		s.txCounter++;
+		return s;
+	});
 }

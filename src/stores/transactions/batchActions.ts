@@ -5,9 +5,10 @@ import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
 import { batchSponsoredTx } from './sponsored';
-import { setNewTransaction, updateTransaction } from './state';
+import { setNewTransaction, updateTransaction, type TxStore } from './state';
 
 export async function getCashNow(
+	store: TxStore,
 	borrower: EthereumAddress,
 	amountInWeth: ethers.BigNumber,
 	amountOutUsdc: ethers.BigNumber,
@@ -16,7 +17,7 @@ export async function getCashNow(
 	smartAccount: BiconomySmartAccount
 ) {
 	const transactionType = 'INCREASE_DEBT';
-	setNewTransaction(transactionType);
+	const id = setNewTransaction(store, transactionType);
 
 	const promiseWeth = getTokenAddress(provider, 'WETH');
 	const promisePool = getAavePool(provider);
@@ -36,10 +37,8 @@ export async function getCashNow(
 		borrower
 	);
 
-	updateTransaction(transactionType, {
-		finalTxHash: null,
-		state: 'SIGNING',
-		userOpReceiptHash: null
+	updateTransaction(store, id, {
+		state: 'SIGNING'
 	});
 
 	const tx0 = { to: wethAddr, data: data0.data };
@@ -47,5 +46,5 @@ export async function getCashNow(
 	const tx2 = { to: poolAddr, data: data2.data };
 
 	// create the batch
-	await batchSponsoredTx([tx0, tx1, tx2], smartAccount, 'INCREASE_DEBT');
+	await batchSponsoredTx(store, id, [tx0, tx1, tx2], smartAccount);
 }

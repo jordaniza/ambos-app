@@ -15,6 +15,7 @@ import {
 import { sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES } from '$lib/contracts';
+import { get } from 'svelte/store';
 
 /**
  * Basic handler for sponsored transactions
@@ -36,6 +37,9 @@ async function handleSponsoredTransaction(
 ): Promise<void> {
 	const id = setNewTransaction(store, transactionType);
 	const { contractAddress, data } = await transactionBuilder(provider, id);
+	const { transactions } = get(store);
+	console.log(' HERE', transactions);
+
 	updateTransaction(store, id, {
 		state: 'SIGNING'
 	});

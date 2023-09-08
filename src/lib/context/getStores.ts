@@ -1,5 +1,5 @@
 import type { SmartAccountStore } from '$stores/account';
-import type { TransactionStore } from '$stores/transactions/state';
+import type { TransactionStore, TxStore } from '$stores/transactions/state';
 import type { Web3Store } from '$stores/web3';
 import { getContext } from 'svelte';
 import type { Writable } from 'svelte/store';

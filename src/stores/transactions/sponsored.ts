@@ -6,7 +6,7 @@ import {
 } from '@biconomy/paymaster';
 import type { PopulatedTransaction } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
-import { updateTransaction, type UUID, type TxStore } from './state';
+import { updateTransaction, type UUID, type TxStore, increaseTxCounter } from './state';
 
 export async function sponsoredTx(
 	store: TxStore,
@@ -26,42 +26,33 @@ export async function sponsoredTx(
 		const paymasterAndDataResponse = await paymaster.getPaymasterAndData(userOp, {
 			mode: PaymasterMode.SPONSORED
 		});
-		updateTransaction(store, id, {
-			finalTxHash: null,
-			state: 'SIGNED',
-			userOpReceiptHash: null
-		});
-
 		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
-
 		const userOpResponse = await smartAccount.sendUserOp(userOp);
 
 		updateTransaction(store, id, {
-			finalTxHash: userOpResponse.userOpHash as `0x${string}`,
-			state: 'CONFIRMED',
-			userOpReceiptHash: null
+			userOpReceiptHash: userOpResponse.userOpHash as `0x${string}`,
+			state: 'SIGNED',
+			sponsored: true
 		});
 
 		const { receipt } = await userOpResponse.wait(1);
 		if (receipt.status === 0) {
 			updateTransaction(store, id, {
-				finalTxHash: userOpResponse.userOpHash as `0x${string}`,
-				state: 'REJECTED',
-				userOpReceiptHash: null
+				finalTxHash: receipt.transactionHash as `0x${string}`,
+				state: 'REJECTED'
 			});
 		} else {
+			increaseTxCounter(store);
 			updateTransaction(store, id, {
-				finalTxHash: userOpResponse.userOpHash as `0x${string}`,
-				state: 'SUCCESSFUL',
-				userOpReceiptHash: receipt.transactionHash as `0x${string}`
+				finalTxHash: receipt.transactionHash as `0x${string}`,
+				state: 'SUCCESSFUL'
 			});
 		}
 	} catch (err: any) {
 		console.error(err);
 		updateTransaction(store, id, {
-			finalTxHash: null,
-			state: 'FAILED',
-			userOpReceiptHash: null
+			error: err.message ?? err,
+			state: 'FAILED'
 		});
 	}
 }
@@ -78,21 +69,18 @@ export async function batchSponsoredTx(
 ) {
 	try {
 		const userOp = await smartAccount.buildUserOp(txs);
-		console.log(userOp);
 		const paymaster = smartAccount.paymaster as IHybridPaymaster<SponsorUserOperationDto>;
 		const paymasterAndDataResponse = await paymaster.getPaymasterAndData(userOp, {
 			mode: PaymasterMode.SPONSORED
-		});
-		updateTransaction(store, id, {
-			state: 'SIGNED'
 		});
 
 		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
 		const userOpResponse = await smartAccount.sendUserOp(userOp);
 
 		updateTransaction(store, id, {
-			state: 'CONFIRMED',
-			userOpReceiptHash: userOpResponse.userOpHash as `0x${string}`
+			state: 'SIGNED',
+			userOpReceiptHash: userOpResponse.userOpHash as `0x${string}`,
+			sponsored: true
 		});
 
 		const { receipt } = await userOpResponse.wait(1);
@@ -101,6 +89,7 @@ export async function batchSponsoredTx(
 				state: 'REJECTED'
 			});
 		} else {
+			increaseTxCounter(store);
 			updateTransaction(store, id, {
 				state: 'SUCCESSFUL',
 				finalTxHash: receipt.transactionHash as `0x${string}`
@@ -108,10 +97,8 @@ export async function batchSponsoredTx(
 		}
 	} catch (err: any) {
 		updateTransaction(store, id, {
-			finalTxHash: null,
 			error: err.message ?? err,
-			state: 'FAILED',
-			userOpReceiptHash: null
+			state: 'FAILED'
 		});
 		console.error(err);
 	}

@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { APP_NAME, ROUTES } from '$lib/constants';
 
-	import WalletIcon from 'svelte-icons/fa/FaWallet.svelte';
-	import LoansIcon from 'svelte-icons/fa/FaMoneyBill.svelte';
-	import DashboardIcon from 'svelte-icons/fa/FaChartLine.svelte';
-	import HamburgerMenuIcon from 'svelte-icons/fa/FaBars.svelte';
-	import ProfileIcon from 'svelte-icons/fa/FaUser.svelte';
+	import {
+		Ghost as LoansIcon,
+		Menu as HamburgerMenuIcon,
+		User as ProfileIcon,
+		Wallet2 as WalletIcon,
+		BarChartHorizontalBig as DashboardIcon
+	} from 'lucide-svelte';
 
 	import { SheetClose, SheetTrigger, Sheet } from '$lib/components/ui/sheet';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -16,6 +18,7 @@
 	import { connect, disconnect } from '$stores/account';
 
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
+	import NotificationCircle from '$lib/components/ui/notifcationCircle/notificationCircle.svelte';
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
@@ -52,7 +55,7 @@
 			<SheetContent side="left" class="flex flex-col justify-between">
 				<ul class="flex flex-col my-5">
 					<SheetClose asChild let:builder>
-						<li class="my-3 ml-2 flex">
+						<li class="my-3 flex">
 							<Button
 								variant="ghost"
 								class="flex items-center w-full text-xl justify-start"
@@ -71,7 +74,7 @@
 						</li>
 					</SheetClose>
 					<SheetClose asChild let:builder>
-						<li class="my-3 ml-2 flex">
+						<li class="my-3 flex items-center">
 							<Button
 								variant="ghost"
 								class="flex items-center w-full text-xl justify-start"
@@ -90,13 +93,13 @@
 						</li>
 					</SheetClose>
 					<SheetClose asChild let:builder>
-						<li class="my-3 ml-2 flex">
+						<li class="my-3 flex items-center">
 							<Button
 								variant="ghost"
 								class="flex items-center w-full text-xl justify-start"
 								builders={[builder]}
 							>
-								<div class="h-6 w-8 mr-2">
+								<div class="h-8 w-8 mr-2">
 									<WalletIcon class="h-6 w-6" />
 								</div>
 								<a
@@ -127,7 +130,7 @@
 		{#if address}
 			<AvatarPopover />
 		{:else}
-			<Button variant="ghost" class="rounded-full" on:click={login}>
+			<Button variant="ghost" class="rounded-full " on:click={login}>
 				<ProfileIcon class="h-6 w-6" />
 			</Button>
 		{/if}

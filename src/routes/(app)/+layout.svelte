@@ -9,11 +9,15 @@
 	import { watchEthPrice } from '$stores/web3/getPrices';
 	import { watchPoolData } from '$stores/web3/getPoolData';
 	import Toast from './toast.svelte';
-	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { accountStore as _accountStore } from '$stores/account';
 	import { setContext } from 'svelte';
-	import { web3Store as _web3Store } from '$stores/web3';
-	import { txStore } from '$stores/transactions/state';
+	import { web3Store as _web3Store, watchW3Store, refreshW3Store } from '$stores/web3';
+	import {
+		txStore as _txStore,
+		readTransactionsFromLocalStorage,
+		writeTransactionsToLocalStorage
+	} from '$stores/transactions/state';
 	import { ACCOUNT_KEY, TX_KEY, WEB3_KEY } from '$lib/context/getStores';
 	import { setChainId } from '$stores/web3/actions';
 
@@ -30,10 +34,11 @@
 	 */
 	setContext(WEB3_KEY, _web3Store);
 	setContext(ACCOUNT_KEY, _accountStore);
-	setContext(TX_KEY, txStore);
+	setContext(TX_KEY, _txStore);
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
 
 	// adjust the chain id here for the whole app
 	const chainId = ChainId.POLYGON_MUMBAI;
@@ -41,16 +46,43 @@
 	$: provider = $accountStore?.provider;
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
-	// attemp to connect when the user loads the page
+
+	// update localstorage with transaction updates
+	$: {
+		if (Object.keys($txStore.transactions).length > 0) {
+			console.log($txStore.transactions);
+			const currentValue = readTransactionsFromLocalStorage();
+			if (JSON.stringify(currentValue) !== JSON.stringify($txStore.transactions)) {
+				writeTransactionsToLocalStorage($txStore);
+			}
+		}
+	}
+
+	// watch the txStore for changes in the txCounter and refresh the web3Store
+	$: {
+		if ($txStore && address && provider && web3Store) {
+			refreshW3Store(address, provider, web3Store);
+		}
+	}
+
+	// attempt to connect when the user loads the page and fetch web3data
 	onMount(async () => {
 		try {
 			setChainId(web3Store, chainId);
 			await connect(chainId);
+			const savedTransactions = readTransactionsFromLocalStorage();
+			if (savedTransactions) {
+				txStore.update((s) => {
+					s.transactions = {
+						...savedTransactions,
+						...s.transactions
+					};
+					return s;
+				});
+			}
 			if (provider && address) {
-				console.log('Connected');
-				watchSupportedTokenBalances(address, provider, web3Store, 30);
-				watchEthPrice(provider, web3Store, 30);
-				watchPoolData(address, provider, web3Store, 30);
+				// watcher pools on a 30 block interval
+				watchW3Store(address, provider, web3Store, 30);
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);

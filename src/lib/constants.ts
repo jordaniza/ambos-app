@@ -10,11 +10,13 @@ export const ROUTES = {
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
 	// fallback
+	HISTORY: '/profile/history',
 	NEW_LOAN: '/loans/new'
 };
 
 // child routes require instantiation
 ROUTES.NEW_LOAN = `${ROUTES.MY_LOANS}/new`;
+ROUTES.HISTORY = `${ROUTES.PROFILE}/history`;
 
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice

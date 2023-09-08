@@ -51,7 +51,6 @@ function setTokenBalance(
 		if (!shouldUpdateBalance(balance, prevBalance)) {
 			return s;
 		}
-
 		// Update the store
 		s.balances[id].lastUpdatedBlock = blockNumber;
 		s.balances[id].decimals = decimals;
@@ -85,6 +84,31 @@ export async function getSetTokenBalance(
 	}
 }
 
+async function getSupportedTokenContracts(
+	provider: ethers.providers.Web3Provider
+): Promise<[ERC20, TSupportedTokens][]> {
+	const chainId = (await provider.getNetwork()).chainId;
+	const usdc = USDC__factory.connect(ADDRESSES[chainId]['USDC'], provider);
+	const weth = WETH__factory.connect(ADDRESSES[chainId]['WETH'], provider);
+	const aweth = WETH__factory.connect(ADDRESSES[chainId]['aWETH'], provider);
+	return [
+		[usdc, 'USDC'],
+		[weth, 'WETH'],
+		[aweth, 'aWETH']
+	] as [ERC20, TSupportedTokens][];
+}
+
+export async function getSetSupportedTokenBalances(
+	userAddress: EthereumAddress,
+	provider: ethers.providers.Web3Provider,
+	store: typeof web3Store
+): Promise<void> {
+	const tokens = await getSupportedTokenContracts(provider);
+	tokens.forEach(([token, name]) => {
+		getSetTokenBalance(token, name, userAddress, store, 0);
+	});
+}
+
 export async function watchTokenBalance(
 	token: ERC20,
 	tokenName: string,
@@ -107,16 +131,7 @@ export async function watchSupportedTokenBalances(
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {
-	const chainId = (await provider.getNetwork()).chainId;
-	const usdc = USDC__factory.connect(ADDRESSES[chainId]['USDC'], provider);
-	const weth = WETH__factory.connect(ADDRESSES[chainId]['WETH'], provider);
-	// for our purposes same as weth but with a different contract address
-	const aweth = WETH__factory.connect(ADDRESSES[chainId]['aWETH'], provider);
-	const tokens = [
-		[usdc, 'USDC'],
-		[weth, 'WETH'],
-		[aweth, 'aWETH']
-	] as [ERC20, TSupportedTokens][];
+	const tokens = await getSupportedTokenContracts(provider);
 	tokens.forEach(([token, name]) => {
 		watchTokenBalance(token, name, userAddress, store, interval);
 	});

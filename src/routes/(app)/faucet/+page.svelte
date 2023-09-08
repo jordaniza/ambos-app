@@ -10,17 +10,64 @@
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import CardFooter from '$lib/components/ui/card/card-footer.svelte';
+	import {
+		TX_STATES_SUMMARY,
+		getLatestTransactionOfType,
+		type TXState
+	} from '$stores/transactions/state';
+	import { toast } from 'svelte-sonner';
+	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();
 	let txStore = getTxStore();
+	let isPending = false;
+
+	const requestQty = 10;
 
 	$: isTestnet = $web3Store.isTestnet;
 	$: provider = $accountStore.provider;
 	$: address = $accountStore.address;
 	$: smartAccount = $accountStore.smartAccount;
-	$: wethBalance = $web3Store.balances.WETH.small;
+	$: wethBalance = $web3Store.balances.WETH.small ?? 0;
 	$: title = isTestnet ? 'Testnet Detected' : 'No Testnet Detected';
+	$: transaction = getLatestTransactionOfType($txStore, 'REQUEST_WETH_FROM_FAUCET');
+	$: state = transaction?.state;
+	$: seen = transaction?.seen;
+
+	$: if (state !== undefined) {
+		// update the notification
+		const [message, showToast] = updateMessage(state, seen);
+		if (message && showToast) {
+			toast(message);
+		}
+
+		// the state should be loading while pending
+		if (TX_STATES_SUMMARY['PENDING'].includes(state)) {
+			isPending = true;
+		} else {
+			isPending = false;
+		}
+	}
+
+	function updateMessage(state: TXState, seen: boolean | undefined): [string, boolean] {
+		if (seen) return ['', false];
+		switch (state) {
+			case 'STARTED':
+				return ['Requesting ETH from the Faucet.', false];
+			case 'SIGNING':
+				return ['Awaiting Signature', true];
+			case 'SIGNED':
+				return ['Requested, please wait for funds to arrive', true];
+			case 'FAILED':
+			case 'REJECTED':
+				return ['There was a problem requesting you ETH.', true];
+			case 'SUCCESSFUL':
+				return [`Success! Your balance is now ${wethBalance + requestQty} ETH`, true];
+			default:
+				return ['', false];
+		}
+	}
 
 	async function onClick() {
 		if (!isTestnet) {
@@ -31,7 +78,7 @@
 		}
 
 		try {
-			await requestWETHFromTestnetFaucet(txStore, BN(10), provider, address, smartAccount);
+			await requestWETHFromTestnetFaucet(txStore, BN(requestQty), provider, address, smartAccount);
 		} catch (e) {
 			console.error('ERROR WITH REQUESTING FUNDS', e);
 		}
@@ -69,7 +116,13 @@
 		</CardContent>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button on:click={onClick} disabled={!isTestnet}>Get Testnet ETH</Button>
+			<Button on:click={onClick} disabled={!isTestnet}>
+				{#if isPending}
+					<LoadingSpinner />
+				{:else}
+					Get Testnet ETH
+				{/if}
+			</Button>
 		</CardFooter>
 	</Card>
 </div>

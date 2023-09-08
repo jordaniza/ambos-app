@@ -1,7 +1,11 @@
-import { SupportedTokens, type TSupportedTokens } from '$lib/contracts';
+import { ADDRESSES, SupportedTokens, type TSupportedTokens } from '$lib/contracts';
 import { writable } from 'svelte/store';
-import type { PoolReserveData, UserAccountData } from './getPoolData';
 import type { ChainId } from '@biconomy/core-types';
+import { getSetPoolData, watchPoolData } from './getPoolData';
+import { getSetSupportedTokenBalances, watchSupportedTokenBalances } from './getBalances';
+import { getSetEthPrice, watchEthPrice } from './getPrices';
+import type { ethers } from 'ethers';
+import type { EthereumAddress } from '$lib/utils';
 
 type TokenBalance = {
 	big: string | null;
@@ -98,3 +102,29 @@ const DEFAULT_STORE: Web3Store = {
 };
 
 export const web3Store = writable(DEFAULT_STORE);
+
+export function watchW3Store(
+	userAddress: EthereumAddress,
+	provider: ethers.providers.Web3Provider,
+	store: typeof web3Store,
+	blockInterval: number = 30
+) {
+	watchSupportedTokenBalances(userAddress, provider, store, blockInterval);
+	watchEthPrice(provider, store, blockInterval);
+	watchPoolData(userAddress, provider, store, blockInterval);
+}
+
+export async function refreshW3Store(
+	userAddress: EthereumAddress,
+	provider: ethers.providers.Web3Provider,
+	store: typeof web3Store
+) {
+	const chainId = (await provider.getNetwork()).chainId;
+	const reserveTokenAddress = ADDRESSES[chainId]['WETH'];
+	const currentBlock = await provider.getBlockNumber();
+	await Promise.all([
+		getSetSupportedTokenBalances(userAddress, provider, store),
+		getSetEthPrice(provider, store, currentBlock),
+		getSetPoolData(userAddress, reserveTokenAddress, provider, store, currentBlock)
+	]);
+}
