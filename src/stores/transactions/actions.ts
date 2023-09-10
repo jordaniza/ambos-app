@@ -6,8 +6,6 @@ import type { BigNumber, ethers } from 'ethers';
 import {
 	setNewTransaction,
 	updateTransaction,
-	type SupportedTransaction,
-	txStore,
 	type TxStore,
 	type UUID,
 	type SupportedSingleTransaction
@@ -15,7 +13,6 @@ import {
 import { sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES } from '$lib/contracts';
-import { get } from 'svelte/store';
 
 /**
  * Basic handler for sponsored transactions
@@ -37,9 +34,6 @@ async function handleSponsoredTransaction(
 ): Promise<void> {
 	const id = setNewTransaction(store, transactionType);
 	const { contractAddress, data } = await transactionBuilder(provider, id);
-	const { transactions } = get(store);
-	console.log(' HERE', transactions);
-
 	updateTransaction(store, id, {
 		state: 'SIGNING'
 	});
@@ -158,6 +152,48 @@ export function requestWETHFromTestnetFaucet(
 			const faucet = Faucet__factory.connect(faucetAddress, provider);
 			const tx = await faucet.populateTransaction.mint(wethAddress, recipient, amount);
 			return { contractAddress: faucetAddress, data: tx.data };
+		}
+	);
+}
+
+export function sendWETH(
+	store: TxStore,
+	amount: ethers.BigNumber,
+	recipient: EthereumAddress,
+	provider: ethers.providers.Web3Provider,
+	smartAccount: BiconomySmartAccount
+) {
+	return handleSponsoredTransaction(
+		store,
+		'SEND_WETH',
+		provider,
+		smartAccount,
+		async (provider) => {
+			const wethAddress = await getTokenAddress(provider, 'WETH');
+			const weth = WETH__factory.connect(wethAddress, provider);
+			const tx = await weth.populateTransaction.transfer(recipient, amount);
+			return { contractAddress: wethAddress, data: tx.data };
+		}
+	);
+}
+
+export function sendUSDC(
+	store: TxStore,
+	amount: ethers.BigNumber,
+	recipient: EthereumAddress,
+	provider: ethers.providers.Web3Provider,
+	smartAccount: BiconomySmartAccount
+) {
+	return handleSponsoredTransaction(
+		store,
+		'SEND_USDC',
+		provider,
+		smartAccount,
+		async (provider) => {
+			const usdcAddress = await getTokenAddress(provider, 'USDC');
+			const usdc = WETH__factory.connect(usdcAddress, provider);
+			const tx = await usdc.populateTransaction.transfer(recipient, amount);
+			return { contractAddress: usdcAddress, data: tx.data };
 		}
 	);
 }

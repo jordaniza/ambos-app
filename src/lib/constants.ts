@@ -10,6 +10,7 @@ export const ROUTES = {
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
 	// fallback
+	SEND_USDC: '/wallet/send',
 	HISTORY: '/profile/history',
 	NEW_LOAN: '/loans/new'
 };
@@ -17,6 +18,7 @@ export const ROUTES = {
 // child routes require instantiation
 ROUTES.NEW_LOAN = `${ROUTES.MY_LOANS}/new`;
 ROUTES.HISTORY = `${ROUTES.PROFILE}/history`;
+ROUTES.SEND_USDC = `${ROUTES.WALLET}/send`;
 
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice

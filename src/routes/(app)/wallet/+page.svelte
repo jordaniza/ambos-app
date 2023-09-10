@@ -100,7 +100,7 @@
 		<CardFooter>
 			<Button disabled class="w-1/2 mr-1">Sell (Soon)</Button>
 			<Button class="w-1/2 ml-1" variant="secondary">
-				<a href={ROUTES.PROFILE}>Send/Receive</a>
+				<a href={ROUTES.SEND_USDC}>Send</a>
 			</Button>
 		</CardFooter>
 	</Card>

@@ -6,6 +6,7 @@ import { type BigNumberish, ethers } from 'ethers';
 
 export type EthereumAddress = `0x${string}`;
 export const BN = (n: BigNumberish) => ethers.utils.parseEther(n.toString());
+export const USDC = (n: BigNumberish) => ethers.utils.parseUnits(n.toString(), 6);
 export const N = (n: BigNumberish) => ethers.utils.formatEther(n);
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
