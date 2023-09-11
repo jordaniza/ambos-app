@@ -1,4 +1,7 @@
 <script lang="ts">
+	import OffRamp from '$lib/components/ramp/off-ramp.svelte';
+	import OnRamp from '$lib/components/ramp/on-ramp.svelte';
+	import { getTransakNetwork } from '$lib/components/ramp/transak';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import CardDescription from '$lib/components/ui/card/card-description.svelte';
@@ -8,16 +11,20 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { APP_NAME, ROUTES } from '$lib/constants';
-	import { getWeb3Store } from '$lib/context/getStores';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 
 	import ETH from '$lib/eth.svelte';
 	import USDC from '$lib/usdc.svelte';
 	import { cn, f } from '$lib/utils';
 
 	let web3Store = getWeb3Store();
+	let accountStore = getAccountStore();
 
+	$: chainId = $web3Store?.chainId;
+	$: selectedNetwork = getTransakNetwork(chainId);
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
+	$: address = $accountStore?.address;
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 	$: ethBalanceUSD = ethBalance * ethPrice;
 	$: isTestnet = $web3Store.isTestnet;
@@ -67,9 +74,9 @@
 		</CardContent>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button disabled class="w-1/2 mr-1">Buy (Soon)</Button>
+			<OnRamp cls="w-1/2 mr-1" receiveAddress={address} selectedNetwork="polygon" />
 			<Button class="w-1/2 ml-1" variant="secondary">
-				<a href={isTestnet ? ROUTES.FAUCET : ROUTES.PROFILE}>Get ETH</a>
+				<a href={isTestnet ? ROUTES.FAUCET : ROUTES.PROFILE}>Recieve</a>
 			</Button>
 		</CardFooter>
 	</Card>
@@ -98,9 +105,9 @@
 		</CardContent>
 		<Separator class=" mb-5" />
 		<CardFooter>
-			<Button disabled class="w-1/2 mr-1">Sell (Soon)</Button>
+			<OffRamp cls="w-1/2 mr-1" toSell={usdcBalance} selectedNetwork="polygon" />
 			<Button class="w-1/2 ml-1" variant="secondary">
-				<a href={ROUTES.SEND_USDC}>Send</a>
+				<a href={ROUTES.SEND_CRYPTO}>Send</a>
 			</Button>
 		</CardFooter>
 	</Card>

@@ -50,7 +50,6 @@
 	// update localstorage with transaction updates
 	$: {
 		if (Object.keys($txStore.transactions).length > 0) {
-			console.log($txStore.transactions);
 			const currentValue = readTransactionsFromLocalStorage();
 			if (JSON.stringify(currentValue) !== JSON.stringify($txStore.transactions)) {
 				writeTransactionsToLocalStorage($txStore);
