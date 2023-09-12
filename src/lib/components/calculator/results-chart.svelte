@@ -29,7 +29,9 @@
 		},
 		xaxis: {
 			labels: {
-				style: { colors: ['white', 'white', 'white', 'white'] }
+				style: {
+					colors: ['white', 'white', 'white', 'white']
+				}
 			}
 		},
 		dataLabels: {
@@ -41,13 +43,14 @@
 		series: []
 	};
 
-	$: series = [
+	$: seriesFull = [
 		{
 			data: [
 				{
 					x: 'Borrowed',
 					y: borrowed
 				},
+
 				{
 					x: 'ETH Remaining',
 					y: ethRemaining
@@ -64,7 +67,23 @@
 		}
 	];
 
-	$: options.series = series;
+	$: seriesPart = [
+		{
+			data: [
+				{
+					x: 'Borrowed',
+					y: borrowed
+				},
+
+				{
+					x: 'ETH Remaining if you sold',
+					y: ethIfYouSold
+				}
+			]
+		}
+	];
+
+	$: options.series = ethRemaining > 0 ? seriesFull : seriesPart;
 
 	let ApexCharts: any;
 	let loaded = false;
