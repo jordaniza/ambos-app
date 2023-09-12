@@ -1,5 +1,4 @@
 <script lang="ts">
-	import '../../app.postcss';
 	import Nav from './components/Nav.svelte';
 	import Hero from './components/Hero.svelte';
 	import Features from './components/Features.svelte';
@@ -39,6 +38,7 @@
 	<meta name="twitter:description" content="Unlock the cash value of your ETH without selling." />
 	<meta name="twitter:image" content="semicircle.png" />
 
+	<!-- Analytics -->
 	<!-- Analytics -->
 	<!-- Analytics -->
 	<script
