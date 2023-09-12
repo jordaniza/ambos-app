@@ -95,5 +95,5 @@
 </script>
 
 {#if loaded}
-	<div class="text-white" use:chart={options} />
+	<div use:chart={options} />
 {/if}

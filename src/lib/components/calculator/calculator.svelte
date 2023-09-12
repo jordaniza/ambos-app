@@ -69,7 +69,7 @@
 	onMount(fetchEthPrice);
 </script>
 
-<div class="calculator-container p-4 grid grid-cols-1 md:grid-cols-1 gap-3">
+<div class="calculator-container p-4 grid grid-cols-1 md:grid-cols-1 gap-3 max-w-6xl mx-auto">
 	<Card class="p-4">
 		<CardHeader>
 			<CardTitle>Ambos Loans Calculator</CardTitle>
@@ -198,7 +198,7 @@
 		</Card>
 	</section>
 	<Card class="p-4">
-		<div class="grid grid-cols-3 gap-2">
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
 			<div class="border-secondary border-2 rounded-md p-4">
 				<p class="text-sm italic mb-1">Interest</p>
 				<p class="text-xl">{interestRate * 100}% ({f(borrowAmount * interestRate)})</p>
