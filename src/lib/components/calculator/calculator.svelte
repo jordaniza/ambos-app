@@ -233,9 +233,7 @@
 						You <span class="font-bold">borrowed {f(borrowAmount)}</span> in USD and
 						<span class="text-green-500"> you have {f(newDepositValue)}</span> in ETH deposits
 					</p>
-					<p>
-						After repaying your loan you would still have {f(newDepositValue - borrowAmount)} in ETH
-					</p>
+
 					<p>
 						Including fees and interest, you're
 						{changeVsSell < 0 ? 'down' : 'up'}
@@ -247,7 +245,7 @@
 
 				<div>
 					<p>
-						For comparison, if you'd have sold {f(borrowAmount)} of ETH initially away you would {changeVsSell <
+						For comparison, if you'd have sold {f(borrowAmount)} of ETH initially you would {changeVsSell <
 						0
 							? ''
 							: 'only'} have {f(ethValueIfUserHadSold)}
