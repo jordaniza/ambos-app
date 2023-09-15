@@ -53,7 +53,10 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 	'SEND_ETH',
 
 	// request tokens
-	'REQUEST_WETH_FROM_FAUCET'
+	'REQUEST_WETH_FROM_FAUCET',
+
+	// bridging
+	'BRIDGE_ETH'
 ] as const;
 
 export type SupportedSingleTransaction = (typeof SUPPORTED_SINGLE_TRANSACTIONS)[number];
@@ -110,6 +113,7 @@ export function exists(store: TxStore, key: string): boolean {
 
 export const txStore = writable<TransactionStore>({
 	transactions: {},
+	// the tx counter triggers can be subscribed to and other components or stores can react to it
 	txCounter: 0
 });
 export type TxStore = typeof txStore;

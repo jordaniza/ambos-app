@@ -4,7 +4,7 @@ import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
-import { batchSponsoredTx } from './sponsored';
+import { batchSponsoredTx } from './builder';
 import { setNewTransaction, updateTransaction, type TxStore } from './state';
 
 export async function getCashNow(

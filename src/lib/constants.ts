@@ -30,5 +30,8 @@ export const LTV_DECIMALS = 4;
 export const RAY_DECIMALS = 27;
 
 export const IS_TESTNET: { [key in ChainId]?: boolean } = {
-	[ChainId.POLYGON_MUMBAI]: true
+	[ChainId.POLYGON_MUMBAI]: true,
+	[ChainId.OPTIMISM_GOERLI_TESTNET]: true,
+	[ChainId.ARBITRUM_GOERLI_TESTNET]: true,
+	[ChainId.GOERLI]: true
 };

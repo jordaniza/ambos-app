@@ -32,5 +32,8 @@ export type ERC20 = ethers.Contract & {
 };
 
 export const BLOCK_EXPLORER_URLS: Record<number | ChainId, string> = {
-	[ChainId.POLYGON_MUMBAI]: 'https://mumbai.polygonscan.com'
+	[ChainId.POLYGON_MUMBAI]: 'https://mumbai.polygonscan.com',
+	[ChainId.OPTIMISM_GOERLI_TESTNET]: 'https://goerli-optimism.etherscan.io',
+	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'https://goerli.arbiscan.io',
+	[ChainId.GOERLI]: 'https://goerli.etherscan.io'
 };

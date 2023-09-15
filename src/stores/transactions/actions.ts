@@ -3,42 +3,11 @@ import type { EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import type { BigNumber, ethers } from 'ethers';
-import {
-	setNewTransaction,
-	updateTransaction,
-	type TxStore,
-	type UUID,
-	type SupportedSingleTransaction
-} from './state';
-import { sponsoredTx } from './sponsored';
+import { handleSponsoredTransaction, handleUserPaidTransaction, sponsoredTx } from './builder';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES } from '$lib/contracts';
-
-/**
- * Basic handler for sponsored transactions
- * @param store pass in the current instance of the svelte store
- * @param transactionType must be a registered/supported action
- * @param provider the web3 provider
- * @param smartAccount the smart account instance required for sponsorship
- * @param transactionBuilder callback to contain the logic for building the transaction
- */
-async function handleSponsoredTransaction(
-	store: TxStore,
-	transactionType: SupportedSingleTransaction,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount,
-	transactionBuilder: (
-		provider: ethers.providers.Web3Provider,
-		id: UUID
-	) => Promise<{ contractAddress: EthereumAddress; data: any }>
-): Promise<void> {
-	const id = setNewTransaction(store, transactionType);
-	const { contractAddress, data } = await transactionBuilder(provider, id);
-	updateTransaction(store, id, {
-		state: 'SIGNING'
-	});
-	await sponsoredTx(store, id, contractAddress, data, smartAccount);
-}
+import type { TxStore } from './state';
+import type { SourceRouter } from '$lib/components/bridge';
 
 export function approveWethSmartAccount(
 	store: TxStore,
@@ -196,4 +165,34 @@ export function sendUSDC(
 			return { contractAddress: usdcAddress, data: tx.data };
 		}
 	);
+}
+
+export function bridgeETH({
+	store,
+	amount,
+	sourceRouter,
+	dstChainId,
+	fromAddress,
+	toAddress,
+	minAmount
+}: {
+	store: TxStore;
+	amount: ethers.BigNumber;
+	sourceRouter: SourceRouter;
+	dstChainId: number;
+	fromAddress: EthereumAddress;
+	toAddress: EthereumAddress;
+	minAmount: ethers.BigNumber;
+}) {
+	if (!sourceRouter.signer) sourceRouter.setSigner();
+	return handleUserPaidTransaction(store, 'BRIDGE_ETH', sourceRouter.signer!, async () => {
+		const tx = await sourceRouter.stargateSwapETH(
+			dstChainId,
+			fromAddress,
+			toAddress,
+			amount,
+			minAmount
+		);
+		return { tx };
+	});
 }
