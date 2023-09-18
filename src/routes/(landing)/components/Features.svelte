@@ -43,7 +43,7 @@
 			<div class="w-full flex flex-col justify-evenly gap-5">
 				{#each features as feature}
 					<Card
-						class="flex gap-y-4 rounded-xl shadow-md relative isolate bg-transparent border-none text-secondary md:-ml-8 lg:ml-0"
+						class="flex gap-y-4 rounded-xl shadow-md relative isolate bg-transparent border-none bg-background md:-ml-8 lg:ml-0"
 					>
 						<div class="flex flex-shrink-0 mr-5 items-center justify-center p-3 relative left-6">
 							{#if feature.idx === 0}
@@ -60,7 +60,7 @@
 							{/if}
 						</div>
 						<div class="relative w-full pl-8 pr-4 py-3 bg-bottom bg-no-repeat rounded-lg text-left">
-							<h3 class="text-xl md:text-2xl font-bold text-primary">
+							<h3 class="text-xl md:text-2xl font-bold text-secondary">
 								{feature.headline}
 							</h3>
 							<p class="my-3 md:text-xl">{feature.description}</p>

@@ -27,13 +27,17 @@
 				href="#"
 			>
 				<div class="flex gap-4 items-center">
-					<img src="semicircle.png" alt="Ambos Finance Logo" height="50" width="60" class="pb-3" />
-					<h1>Ambos Finance</h1>
+					<img src="logo-website.png" alt="Ambos Finance Logo" height="auto" width="135"/>
 				</div>
 			</a>
 		</div>
-		<Button class="hidden sm:flex sm:text-xl sm:py-4" on:click={goToCTA} variant="outline"
-			>Sign Up</Button
-		>
+		<Button 
+			style="border-radius: 10px;" 
+			class="hidden sm:flex sm:text-xl sm:py-4 bg-primary text-white border-none hover:bg-[desiredColor]" 
+			on:click={goToCTA} 
+			variant="outline">
+			Sign Up
+	</Button>
+
 	</div>
 </nav>

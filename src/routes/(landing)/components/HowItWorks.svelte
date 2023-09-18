@@ -47,7 +47,7 @@
 					{feature.icon}
 				</div>
 				<div class="relative w-full pl-8 pr-4 py-3 bg-bottom bg-no-repeat rounded-lg text-left">
-					<h3 class="text-xl md:text-2xl font-bold text-primary">
+					<h3 class="text-xl md:text-2xl font-bold text-secondary">
 						{feature.title}
 					</h3>
 					<p class="my-3 md:text-xl">{feature.description}</p>
