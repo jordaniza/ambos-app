@@ -1,6 +1,7 @@
 <!--Footer-->
-<footer class="bg-white">
-	<a href="https://www.vcreative.it" target="_blank" class="text-gray-800 text-lg">
-		Artwork by Vincenzo Romeo - www.vcreative.it</a
-	>
+<footer class="p-4">
+	<p class="text-xs italic text-center">
+		Ambos Finance is a subsidiary of PREDIXIA-FZE
+		<br />DSO-DDP-A5-D-FLEX-1061 - Dubai Digital Park - Office A5 - Dtec - Dubai Silicon Oasis
+	</p>
 </footer>

@@ -38,9 +38,6 @@
 	<meta name="twitter:description" content="Unlock the cash value of your ETH without selling." />
 	<meta name="twitter:image" content="semicircle.png" />
 
-	<!-- Analytics -->
-	<!-- Analytics -->
-	<!-- Analytics -->
 	<script
 		async
 		src="https://analytics.umami.is/script.js"
@@ -82,4 +79,5 @@
 		<CallToAction />
 	</div>
 	<FAQ />
+	<Footer />
 </div>
