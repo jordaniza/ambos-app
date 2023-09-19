@@ -18,6 +18,7 @@
 	} from '$stores/transactions/state';
 	import { ACCOUNT_KEY, TX_KEY, WEB3_KEY } from '$lib/context/getStores';
 	import { setChainId } from '$stores/web3/actions';
+	import { pwaInfo } from 'virtual:pwa-info';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -44,6 +45,9 @@
 	$: provider = $accountStore?.provider;
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
+
+	// required for PWA Support
+	$: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : '';
 
 	// update localstorage with transaction updates
 	$: {
