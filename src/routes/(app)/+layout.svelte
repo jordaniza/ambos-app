@@ -5,9 +5,7 @@
 	import { connect } from '$stores/account';
 	import { onMount } from 'svelte';
 	import { ChainId } from '@biconomy/core-types';
-	import { watchSupportedTokenBalances } from '$stores/web3/getBalances';
-	import { watchEthPrice } from '$stores/web3/getPrices';
-	import { watchPoolData } from '$stores/web3/getPoolData';
+	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { accountStore as _accountStore } from '$stores/account';
@@ -67,6 +65,7 @@
 	// attempt to connect when the user loads the page and fetch web3data
 	onMount(async () => {
 		try {
+			loadTheme();
 			setChainId(web3Store, chainId);
 			await connect(chainId);
 			const savedTransactions = readTransactionsFromLocalStorage();

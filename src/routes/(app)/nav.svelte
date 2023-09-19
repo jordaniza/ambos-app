@@ -19,6 +19,7 @@
 
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import NotificationCircle from '$lib/components/ui/notifcationCircle/notificationCircle.svelte';
+	import ThemeToggle from '$lib/components/ui/theme-toggle/theme-toggle.svelte';
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
@@ -118,6 +119,7 @@
 						<Button variant="ghost" class="text-xl w-full text-center" on:click={logout}
 							>Logout</Button
 						>
+						<ThemeToggle />
 					</div>
 				</section>
 			</SheetContent>
