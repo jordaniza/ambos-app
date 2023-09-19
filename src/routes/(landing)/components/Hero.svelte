@@ -5,7 +5,7 @@
 
 <!--Hero-->
 <div class="pt-24 lg:pl-5">
-	<div class="container px-3 mx-auto flex flex-wrap flex-col lg:flex-row items-center">
+	<div class="container px-3 mx-auto pb-10 flex flex-wrap flex-col lg:flex-row items-center">
 		<!--Left Col-->
 		<div
 			class="flex flex-col w-full lg:w-2/5 justify-center items-center lg:items-start text-center lg:text-left gap-5"
@@ -17,12 +17,12 @@
 				Get cash without selling your crypto.
 			</p>
 			<Button
-				class="text-xl lg:text-2xl mx-0 sm:max-w-[66%] lg:mx-0 text-white lg:py-8 py-5"
+				class="text-xl lg:text-2xl mx-0 sm:max-w-[66%] lg:mx-0 text-white py-5 lg:py-8 "
 				on:click={goToCTA}>Join Waitlist</Button
 			>
 		</div>
 		<!--Right Col-->
-		<div class="w-full lg:w-3/5 md:px-20 text-center">
+		<div class="w-full p-10 lg:w-3/5 md:px-20 text-center">
 			<img src="features/InvestETH.svg" alt="Ambos Lets you get money out" />
 		</div>
 	</div>

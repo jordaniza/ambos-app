@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-	<title>Ambos Finance</title>
+	<title>Ambos Finance | Get Cash Today, Without Selling Your Crypto</title>
 
 	<!-- Meta tags for SEO -->
 	<meta
@@ -29,14 +29,14 @@
 	<!-- Social media sharing -->
 	<meta property="og:title" content="Ambos Finance" />
 	<meta property="og:description" content="Unlock the cash value of your ETH without selling." />
-	<meta property="og:image" content="semicircle.png" />
+	<meta property="og:image" content="ambos.png" />
 	<meta property="og:url" content="ambos.finance" />
 
 	<!-- Twitter specific meta tags -->
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="Ambos Finance" />
 	<meta name="twitter:description" content="Unlock the cash value of your ETH without selling." />
-	<meta name="twitter:image" content="semicircle.png" />
+	<meta name="twitter:image" content="ambos.png" />
 
 	<script
 		async
