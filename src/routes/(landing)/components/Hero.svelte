@@ -5,7 +5,7 @@
 
 <!--Hero-->
 <div class="pt-24 lg:pl-5">
-	<div class="container px-3 mx-auto py-10 flex flex-wrap flex-col lg:flex-row items-center">
+	<div class="container px-3 mx-auto pb-10 flex flex-wrap flex-col lg:flex-row items-center">
 		<!--Left Col-->
 		<div
 			class="flex flex-col w-full lg:w-2/5 justify-center items-center lg:items-start text-center lg:text-left gap-5"
