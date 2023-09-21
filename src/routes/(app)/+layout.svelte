@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../../app.postcss';
+	import '../../ambos.postcss';
 	import Nav from './nav.svelte';
 
 	import { connect } from '$stores/account';
@@ -26,10 +26,8 @@
 	 * When using SSR, it's important to ensure that each client or request has its own isolated state.
 	 * This becomes a concern particularly with Svelte stores, which, if defined at the module level,
 	 * could accidentally share state between different clients or requests when running on the server.
-	 *
 	 * the reason for wrapping stores in context in SvelteKit is primarily to ensure that each SSR request
 	 * has its own isolated store instance, preventing state from leaking between different users or requests.
-	 * This makes the application more predictable and secure.
 	 */
 	setContext(WEB3_KEY, _web3Store);
 	setContext(ACCOUNT_KEY, _accountStore);
@@ -47,7 +45,7 @@
 	$: isConnected = $accountStore?.isConnected;
 
 	// required for PWA Support
-	$: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : '';
+	$: webManifestLink = pwaInfo?.webManifest.linkTag ?? '';
 
 	// update localstorage with transaction updates
 	$: {
@@ -92,11 +90,16 @@
 	});
 </script>
 
+<svelte:head>
+	{@html webManifestLink}
+</svelte:head>
+
 <Toast />
 {#if !isConnected}<div
 		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
 	/>{/if}
-<Nav />
+<!-- <Nav /> -->
 <div class="md:max-w-[1990px] flex flex-col items-center md:mt-10 w-full h-screen mx-auto">
 	<slot />
 </div>
+<a href={'/dashboard-v2'}>Dashboard</a>
