@@ -61,7 +61,7 @@
 			<div
 				class={currentPageIndex === welcomeSteps.length - 1
 					? `w-full max-w-lg mx-auto opacity-100 px-10 -my-10 transition-opacity duration-300 delay-300`
-					: `opacity-0 w-full mx-auto px-10 transition-opacity -my-10 duration-300 delay-0`}
+					: `w-full max-w-lg mx-auto opacity-0   px-10 -my-10 transition-opacity duration-300 delay-0`}
 			>
 				<Button class="w-full ">
 					<a class="w-full" href={ROUTES.DASHBOARD_V2}>Get Started</a>
