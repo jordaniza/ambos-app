@@ -11,7 +11,7 @@
 <div class="h-full flex-col relative">
 	<!-- title bar -->
 	<div class="flex justify-between p-4">
-		<h1>{welcomeSteps[0].title}</h1>
+		<h1>{welcomeSteps[currentPageIndex ?? 0].title}</h1>
 		<a class="text-primary" href={ROUTES.DASHBOARD_V2}>Skip →</a>
 	</div>
 
