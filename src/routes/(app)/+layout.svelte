@@ -99,7 +99,6 @@
 		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
 	/>{/if}
 <!-- <Nav /> -->
-<div class="md:max-w-[1990px] flex flex-col items-center md:mt-10 w-full h-screen mx-auto">
+<div class="md:max-w-[1990px] h-full">
 	<slot />
 </div>
-<a href={'/dashboard-v2'}>Dashboard</a>

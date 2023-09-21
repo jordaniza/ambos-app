@@ -4,6 +4,7 @@ export const APP_NAME = 'Ambos Finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const ROUTES = {
 	DASHBOARD: '/dashboard',
+	DASHBOARD_V2: '/dashboard-v2',
 	WALLET: '/wallet',
 	MY_LOANS: '/loans',
 	PROFILE: '/profile',
