@@ -6,6 +6,7 @@
 	import Eth from '$lib/eth.svelte';
 	import { USDC, f } from '$lib/utils';
 	import Footer from './footer.svelte';
+	import Sparkline from './sparkline.svelte';
 	import TopBar from './top-bar.svelte';
 
 	let totalBalance = f(33500);
@@ -70,7 +71,7 @@
 						<p class="font-bold">Ethereum</p>
 						<p class="text-sm">ETH · USD</p>
 					</div>
-					<div class="h-full bg-gray-600 w-full" />
+					<Sparkline />
 					<div>
 						<p class="font-bold text-end">1.1 ETH</p>
 						<div class="flex text-xs items-center">

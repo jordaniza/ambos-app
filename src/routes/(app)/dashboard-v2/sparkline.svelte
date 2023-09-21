@@ -1,87 +1,41 @@
 <script lang="ts">
-	import { f } from '$lib/utils';
 	import { onMount } from 'svelte';
-
-	export let borrowed = 10;
-	export let ethRemaining = 18;
-	export let ethIfYouSold = 13;
-
-	let isMobile = window.innerWidth < 640; // Initial value
 	let loaded = false;
 	let ApexCharts: typeof import('apexcharts');
 
 	// Common Options
 	const commonOptions: ApexCharts.ApexOptions = {
 		chart: {
-			type: 'bar',
-			toolbar: { show: false }
-		},
-		legend: { show: false },
-		tooltip: { enabled: false },
-		dataLabels: {
-			enabled: true,
-			formatter: function (val: number) {
-				return f(val);
+			type: 'line',
+			sparkline: {
+				enabled: true
 			}
+		},
+		tooltip: {
+			enabled: false
+		},
+		stroke: {
+			width: 1,
+			curve: 'smooth',
+			colors: ['hsl(131 42% 49%)']
 		}
 	};
-
 	// Derived Options
 	const mobileOptions: ApexCharts.ApexOptions = {
-		...commonOptions,
-		plotOptions: { bar: { horizontal: true } },
-		yaxis: { show: true, labels: { style: { colors: ['white', 'white', 'white'] } } },
-		xaxis: { labels: { show: false } }
+		...commonOptions
 	};
 
-	const desktopOptions: ApexCharts.ApexOptions = {
-		...commonOptions,
-		plotOptions: { bar: { horizontal: false } },
-		yaxis: { show: false },
-		xaxis: {
-			labels: {
-				show: true,
-				style: { colors: ['white', 'white', 'white'] }
-			}
-		}
-	};
-
+	let data = Array(6)
+		.fill(0)
+		.map((_, i) => ({ x: i, y: Math.random() * 100 }));
 	// Series computation
 	$: seriesFull = [
 		{
-			data: [
-				{ x: 'Borrowed', y: borrowed },
-				{ x: 'ETH Remaining', y: ethRemaining },
-				{ x: 'ETH Remaining if you sold', y: ethIfYouSold }
-			]
+			data
 		}
 	];
 
-	$: seriesPart = [
-		{
-			data: [
-				{ x: 'Borrowed', y: borrowed },
-				{ x: 'ETH Remaining if you sold', y: ethIfYouSold }
-			]
-		}
-	];
-
-	$: currentSeries = ethRemaining > 0 ? seriesFull : seriesPart;
-	$: mobileOptions.series = currentSeries;
-	$: desktopOptions.series = currentSeries;
-
-	const handleResize = () => {
-		isMobile = window.innerWidth < 640;
-	};
-
-	onMount(() => {
-		window.addEventListener('resize', handleResize);
-
-		return () => {
-			// Cleanup listener on component destroy
-			window.removeEventListener('resize', handleResize);
-		};
-	});
+	$: mobileOptions.series = seriesFull;
 
 	onMount(async () => {
 		const module = await import('apexcharts');
@@ -89,15 +43,15 @@
 		loaded = true;
 	});
 
-	const chart = (node: Node, option: ApexCharts.ApexOptions) => {
+	const chart = (node: Node, _: ApexCharts.ApexOptions) => {
 		if (!loaded) return;
 
-		let myChart = new ApexCharts(node, isMobile ? mobileOptions : desktopOptions);
+		let myChart = new ApexCharts(node, mobileOptions);
 		myChart.render();
 
 		return {
 			update() {
-				myChart.updateOptions(isMobile ? mobileOptions : desktopOptions);
+				myChart.updateOptions(mobileOptions);
 			},
 			destroy() {
 				myChart.destroy();
@@ -107,5 +61,5 @@
 </script>
 
 {#if loaded}
-	<div use:chart={isMobile ? mobileOptions : desktopOptions} />
+	<div class="w-full h-full" use:chart={mobileOptions} />
 {/if}
