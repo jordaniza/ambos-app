@@ -15,7 +15,11 @@ const { format } = new Intl.NumberFormat('en-US', {
 	style: 'currency',
 	currency: 'USD'
 });
+
+// apply default usd formatting
 export const f = (n: number) => format(n);
+
+export const e = (n: number) => (n > 10 ? n.toFixed(2) : n.toFixed(4));
 
 type FlyAndScaleParams = {
 	y?: number;

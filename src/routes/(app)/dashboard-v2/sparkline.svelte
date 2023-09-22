@@ -2,6 +2,18 @@
 	import { onMount } from 'svelte';
 	let loaded = false;
 	let ApexCharts: typeof import('apexcharts');
+	let chartRef: Node;
+
+	// destroy and re-render chart
+	export const resize = () => {
+		if (!chartRef || !mobileOptions || !chart || !loaded) return;
+		const myChart = chart(chartRef, mobileOptions)!;
+		myChart.destroy();
+		// event loop hack to ensure chart is destroyed before re-rendering
+		setTimeout(() => {
+			myChart.chart(chartRef, mobileOptions);
+		}, 0);
+	};
 
 	// Common Options
 	const commonOptions: ApexCharts.ApexOptions = {
@@ -50,6 +62,10 @@
 		myChart.render();
 
 		return {
+			chart,
+			self() {
+				return myChart;
+			},
 			update() {
 				myChart.updateOptions(mobileOptions);
 			},
@@ -61,5 +77,5 @@
 </script>
 
 {#if loaded}
-	<div class="w-full h-full" use:chart={mobileOptions} />
+	<div bind:this={chartRef} class="w-full h-full" use:chart={mobileOptions} />
 {/if}
