@@ -19,6 +19,7 @@
 		<!-- carousel -->
 		{#if browser}
 			<Carousel
+				timingFunction="linear"
 				infinite={false}
 				arrows={false}
 				let:currentPageIndex

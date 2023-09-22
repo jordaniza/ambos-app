@@ -8,9 +8,12 @@
 		User as User
 	} from 'lucide-svelte';
 	import MenuLink from './menu-link.svelte';
+	import { page } from '$app/stores';
 
 	const iconHeight = 5;
 	const iconHeightClass = 'h-' + iconHeight;
+	$: currentRoute = $page.url.pathname;
+	$: walletTextColor = currentRoute === ROUTES.WALLET ? ' text-secondary ' : '';
 </script>
 
 <footer
@@ -39,15 +42,15 @@
         -translate-y-2/4
         w-12 h-12
         rounded-full
-        flex j
-        ustify-center
+        flex
+        justify-center
         items-center
         bg-primary"
-			><a href={ROUTES.WALLET} class="w-full h-full">
+			><a href={ROUTES.WALLET} class="w-full h-full pt-[1px]">
 				<Wallet class={'text-popover ' + iconHeightClass} />
 			</a>
 		</button>
-		<div class="text-center">Wallet</div>
+		<p class={'text-center ' + walletTextColor}>Wallet</p>
 	</div>
 
 	<!-- Calculator Icon -->

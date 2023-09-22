@@ -19,6 +19,8 @@
 	import { setChainId } from '$stores/web3/actions';
 	import { pwaInfo } from 'virtual:pwa-info';
 	import Footer from './footer.svelte';
+	import { page } from '$app/stores';
+	import { EXCLUDED_FOOTER_ROUTES } from '$lib/constants';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -46,6 +48,7 @@
 
 	// required for PWA Support
 	$: webManifestLink = pwaInfo?.webManifest.linkTag ?? '';
+	$: currentPage = $page.url.pathname;
 
 	// update localstorage with transaction updates
 	$: {
@@ -98,8 +101,10 @@
 {#if !isConnected}<div
 		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
 	/>{/if}
-<!-- <Nav /> -->
 <div class="md:max-w-[1990px] h-full">
 	<slot />
 </div>
-<Footer />
+<!-- Footer nav on most pages -->
+{#if !EXCLUDED_FOOTER_ROUTES.includes(currentPage)}
+	<Footer />
+{/if}

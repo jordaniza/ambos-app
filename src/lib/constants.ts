@@ -24,6 +24,9 @@ ROUTES.NEW_LOAN = `${ROUTES.MY_LOANS}/new`;
 ROUTES.HISTORY = `${ROUTES.PROFILE}/history`;
 ROUTES.SEND_CRYPTO = `${ROUTES.WALLET}/send`;
 
+// dont show footer on these routes
+export const EXCLUDED_FOOTER_ROUTES = [ROUTES.WELCOME];
+
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice
  * All V3 markets use USD based oracles which return values with 8 decimals.

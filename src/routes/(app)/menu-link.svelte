@@ -5,8 +5,6 @@
 	export let name: string;
 
 	$: currentRoute = $page.url.pathname;
-	$: console.log(currentRoute);
-
 	$: textStyle = currentRoute === href ? ' text-secondary ' : '';
 </script>
 
