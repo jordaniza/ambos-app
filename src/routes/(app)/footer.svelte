@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ROUTES } from '$lib/constants';
 	import {
 		Home as Dashboard,
 		Banknote as Loans,
@@ -6,29 +7,28 @@
 		Calculator as Calculator,
 		User as User
 	} from 'lucide-svelte';
+	import MenuLink from './menu-link.svelte';
 
 	const iconHeight = 5;
+	const iconHeightClass = 'h-' + iconHeight;
 </script>
 
 <footer
 	class="fixed bottom-0 left-0 w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs"
 >
 	<!-- Dashboard Icon -->
-	<div class="flex flex-col gap-1 items-center w-1/5">
-		<Dashboard class={'text-secondary h-' + iconHeight} />
-		<p class="text-secondary">Dashboard</p>
-	</div>
-
+	<MenuLink href={ROUTES.DASHBOARD_V2} name="Dashboard">
+		<Dashboard class={iconHeightClass} />
+	</MenuLink>
 	<!-- Loans Icon -->
-	<div class="flex flex-col gap-1 items-center w-1/5">
-		<Loans class={'h-' + iconHeight} />
-		<p>Loans</p>
-	</div>
+	<MenuLink href={ROUTES.MY_LOANS} name="Loans">
+		<Loans class={iconHeightClass} />
+	</MenuLink>
 
 	<!-- Wallet Icon (Raised) -->
 	<div class="relative -mb-6 w-1/5">
 		<div class="semicircle absolute -z-1 bg-popover" />
-		<div
+		<button
 			class="
         p-3
         absolute
@@ -43,23 +43,22 @@
         ustify-center
         items-center
         bg-primary"
-		>
-			<Wallet class={'text-popover h-' + iconHeight} />
-		</div>
+			><a href={ROUTES.WALLET} class="w-full h-full">
+				<Wallet class={'text-popover ' + iconHeightClass} />
+			</a>
+		</button>
 		<div class="text-center">Wallet</div>
 	</div>
 
 	<!-- Calculator Icon -->
-	<div class="flex flex-col gap-1 items-center w-1/5">
-		<Calculator class={'h-' + iconHeight} />
-		<p>Calculator</p>
-	</div>
+	<MenuLink href={ROUTES.CALCULATOR} name="Calculator">
+		<Calculator class={iconHeightClass} />
+	</MenuLink>
 
 	<!-- Profile Icon -->
-	<div class="flex flex-col gap-1 items-center w-1/5">
-		<User class={'h-' + iconHeight} />
-		<p>Profile</p>
-	</div>
+	<MenuLink href={ROUTES.PROFILE} name="Profile">
+		<User class={iconHeightClass} />
+	</MenuLink>
 </footer>
 
 <style>

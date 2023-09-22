@@ -1,11 +1,10 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
+
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Eth from '$lib/eth.svelte';
 	import { USDC, f } from '$lib/utils';
-	import Footer from './footer.svelte';
 	import Sparkline from './sparkline.svelte';
 	import TopBar from './top-bar.svelte';
 
@@ -159,4 +158,3 @@
 		<div class="bg-background h-20" />
 	</Card>
 </section>
-<Footer />

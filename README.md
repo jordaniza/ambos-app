@@ -1,38 +1,33 @@
-# create-svelte
+# Ambos Finance
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+This application is written in Sveltekit and deployed on Vercel.
 
-## Creating a project
+Automated deployment is set up for the `main` branch, with a staging environment for the `develop` branch.
 
-If you're seeing this, you've probably already done this step. Congrats!
+src/(landing) is the static landing page, which is deployed to ambos.finance
+src/(app) contains the actual application. They differ in the +layout.svelte file, which is the common set of components that are shared between child pages.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Development
 
-# create a new project in my-app
-npm create svelte@latest my-app
+```sh
+yarn                        # install dependencies
+yarn dev                    # run dev server
+yarn build                  # build for production
+yarn preview                # preview production build
+
+shadcn-svelte@latest add    # add a new component
+
+yarn typechain              # generate typechain types for json files in the src/lib/abis/json folder
+
+yarn test                   # run tests
 ```
 
-## Developing
+## Data Flow
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Most data lives in the [stores][./src/stores] directory. This includes most async data fetched from the blockchain. Svelte stores can be subscribed to, and will update automatically when the data changes, so this avoids doing extensive data fetching in components.
 
-```bash
-npm run dev
+> Make sure you use svelte context wrappers for the store to avoid sharing state between users on the server. The +layout.svelte page has examples of this.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+In our root +layout we initialize the app with some data fetches, and setup some simple watchers to query the blockchain on an interval. This means you can simply subscribe to the store in your component and it will update automatically.
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+The transaction store in particular has a simple counter that can be incremented when a new transaction is sent. This is used to trigger an immediate re-fetch of the data.

@@ -6,10 +6,13 @@ export const ROUTES = {
 	DASHBOARD: '/dashboard',
 	DASHBOARD_V2: '/dashboard-v2',
 	WALLET: '/wallet',
+	WELCOME: '/welcome',
 	MY_LOANS: '/loans',
 	PROFILE: '/profile',
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
+	// tbimplementation
+	CALCULATOR: '/dashboard-v2',
 	// fallback
 	SEND_CRYPTO: '/wallet/send',
 	HISTORY: '/profile/history',

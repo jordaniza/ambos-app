@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../../ambos.postcss';
-	import Nav from './nav.svelte';
 
 	import { connect } from '$stores/account';
 	import { onMount } from 'svelte';
@@ -19,6 +18,7 @@
 	import { ACCOUNT_KEY, TX_KEY, WEB3_KEY } from '$lib/context/getStores';
 	import { setChainId } from '$stores/web3/actions';
 	import { pwaInfo } from 'virtual:pwa-info';
+	import Footer from './footer.svelte';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -102,3 +102,4 @@
 <div class="md:max-w-[1990px] h-full">
 	<slot />
 </div>
+<Footer />
