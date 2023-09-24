@@ -11,21 +11,23 @@ export const ROUTES = {
 	PROFILE: '/profile',
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
-	// tbimplementation
 	CALCULATOR: '/calculator',
-	// fallback
 	SEND_CRYPTO: '/wallet/send',
 	HISTORY: '/profile/history',
-	NEW_LOAN: '/loans/new'
-};
-
-// child routes require instantiation
-ROUTES.NEW_LOAN = `${ROUTES.MY_LOANS}/new`;
-ROUTES.HISTORY = `${ROUTES.PROFILE}/history`;
-ROUTES.SEND_CRYPTO = `${ROUTES.WALLET}/send`;
+	NEW_LOAN: '/loans/new',
+	LOANS_V2: '/loans-v2/calculator',
+	LOANS_V2_TRANSFER: '/loans-v2/transfer',
+	LOANS_V2_REVIEW: '/loans-v2/review',
+	LOANS_V2_CALCULATE: '/loans-v2/calculator'
+} as const;
 
 // dont show footer on these routes
-export const EXCLUDED_FOOTER_ROUTES = [ROUTES.WELCOME];
+export const EXCLUDED_FOOTER_ROUTES = [
+	ROUTES.WELCOME,
+	ROUTES.LOANS_V2_TRANSFER,
+	ROUTES.LOANS_V2_REVIEW,
+	ROUTES.LOANS_V2_CALCULATE
+];
 
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice

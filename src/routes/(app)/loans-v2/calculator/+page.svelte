@@ -1,56 +1,40 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
-	import Calculator from './calculator.svelte';
+	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
+	import Calculator from '../../calculator/calculator.svelte';
+	import { ROUTES } from '$lib/constants';
 
 	let ethSupply = 10; // Initial value
 	let borrowAmount = 0; // Initial value
 	let ethPrice = 0; // Initial or fetched value
-	let fetchedAt: Date;
 	let newEthPrice = 0;
 	let ethPriceChange = 20; // Initial value
 	let depositValue = ethSupply / 2;
 
-	// Computed values
 	$: newEthPrice = ethPrice * (1 + ethPriceChange / 100);
 	$: depositUSD = depositValue * ethPrice;
 	$: maxBorrow = depositUSD / 2;
-
 	$: {
 		if (borrowAmount > maxBorrow) {
 			borrowAmount = maxBorrow;
 		}
 	}
-
-	// More logic here$lib.
-	async function fetchEthPrice() {
-		try {
-			const response = await fetch(
-				'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
-			);
-			const data = await response.json();
-			ethPrice = data.ethereum.usd;
-			fetchedAt = new Date();
-			setTimeout(() => (borrowAmount = maxBorrow * 0.5), 0);
-		} catch (error) {
-			console.error(error);
-		}
-	}
-
-	onMount(fetchEthPrice);
 </script>
 
 <!-- <Faq /> -->
 <BaseScreen>
 	<div slot="header" class="pb-5">
-		<BackButton />
+		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">
 			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Ambos Loans Calculator</h1>
 			<p>Start discovering how much you can borrow against your Ethereum.</p>
 		</div>
 	</div>
-	<div slot="card">
+	<div slot="card" class="flex flex-col">
+		<div class="p-4">
+			<LoanStepper />
+		</div>
 		<Calculator />
 	</div>
 </BaseScreen>

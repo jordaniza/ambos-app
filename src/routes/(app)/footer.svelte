@@ -24,7 +24,7 @@
 		<Dashboard class={iconHeightClass} />
 	</MenuLink>
 	<!-- Loans Icon -->
-	<MenuLink href={ROUTES.MY_LOANS} name="Loans">
+	<MenuLink href={ROUTES.LOANS_V2} name="Loans">
 		<Loans class={iconHeightClass} />
 	</MenuLink>
 

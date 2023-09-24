@@ -1,10 +1,12 @@
-<script>
-	import { MoveLeft } from 'lucide-svelte';
+<script lang="ts">
 	import Button from '../button/button.svelte';
-	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
+
+	export let backTo: string | undefined = undefined;
 
 	function goBack() {
-		if (browser) window.history.back();
+		if (backTo) goto(backTo);
+		else window.history.back();
 	}
 </script>
 

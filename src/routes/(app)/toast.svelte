@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { Toaster } from 'svelte-sonner';
-	const isDarkMode = true;
-	const style = 'background: hsl(222.2, 84%, 4.9%); color: var(--card-foreground); z-index: 9999; opacity: 1;';
+	const isDarkMode = false;
+
+	const style =
+		'background: white; color: var(--card-popover-foreground); z-index: 9999; opacity: 1; ';
 </script>
 
 <div class={isDarkMode ? 'dark' : 'base'}>
-	<Toaster
-    richColors
-		toastOptions={{
-			style
-		}}
-	/>
+	<Toaster richColors />
 </div>
