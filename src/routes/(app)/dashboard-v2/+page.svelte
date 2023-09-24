@@ -31,6 +31,21 @@
 		return liquidationPrice;
 	}
 
+	function getBarColor(barWidth: number): string {
+		switch (true) {
+			case barWidth > 75:
+				return 'bg-destructive';
+			case barWidth > 60:
+				return 'bg-orange-300';
+			case barWidth > 50:
+				return 'bg-yellow-300';
+			case barWidth > 25:
+				return 'bg-green-300';
+			default:
+				return 'bg-primary';
+		}
+	}
+
 	// chart needs to update with correct decimal points for ETH price
 	$: {
 		if (ethPrice && resize) {
@@ -50,8 +65,9 @@
 	$: ethBalanceUSD = ethBalance * ethPrice;
 	$: totalBalance = ethBalanceUSD + usdcBalance;
 	$: barWidth = (liquidationPrice / ethPrice) * 100;
-	$: isSafe = barWidth < 50;
-	$: barStyle = (isSafe ? 'bg-primary' : 'bg-destructive') + ' rounded-full h-full';
+	$: isSafe = barWidth < 70;
+
+	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
 </script>
 
 <section class="h-full w-full">
@@ -182,7 +198,7 @@
 					<Card class="w-1/2 flex flex-col gap-2 items-center justify-between p-3 relative">
 						<div class="rounded-full h-12 w-12 bg-gray-300 -top-5 absolute" />
 						<p class="text-center pt-6">Get a loan</p>
-						<Button class="w-full"><a href={ROUTES.NEW_LOAN} class="w-full">Get Started</a></Button>
+						<Button class="w-full"><a href={ROUTES.LOANS_V2} class="w-full">Get Started</a></Button>
 					</Card>
 				</section>
 

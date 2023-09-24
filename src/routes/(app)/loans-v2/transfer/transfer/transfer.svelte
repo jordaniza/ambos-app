@@ -20,6 +20,12 @@
 	$: useTransfer = transferBuy[transferBuyIndex] === 'Transfer Ethereum';
 	$: useBuy = transferBuy[transferBuyIndex] === 'Buy Ethereum';
 
+	$: {
+		// reset the manualWalletExchangeIndex when we switch between transfer and buy
+		// to avoid showing the wrong option when the user changes back
+		if (useBuy) manualWalletExchangeIndex = 0;
+	}
+
 	$: useManual = manualWalletExchange[manualWalletExchangeIndex] === 'Manual';
 	$: useWallet = manualWalletExchange[manualWalletExchangeIndex] === 'Wallet';
 	$: useExchange = manualWalletExchange[manualWalletExchangeIndex] === 'Exchange';

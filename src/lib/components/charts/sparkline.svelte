@@ -31,4 +31,6 @@
 	};
 </script>
 
-<Base bind:resize options={sparklineOptions} />
+<div class="h-10 w-20 sm:w-28 flex items-center justify-center">
+	<Base bind:resize options={sparklineOptions} />
+</div>
