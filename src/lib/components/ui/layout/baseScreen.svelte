@@ -1,0 +1,19 @@
+<script>
+	/**
+	 * A common layout for base app screens. We can't apply this easily in +layout.svelte
+	 * because we have multiple named slots.
+	 */
+	import Card from '../card/card.svelte';
+</script>
+
+<div class="h-full absolute inset-0 -z-10 bg-primary" />
+<div
+	class="
+    text-popover p-2 flex flex-col items-center text-center
+    justify-start min-h-[140px] tracking-widest"
+>
+	<slot name="header" />
+</div>
+<Card class="rounded-3xl w-full relative bg-background h-full shadow-top">
+	<slot name="card" />
+</Card>

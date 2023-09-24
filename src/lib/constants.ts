@@ -12,7 +12,7 @@ export const ROUTES = {
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
 	// tbimplementation
-	CALCULATOR: '/dashboard-v2',
+	CALCULATOR: '/calculator',
 	// fallback
 	SEND_CRYPTO: '/wallet/send',
 	HISTORY: '/profile/history',

@@ -98,9 +98,9 @@
 </svelte:head>
 
 <Toast />
-{#if !isConnected}<div
-		class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur"
-	/>{/if}
+{#if !isConnected}
+	<div class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur" />
+{/if}
 <div class="md:max-w-[1990px] h-full">
 	<slot />
 </div>
