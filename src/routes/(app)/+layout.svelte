@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../../ambos.postcss';
+	import '../../app.postcss';
 
 	import { connect } from '$stores/account';
 	import { onMount } from 'svelte';

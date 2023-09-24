@@ -8,6 +8,7 @@
 	import Footer from './components/Footer.svelte';
 	import HowItWorks from './components/HowItWorks.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { onMount } from 'svelte';
 
 	// wil be bound to create scroll behavior
 	let scroll: Element;

@@ -14,7 +14,7 @@
 <AccordionPrimitive.Header {level} class="flex">
 	<AccordionPrimitive.Trigger
 		class={cn(
-			'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>span>svg]:rotate-90',
+			'[&[data-state=open]>span>svg]:rotate-90 [&[data-state=open]>span>svg]:bg-secondary [&[data-state=open]>span>svg]:text-white flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline',
 			className
 		)}
 		{...$$restProps}
@@ -24,7 +24,7 @@
 		<span class={cn('flex items-center gap-2')}>
 			<slot name="trigger-right" />
 			<ChevronRight
-				class="h-5 w-5 transition-transform duration-200 bg-secondary p-[2.5px] text-white rounded-full"
+				class="h-5 w-5 transition-transform duration-200 bg-none p-[2.5px] text-primary rounded-full"
 			/>
 		</span>
 	</AccordionPrimitive.Trigger>
