@@ -1,21 +1,32 @@
 <script lang="ts">
 	import Eth from '$lib/eth.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
-	import { InfoIcon } from 'lucide-svelte';
-	import MultiSwitch from '$lib/components/ui/multi-switch/multi-switch.svelte';
-	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import { ROUTES } from '$lib/constants';
+	import { f } from '$lib/utils';
+	import InputEditSlider from './input-edit-slider.svelte';
+	import { InfoIcon } from 'lucide-svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
-	const steps = ['Calculate', 'Transfer ETH', 'Review Loan'];
-	let checked: boolean = false;
+	let ethSupply = 10;
+	let depositValue = ethSupply / 2;
+	let ethPrice = 1600;
+	let maxBorrow = (depositValue * ethPrice) / 2;
+	let borrowAmount = maxBorrow / 2;
+
+	$: notEnoughETH = depositValue > ethSupply * (3 / 4);
+
+	function formatETHValue(value: number): string {
+		return `${value} ETH - ${f(value * ethPrice)}`;
+	}
+
+	function formatBorrowValue(value: number): string {
+		return `${f(value)} of ${f(maxBorrow)}`;
+	}
 </script>
 
-<!-- <Faq /> -->
 <BaseScreen>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
@@ -26,91 +37,59 @@
 	</div>
 	<div slot="card" class="p-4 flex flex-col gap-5 pb-20">
 		<LoanStepper />
-
-		<Card>
-			<Card class="bg-popover p-4 flex flex-col gap-4">
-				<!-- ETH Summary -->
-				<Card class="bg-background rounded-xl py-2 px-4 flex flex-col gap-2">
-					<div class="w-full flex justify-between">
-						<div class=" rounded-xl">
-							<p class="font-extrabold">ETH</p>
-							<p class="text-sm text-secondary">Your Ambos Wallet</p>
-						</div>
+		<!-- Review Params -->
+		<Card class="bg-popover px-4 py-4 flex flex-col gap-4">
+			<Card class="bg-background rounded-xl py-2 px-4 flex flex-col gap-2">
+				<div class="w-full flex justify-between items-center">
+					<div class=" rounded-xl">
+						<p class="font-extrabold">ETH</p>
+						<p class="text-sm text-secondary">Your Ambos Wallet</p>
+						<p class="text-xl">0.152 ETH</p>
+					</div>
+					<div class="flex flex-col items-end justify-between">
 						<div class="h-10 w-10 bg-popover p-2 rounded-lg">
 							<Eth />
 						</div>
 					</div>
-					<p class="text-xl">0.152 ETH</p>
-				</Card>
-				<!-- Transfer Widget -->
-				<div class="flex flex-col gap-3">
-					<div class="w-full flex justify-between font-bold tracking-wide">
-						<p>Amount to transfer</p>
-						<p class="text-secondary">Edit</p>
-					</div>
-					<div class="border border-secondary p-1 rounded-xl flex">
-						<input type="number" class="w-full px-4 py-2 font-bold mr-2 text-sm" />
-						<Button variant="secondary" class="px-5">Copy</Button>
-					</div>
-					<Card class="flex justify-between px-3 py-2 text-sm">
-						<div class="flex items-center">
-							<div class="h-8 w-8 pt-1">
-								<Eth />
-							</div>
-							<p class="pl-2 font-bold">Network</p>
-						</div>
-						<div class="flex items-center justify-end gap-2">
-							<p>Ethereum</p>
-							<InfoIcon class="h-4 w-4 text-muted-foreground" />
-						</div></Card
-					>
-				</div></Card
-			>
-		</Card>
-		<MultiSwitch items={['Transfer Ethereum', 'Buy Ethereum']} />
-
-		<!-- Transfer Select Modal -->
-		<Card class="bg-popover p-4 flex flex-col gap-5">
-			<div class="flex flex-col gap-5">
-				<p>Pick Your Transfer Option</p>
-				<MultiSwitch items={['Manual', 'Wallet', 'Exchange']} />
-				<!-- Network Warning -->
-				<Card
-					class="flex flex-col gap-3 items-center justify-between px-3 py-2 text-sm text-center"
-				>
-					<p class="w-full font-bold text-destructive">Network Caution!</p>
-					<p class="w-full">
-						Ensure you send ETH to the correct network to avoid irreversible loss of funds!
-					</p>
-					<div class="flex items-center space-x-2 pb-2">
-						<Label
-							for="terms"
-							class="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							I acknowledge the network details.
-						</Label>
-						<Checkbox id="terms" bind:checked />
-					</div>
-				</Card>
-			</div>
-
-			<!-- Ambos wallet address -->
-			<div class="text-center flex flex-col gap-3 items-center">
-				<p class="font-bold">Your Ambos Wallet Address</p>
-				<p class="text-sm">Send ETH to your Ambos Wallet</p>
-				<p class="border-secondary rounded-xl border p-2 w-full text-sm">0x0a4d...a7f2</p>
-				<Button variant="secondary" class="px-5 py-0">Copy Address</Button>
-				<div class="relative flex items-center justify-center w-full text-center">
-					<div class="absolute w-11/12 h-[1px] top-1/2 bg-accent-foreground" />
-					<p class="bg-white text-xs text-muted-foreground h-5 w-5 z-10 transform translate-y-0.5">
-						or
-					</p>
 				</div>
-				<p>Scan QR Code</p>
-				<div class="h-32 w-32 border-black border-2" />
-				<Button class="w-11/12 rounded-lg">Verify Sent ETH</Button>
-				<Button variant="link" class="-mt-3">For doubts or issues, see our Help Section</Button>
+			</Card>
+			<InputEditSlider
+				title="You Supply"
+				bind:value={depositValue}
+				max={ethSupply}
+				step={0.01}
+				formatter={formatETHValue}
+			/>
+			<InputEditSlider
+				title="Borrowing"
+				bind:value={borrowAmount}
+				max={maxBorrow}
+				step={1}
+				formatter={formatBorrowValue}
+			/>
+			<div
+				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
+			>
+				<p class="font-bold">Liquidation Price</p>
+				<div class="flex gap-2 justify-end items-center">
+					<p>{f(923)} / ETH</p>
+					<InfoIcon class="h-4 text-muted-foreground" />
+				</div>
 			</div>
+			<div
+				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
+			>
+				<p class="font-bold">Est. Fees & Charges</p>
+				<div class="flex gap-2 justify-end items-center">
+					<p>{f(923)} <span class="text-muted-foreground pl-1">{(16.38).toFixed(2)}%</span></p>
+					<InfoIcon class="h-4 text-muted-foreground" />
+				</div>
+			</div>
+			{#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if}
+			<Button variant={notEnoughETH ? 'secondary' : 'default'} class="w-full py-5"
+				>{notEnoughETH ? 'Transfer More' : 'Confirm & Get Loan'}</Button
+			>
+			<Button variant="link">Repayment Terms</Button>
 		</Card>
 	</div>
 </BaseScreen>

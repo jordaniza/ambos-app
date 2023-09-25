@@ -4,14 +4,42 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
-	import MultiSwitch from '$lib/components/ui/multi-switch/multi-switch.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import { InfoIcon } from 'lucide-svelte';
 	import { ROUTES } from '$lib/constants';
 	import Transfer from './transfer/transfer.svelte';
+	import { onMount } from 'svelte';
+
+	let newETH = 0;
+	let target = 5.23;
+	let showNewETH = false;
+
+	onMount(() => {
+		triggerEffect();
+	});
+
+	function triggerEffect() {
+		showNewETH = true;
+		const duration = 2000;
+		const step = 10;
+
+		const totalSteps = duration / step;
+		const increasePerStep = target / totalSteps;
+
+		newETH = 0; // Reset the counter before starting the animation
+
+		const interval = setInterval(() => {
+			newETH += increasePerStep;
+
+			// When we've reached or exceeded our target, clear the interval
+			if (newETH >= target) {
+				newETH = target; // Ensure we don't overshoot the target
+				clearInterval(interval);
+			}
+		}, step);
+	}
 </script>
 
-<!-- <Faq /> -->
 <BaseScreen>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
@@ -31,12 +59,20 @@
 						<div class=" rounded-xl">
 							<p class="font-extrabold">ETH</p>
 							<p class="text-sm text-secondary">Your Ambos Wallet</p>
+							<p class="text-xl">{(0.152 + newETH).toFixed(2)} ETH</p>
 						</div>
-						<div class="h-10 w-10 bg-popover p-2 rounded-lg">
-							<Eth />
+						<div class="flex flex-col items-end justify-between">
+							<div class="h-10 w-10 bg-popover p-2 rounded-lg">
+								<Eth />
+							</div>
+							<p
+								class={'font-xl text-primary transition-opacity duration-300 ' +
+									(showNewETH ? ' opacity-100' : ' opacity-0')}
+							>
+								+ {newETH.toFixed(2)} ETH
+							</p>
 						</div>
 					</div>
-					<p class="text-xl">0.152 ETH</p>
 				</Card>
 				<!-- Transfer Widget -->
 				<div class="flex flex-col gap-3">

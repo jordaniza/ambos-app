@@ -14,7 +14,7 @@
 		"typechain": "typechain --target ethers-v5 --out-dir src/lib/abis/ts/ src/lib/abis/json/*.json",
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
-		"generate-pwa-assets": "pwa-assets-generator --preset minimal static/ambos.svg"
+		"generate-pwa-assets": "pwa-assets-generator --preset minimal static/ambos-lg.png"
 	},
 	"devDependencies": {
 		"@esbuild-plugins/node-globals-polyfill": "^0.2.3",

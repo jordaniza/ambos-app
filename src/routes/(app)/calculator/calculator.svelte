@@ -1,14 +1,10 @@
 <script lang="ts">
-	import Eth from '$lib/eth.svelte';
 	import { f } from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion';
-
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import Range from '$lib/components/range/range.svelte';
 	import { InfoIcon } from 'lucide-svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
