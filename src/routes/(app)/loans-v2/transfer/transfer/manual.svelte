@@ -59,7 +59,11 @@
 <div class="text-center flex flex-col gap-3 items-center">
 	<p class="font-bold">Your Ambos Wallet Address</p>
 	<p class="text-sm">Send ETH to your Ambos Wallet</p>
-	<p class="border-secondary rounded-xl border p-2 w-full text-xs font-mono">{address}</p>
+	<p
+		class="border-secondary rounded-xl border p-2 w-full text-xs font-mono truncate whitespace-nowrap max-w-md"
+	>
+		{address}
+	</p>
 	<Button
 		variant="secondary"
 		class="px-5 py-0"

@@ -17,6 +17,6 @@
 		<Button class="w-1/2" variant="outline" on:click={() => goto(ROUTES.DASHBOARD_V2)}
 			>Go To Dashboard</Button
 		>
-		<Button class="w-1/2">Review Loan Details</Button>
+		<Button class="w-1/2" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}>Review Loan Details</Button>
 	</div>
 </Card>

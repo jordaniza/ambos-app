@@ -1,9 +1,12 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import MultiSwitch from '$lib/components/ui/multi-switch/multi-switch.svelte';
+	import Buy from '../buy/buy.svelte';
+	import Exchange from './exchange.svelte';
 	import Manual from './manual.svelte';
 	import Success from './success.svelte';
 	import Verification from './verification.svelte';
+	import Wallet from './wallet.svelte';
 
 	let manualWalletExchange = ['Manual', 'Wallet', 'Exchange'];
 	let manualWalletExchangeIndex = 0;
@@ -54,13 +57,15 @@
 			</div>
 			{#if useManual}
 				<Manual bind:verifying={showVerifying} />
-			{:else}
-				<div>COMING SOON</div>
+			{:else if useExchange}
+				<Exchange />
+			{:else if useWallet}
+				<Wallet />
 			{/if}
 		</Card>
 
 		<!-- BUY ETH -->
 	{:else if useBuy}
-		<div>COMING SOON</div>
+		<Buy />
 	{/if}
 {/if}
