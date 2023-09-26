@@ -6,7 +6,9 @@
 	import Card from '../card/card.svelte';
 </script>
 
-<div class="h-full absolute inset-0 -z-10 bg-primary" />
+<div class="h-full absolute inset-0 -z-10 bg-primary">
+	<slot name="background" />
+</div>
 <div
 	class="
     text-popover p-2 flex flex-col items-center text-center
@@ -14,6 +16,6 @@
 >
 	<slot name="header" />
 </div>
-<Card class="rounded-3xl w-full relative bg-background h-full shadow-top">
+<div class="rounded-3xl w-full relative bg-background h-full">
 	<slot name="card" />
-</Card>
+</div>

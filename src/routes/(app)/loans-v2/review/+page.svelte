@@ -4,7 +4,7 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
-	import { ROUTES } from '$lib/constants';
+	import { BACKGROUNDS, ROUTES } from '$lib/constants';
 	import { f } from '$lib/utils';
 	import InputEditSlider from './input-edit-slider.svelte';
 	import { InfoIcon } from 'lucide-svelte';
@@ -28,6 +28,9 @@
 </script>
 
 <BaseScreen>
+	<div slot="background">
+		<img src={BACKGROUNDS.LOANS_V2_REVIEW} alt="Ambos Loans" class="h-full w-full object-cover" />
+	</div>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">
@@ -35,7 +38,7 @@
 			<p>Check all the details and get your loan now</p>
 		</div>
 	</div>
-	<div slot="card" class="p-4 flex flex-col gap-5 pb-20">
+	<div slot="card" class="p-4 flex flex-col gap-5">
 		<LoanStepper />
 		<!-- Review Params -->
 		<Card class="bg-popover px-4 py-4 flex flex-col gap-4">

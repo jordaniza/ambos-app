@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Base from '$lib/components/charts/base.svelte';
 	export let resize: () => void;
+	export let height: number = 50;
 
 	// random data
 	let data = Array(6)
@@ -13,7 +14,8 @@
 			type: 'line',
 			sparkline: {
 				enabled: true
-			}
+			},
+			height
 		},
 		tooltip: {
 			enabled: false
@@ -31,6 +33,6 @@
 	};
 </script>
 
-<div class="h-10 w-20 sm:w-28 flex items-center justify-center">
+<div class="h-10 flex-grow flex items-center justify-center">
 	<Base bind:resize options={sparklineOptions} />
 </div>

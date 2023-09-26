@@ -72,3 +72,33 @@ export const flyAndScale = (
 export function classNames(...classes: (false | null | undefined | string)[]): string {
 	return classes.filter(Boolean).join(' ');
 }
+
+export function getLiquidationPrice(
+	debtValueUSD: number,
+	collateralInEth: number,
+	maxLTV: number
+): number {
+	// we need to work out the price at which the collateral becomes worth less than maxLTV% of the debtValueUSD
+	// P = (D / C) / (maxLTV)
+	// Eg: ($5000 Debt / 2 ETH) = $2500 per ETH
+	//    $2500 per ETH / (50% maxLTV) = $5000 per ETH
+	if (collateralInEth === 0 || maxLTV === 0) return 0;
+	const debtPerCollateralDeposited = debtValueUSD / collateralInEth;
+	const liquidationPrice = debtPerCollateralDeposited / maxLTV;
+	return liquidationPrice;
+}
+
+export function getBarColor(barWidth: number): string {
+	switch (true) {
+		case barWidth > 75:
+			return 'bg-destructive';
+		case barWidth > 60:
+			return 'bg-orange-300';
+		case barWidth > 50:
+			return 'bg-yellow-300';
+		case barWidth > 25:
+			return 'bg-green-300';
+		default:
+			return 'bg-primary';
+	}
+}

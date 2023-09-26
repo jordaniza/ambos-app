@@ -3,6 +3,8 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import Calculator from './calculator.svelte';
+	import { BACKGROUNDS } from '$lib/constants';
+	import TopBar from '../dashboard-v2/top-bar.svelte';
 
 	let ethSupply = 10; // Initial value
 	let borrowAmount = 0; // Initial value
@@ -43,14 +45,16 @@
 
 <!-- <Faq /> -->
 <BaseScreen>
-	<div slot="header" class="pb-5">
-		<BackButton />
-		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Ambos Loans Calculator</h1>
-			<p>Start discovering how much you can borrow against your Ethereum.</p>
-		</div>
+	<div slot="background">
+		<img src={BACKGROUNDS.CALCULATOR} alt="Ambos Loans" class="h-full w-full object-cover" />
 	</div>
-	<div slot="card">
+	<div slot="header" class="pb-20">
+		<TopBar
+			page="Ambos Loans Calculator"
+			subtitle="Start discovering how much you can borrow against your ETH."
+		/>
+	</div>
+	<div slot="card" class=" transform -translate-y-20">
 		<Calculator />
 	</div>
 </BaseScreen>

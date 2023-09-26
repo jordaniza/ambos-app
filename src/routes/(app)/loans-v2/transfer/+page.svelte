@@ -6,7 +6,7 @@
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import { InfoIcon } from 'lucide-svelte';
-	import { ROUTES } from '$lib/constants';
+	import { BACKGROUNDS, ROUTES } from '$lib/constants';
 	import Transfer from './transfer/transfer.svelte';
 	import { onMount } from 'svelte';
 
@@ -41,6 +41,9 @@
 </script>
 
 <BaseScreen>
+	<div slot="background">
+		<img src={BACKGROUNDS.LOANS_V2_TRANSFER} alt="Ambos Loans" class="h-full w-full object-cover" />
+	</div>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">

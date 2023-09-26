@@ -15,7 +15,7 @@ export const ROUTES = {
 	SEND_CRYPTO: '/wallet/send',
 	HISTORY: '/profile/history',
 	NEW_LOAN: '/loans/new',
-	LOANS_V2: '/loans-v2/calculator',
+	LOANS_V2: '/loans-v2',
 	LOANS_V2_TRANSFER: '/loans-v2/transfer',
 	LOANS_V2_REVIEW: '/loans-v2/review',
 	LOANS_V2_CALCULATE: '/loans-v2/calculator'
@@ -28,6 +28,20 @@ export const EXCLUDED_FOOTER_ROUTES = [
 	ROUTES.LOANS_V2_REVIEW,
 	ROUTES.LOANS_V2_CALCULATE
 ];
+
+type BG = {
+	[key in keyof typeof ROUTES]?: string;
+};
+
+// background images for each route
+export const BACKGROUNDS: BG = {
+	CALCULATOR: '/backgrounds/calculator.png',
+	DASHBOARD_V2: '/backgrounds/home.png',
+	LOANS_V2: '/backgrounds/loans.png',
+	LOANS_V2_CALCULATE: '/backgrounds/new-loan.png',
+	LOANS_V2_REVIEW: '/backgrounds/new-loan.png',
+	LOANS_V2_TRANSFER: '/backgrounds/new-loan.png'
+};
 
 /**
  * https://docs.aave.com/developers/core-contracts/aaveoracle#getassetprice
