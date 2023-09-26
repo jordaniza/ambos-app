@@ -5,10 +5,11 @@ export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const ROUTES = {
 	DASHBOARD: '/dashboard',
 	DASHBOARD_V2: '/dashboard-v2',
-	WALLET: '/wallet',
+	WALLET: '/wallet-v2',
 	WELCOME: '/welcome',
 	MY_LOANS: '/loans',
-	PROFILE: '/profile',
+	PROFILE: '/notifications',
+	NOTIFICATIONS: '/notifications',
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
 	CALCULATOR: '/calculator',
@@ -37,10 +38,12 @@ type BG = {
 export const BACKGROUNDS: BG = {
 	CALCULATOR: '/backgrounds/calculator.png',
 	DASHBOARD_V2: '/backgrounds/home.png',
+	WALLET: '/backgrounds/wallet.png',
 	LOANS_V2: '/backgrounds/loans.png',
 	LOANS_V2_CALCULATE: '/backgrounds/new-loan.png',
 	LOANS_V2_REVIEW: '/backgrounds/new-loan.png',
-	LOANS_V2_TRANSFER: '/backgrounds/new-loan.png'
+	LOANS_V2_TRANSFER: '/backgrounds/new-loan.png',
+	NOTIFICATIONS: '/backgrounds/notifications.png'
 };
 
 /**
