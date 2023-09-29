@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { f } from '$lib/utils';
+	import { e, f } from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
@@ -72,7 +72,7 @@
 					step={0.01}
 					bind:value={depositValue}
 					formatter={() => {
-						return `${f(depositValue)} - ${f(ethSupply)}`;
+						return `${e(depositValue)} - ${e(ethSupply)} ETH`;
 					}}
 				/>
 			</div>
