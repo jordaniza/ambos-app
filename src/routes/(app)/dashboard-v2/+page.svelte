@@ -53,13 +53,10 @@
 	<WelcomeDialog startOpen={false} />
 	<!-- Total Balance -->
 	<BaseScreen>
-		<div slot="background">
-			<img
-				src={BACKGROUNDS.DASHBOARD_V2}
-				alt="home screen background"
-				class="h-full w-full object-cover"
-			/>
-		</div>
+		<div
+			slot="background"
+			class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/home.png')]"
+		/>
 
 		<span slot="header" class="-mt-4">
 			<h1 class="tracking-widest pb-1">Total Available Balance</h1>
@@ -68,35 +65,45 @@
 
 		<span slot="card">
 			<!-- Balance Cards -->
-			<div class="absolute transform -translate-y-1/2 flex gap-3 w-full justify-around">
-				<Card variant="popover" padding="base" class="w-1/2 ml-4">
+			<div class="absolute transform -translate-y-1/2 flex gap-3 w-full justify-around px-6">
+				<Card
+					variant="popover"
+					padding="base"
+					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white tracking-widest"
+					style="background-image: url('backgrounds/card-dashboard-eth.png');"
+				>
 					<div class="flex w-full justify-between">
 						<div class="pb-2">
 							<p class="text-lg font-extrabold">ETH</p>
-							<p class="text-sm text-secondary">Wallet</p>
+							<p class="text-xs tracking-normal">Your Wallet</p>
 						</div>
 						<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
 							<img src="/external/eth.png" alt="ETH" class="h-5 w-5" />
 						</div>
 					</div>
 					<div>
-						<p class="text-xl font-bold">
+						<p class="text-xl">
 							{e(ethBalance)}
 						</p>
 					</div>
 				</Card>
-				<Card variant="popover" padding="base" class="w-1/2 mr-4">
+				<Card
+					variant="popover"
+					padding="base"
+					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white bg-blend-darken tracking-widest"
+					style="background-image: url('backgrounds/card-dashboard-stable.png');"
+				>
 					<div class="flex justify-between">
 						<div class="pb-2">
 							<p class="text-lg font-extrabold">USDC</p>
-							<p class="text-sm text-secondary">Wallet</p>
+							<p class="text-xs tracking-normal">Your Wallet</p>
 						</div>
 						<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
-							<img src="/external/usdc.png" alt="USDC" class="h-5 w-5" />
+							<img src="/external/usdc.png" alt="USDC" class="h-7 w-7" />
 						</div>
 					</div>
 					<div>
-						<p class="text-xl font-bold">{f(usdcBalance)}</p>
+						<p class="text-xl">{f(usdcBalance)}</p>
 					</div>
 				</Card>
 			</div>
@@ -237,6 +244,7 @@
 					</div>
 				</Card>
 			</CardContent>
+			<div class="h-72" />
 		</span>
 	</BaseScreen>
 </section>

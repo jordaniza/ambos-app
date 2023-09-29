@@ -71,7 +71,9 @@ export default defineConfig({
 				]
 			}
 		}),
-		purgeCss(),
+		purgeCss({
+			safelist: ['/bg-[url/g']
+		}),
 		nodePolyfills({
 			// Whether to polyfill specific globals.
 			globals: {

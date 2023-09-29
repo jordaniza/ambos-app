@@ -69,11 +69,11 @@
 	];
 </script>
 
-<!-- <Faq /> -->
 <BaseScreen>
-	<div slot="background">
-		<img src={BACKGROUNDS.NOTIFICATIONS} alt="Ambos Loans" class="h-full w-full object-cover" />
-	</div>
+	<div
+		slot="background"
+		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/notifications.png')]"
+	/>
 	<div slot="header" class="w-full tracking-widest pb-20">
 		<nav
 			class="w-full pt-4 px-4 pb-4 tracking-widest items-center justify-between text-popover flex gap-5"

@@ -1,8 +1,10 @@
 <script lang="ts">
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { fade } from 'svelte/transition';
 	import { onDestroy, onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import { Close } from '$lib/components/ui/sheet';
 
 	interface BeforeInstallPromptEvent extends Event {
 		readonly platforms: Array<string>;
@@ -56,6 +58,43 @@
 			installationState = 'manual';
 		}
 	}
+	const steps = {
+		ios: [
+			'Make sure this page is open in the Safari web browser',
+			'Tap the “Share” icon in Safari.',
+			'Select “Add to Home Screen” from the options.',
+			'Confirm the installation by tapping the “Add” button.'
+		],
+		android: [
+			'Tap the 3 vertical dots icon in your browser, next to the search bar',
+			'Select “Add to Home Screen” from the options.',
+			'Confirm the installation by tapping the “Add” button.'
+		]
+	};
+
+	let selectedDevice: 'ios' | 'android' | null = null;
+	$: showSelected = !!selectedDevice;
+	$: selectedSteps = selectedDevice ? steps[selectedDevice] : [];
+
+	function toggleIos() {
+		if (selectedDevice === 'ios') {
+			selectedDevice = null;
+		} else {
+			selectedDevice = 'ios';
+		}
+	}
+
+	function toggleAndroid() {
+		if (selectedDevice === 'android') {
+			selectedDevice = null;
+		} else {
+			selectedDevice = 'android';
+		}
+	}
+
+	function onOpenChange() {
+		selectedDevice = null;
+	}
 </script>
 
 <div
@@ -92,7 +131,7 @@
 				fill="#48B25C"
 			/>
 		</svg>
-		<div class="text-center tracking-widest px-4">
+		<div class="text-center tracking-widest px-4 z-999">
 			<p class="font-semibold">Download The Ambos App</p>
 			<p class="text-muted-foreground tracking-normal">
 				Ambos is available as a Progressive Web App which can be installed on your phone.
@@ -105,34 +144,31 @@
 				<Button class="w-1/3" disabled><LoadingSpinner /></Button>
 			{:else if installationState === 'manual'}
 				<div class="space-y-2">
-					<p class="text-destructive">Unable to auto-install. Please install manually:</p>
-					<a
-						href="https://your-ios-guide-link"
-						class="block bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 active:bg-blue-700"
-						>iOS Guide</a
-					>
-					<a
-						href="https://your-android-guide-link"
-						class="block bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600 active:bg-green-700"
-						>Android Guide</a
-					>
+					<p class="">Please install using the installation guide below:</p>
+					<Button variant="secondary" class="w-1/3" on:click={toggleIos}>iOS</Button>
+					<Button class="w-1/3" on:click={toggleAndroid}>Android</Button>
 				</div>
 			{/if}
 		</div>
 	</div>
-
 	<svg
 		width="557"
 		height="431"
 		viewBox="0 0 557 431"
-		class="absolute -bottom-16"
+		class="opacity-30 absolute -bottom-16 -z-10"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 	>
 		<path
 			d="M492.686 198.54L314.873 173.201C314.707 163.638 314.377 154.565 313.964 146.146C315.204 116.884 318.427 98.0846 326.363 86.3144C336.614 71.1113 357.611 65.2262 401.176 65.2262C433.663 65.2262 481.113 71.7652 522.281 81.9824C523.355 82.2276 524.512 82.391 525.587 82.391C528.232 82.391 530.795 81.6554 533.11 80.1841C536.334 78.1407 538.483 74.8712 539.144 71.1113L545.427 34.4931C546.584 27.6272 542.285 21.0064 535.507 19.1265C490.454 7.11113 437.879 0 394.976 0C336.944 0 301.068 9.39977 278.252 31.6323C255.436 9.39977 219.56 0 161.528 0C118.542 0 66.0497 7.19287 20.997 19.1265C14.2185 20.9247 9.83722 27.5454 11.0772 34.4931L17.3598 71.1113C18.0211 74.7895 20.1704 78.1407 23.3943 80.1841C25.6263 81.6554 28.2716 82.391 30.9169 82.391C31.9916 82.391 33.1489 82.2276 34.2236 81.9824C75.3083 71.8469 122.841 65.2262 155.328 65.2262C198.893 65.2262 219.89 71.1113 230.141 86.3144C238.077 98.1663 241.383 116.884 242.54 146.146C242.127 154.647 241.797 163.638 241.631 173.201L63.8178 198.54C22.6503 203.444 0 226.412 0 263.357C0 324.251 10.3332 364.875 32.6529 391.112C55.7166 418.331 91.4281 431 145.161 431C180.707 431 206.829 425.115 227.413 412.364C232.373 409.258 237.085 405.743 241.383 401.82V410.402C241.383 417.84 247.5 423.971 255.106 423.971H301.894C309.417 423.971 315.617 417.922 315.617 410.402V401.82C319.915 405.743 324.545 409.258 329.587 412.364C350.088 425.033 376.211 431 411.839 431C465.572 431 501.366 418.331 524.347 391.112C546.584 364.875 557 324.251 557 263.357C557 226.494 534.35 203.444 493.182 198.54H492.686ZM223.197 337.656C209.64 358.172 187.403 367.327 151.113 367.327C110.358 367.327 96.5533 356.783 89.0307 347.628C77.3749 333.324 71.919 307.74 71.919 267.199C71.919 263.766 72.5803 260.251 80.1855 258.78L241.053 235.076V278.642C237.911 305.043 232.125 324.333 223.197 337.738V337.656ZM467.143 347.628C459.62 356.783 445.815 367.327 405.061 367.327C368.771 367.327 346.534 358.172 332.977 337.656C324.131 324.251 318.262 304.961 315.121 278.56V234.994L475.988 258.698C483.676 260.169 484.254 263.684 484.254 267.117C484.254 307.659 478.798 333.242 467.143 347.546V347.628Z"
 			fill="#48B25C"
-			fill-opacity="0.33"
 		/>
 	</svg>
 </div>
+<Dialog.Root bind:open={showSelected} {onOpenChange}>
+	<Dialog.Content showCloseIcon={false}>
+		{#each selectedSteps as step}
+			<p>{step}</p>
+		{/each}
+	</Dialog.Content>
+</Dialog.Root>

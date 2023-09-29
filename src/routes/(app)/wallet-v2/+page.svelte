@@ -71,9 +71,10 @@
 <!-- <Faq /> -->
 <TopBar page="Wallet" />
 <BaseScreen>
-	<div slot="background">
-		<img src={BACKGROUNDS.WALLET} alt="Ambos Wallet" class="h-full w-full object-cover" />
-	</div>
+	<div
+		slot="background"
+		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/wallet.png')]"
+	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20" />
 
 	<div slot="card">

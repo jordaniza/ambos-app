@@ -45,9 +45,10 @@
 
 <!-- <Faq /> -->
 <BaseScreen>
-	<div slot="background">
-		<img src={BACKGROUNDS.CALCULATOR} alt="Ambos Loans" class="h-full w-full object-cover" />
-	</div>
+	<div
+		slot="background"
+		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/calculator.png')]"
+	/>
 	<div slot="header" class="pb-20">
 		<TopBar
 			page="Ambos Loans Calculator"

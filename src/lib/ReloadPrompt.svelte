@@ -2,36 +2,34 @@
 	import { useRegisterSW } from 'virtual:pwa-register/svelte';
 
 	// replaced dynamically: TODO figure out how to declare this using vite.define and dts
-	let buildDate = __DATE__
-	let reloadSW = __RELOAD_SW__
+	let buildDate = __DATE__;
+	let reloadSW = __RELOAD_SW__;
 
-	const {
-		offlineReady,
-		needRefresh,
-		updateServiceWorker
-	} = useRegisterSW({
+	const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
 		onRegistered(r) {
 			if (reloadSW) {
-				r && setInterval(() => {
-					console.log('Checking for sw update')
-					r.update()
-				}, 20000 /* 20s for testing purposes */)
+				r &&
+					setInterval(() => {
+						console.log('Checking for sw update');
+						r.update();
+					}, 20000 /* 20s for testing purposes */);
 			} else {
-				console.log(`SW Registered: ${r}`)
+				console.log(`SW Registered: ${r}`);
 			}
 		},
 		onRegisterError(error) {
-			console.log('SW registration error', error)
-		},
-	})
+			console.log('SW registration error', error);
+		}
+	});
 	const close = () => {
-		offlineReady.set(false)
-		needRefresh.set(false)
-	}
+		offlineReady.set(false);
+		needRefresh.set(false);
+	};
 
-	$: toast = $offlineReady || $needRefresh
+	$: toast = $offlineReady || $needRefresh;
 </script>
 
+<!-- 
 {#if toast}
 	<div class="pwa-toast" role="alert">
 		<div class="message">
@@ -54,10 +52,10 @@
 			Close
 		</button>
 	</div>
-{/if}
+{/if} -->
 
-<div class='pwa-date'>
-	{ buildDate }
+<div class="pwa-date">
+	{buildDate}
 </div>
 
 <style>

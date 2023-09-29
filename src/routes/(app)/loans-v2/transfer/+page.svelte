@@ -41,9 +41,10 @@
 </script>
 
 <BaseScreen>
-	<div slot="background">
-		<img src={BACKGROUNDS.LOANS_V2_TRANSFER} alt="Ambos Loans" class="h-full w-full object-cover" />
-	</div>
+	<div
+		slot="background"
+		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/loans.png')]"
+	/>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">

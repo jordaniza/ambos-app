@@ -70,9 +70,10 @@
 <!-- <Faq /> -->
 <TopBar page="Manage Your Loan" />
 <BaseScreen>
-	<div slot="background">
-		<img src={BACKGROUNDS.LOANS_V2} alt="Ambos Loans" class="h-full w-full object-cover" />
-	</div>
+	<div
+		slot="background"
+		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/loans.png')]"
+	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
 		<h1 class="tracking-widest">Current Amount Borrowed</h1>
 		<h2 class="text-4xl tracking-widest">{f(100)}</h2>

@@ -3,10 +3,9 @@
 	 * A common layout for base app screens. We can't apply this easily in +layout.svelte
 	 * because we have multiple named slots.
 	 */
-	import Card from '../card/card.svelte';
 </script>
 
-<div class="h-full absolute inset-0 -z-10 bg-primary">
+<div class="h-full absolute inset-0 -z-10">
 	<slot name="background" />
 </div>
 <div
