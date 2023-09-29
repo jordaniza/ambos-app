@@ -18,6 +18,7 @@ export default defineConfig({
 			mode: 'development',
 			strategies: 'injectManifest',
 			filename: 'prompt-sw.ts',
+			registerType: 'autoUpdate',
 			scope: '/',
 			base: '/',
 			selfDestroying: process.env.SELF_DESTROYING_SW === 'true',
