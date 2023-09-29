@@ -19,8 +19,10 @@
 	import { setChainId } from '$stores/web3/actions';
 	import { pwaInfo } from 'virtual:pwa-info';
 	import Footer from './footer.svelte';
+	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
 	import { EXCLUDED_FOOTER_ROUTES } from '$lib/constants';
+	import { browser } from '$app/environment';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -49,6 +51,9 @@
 	// required for PWA Support
 	$: webManifestLink = pwaInfo?.webManifest.linkTag ?? '';
 	$: currentPage = $page.url.pathname;
+	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(
+		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
+	);
 
 	// update localstorage with transaction updates
 	$: {
@@ -97,14 +102,18 @@
 	{@html webManifestLink}
 </svelte:head>
 
-<Toast />
-{#if !isConnected}
-	<div class="absolute z-10 inset-0 bg-opacity-10 bg-black h-screen backdrop-blur" />
+{#if browser}
+	<Toast />
 {/if}
+<Splash isLoading={!isConnected} />
 <div class="md:max-w-[1990px] h-full">
 	<slot />
 </div>
 <!-- Footer nav on most pages -->
-{#if !EXCLUDED_FOOTER_ROUTES.includes(currentPage)}
+{#if !excludedRoute}
 	<Footer />
 {/if}
+
+{#await import('$lib/ReloadPrompt.svelte') then { default: ReloadPrompt }}
+	<ReloadPrompt />
+{/await}

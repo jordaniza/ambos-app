@@ -31,3 +31,13 @@ Most data lives in the [stores][./src/stores] directory. This includes most asyn
 In our root +layout we initialize the app with some data fetches, and setup some simple watchers to query the blockchain on an interval. This means you can simply subscribe to the store in your component and it will update automatically.
 
 The transaction store in particular has a simple counter that can be incremented when a new transaction is sent. This is used to trigger an immediate re-fetch of the data.
+
+## PWA
+
+PWA is enabled by VitePWA for Sveltekit using the injectManifest method. The relevant files:
+
+- prompt-sw.ts: the workbox service worker
+- ReloadPrompt.svelte: the prompt that is shown when a new version is available, also serves to register the service worker if it isn't already.
+- vite.config.ts::plugins::SvelteKitPWA - the VitePWA plugin configuration
+
+Note that the app is served with prerender=true and will cache static assets. Ensure you're aware of this, and the implications for SSR. In our case, this is a blockchain app, so it's client-heavy and doesn't need to be indexed by search engines.

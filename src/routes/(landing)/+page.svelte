@@ -15,6 +15,7 @@
 	function goToCTA() {
 		scroll?.scrollIntoView({ behavior: 'smooth' });
 	}
+
 </script>
 
 <svelte:head>

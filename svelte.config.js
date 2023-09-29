@@ -15,9 +15,20 @@ const config = {
 		// If your environment is not supported or you settled on a specific environment, switch out the adapter.
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter(),
+		serviceWorker: {
+			register: false
+		},
+		files: {
+			// you don't need to do this if you're using generateSW strategy in your app
+			serviceWorker: 'src/prompt-sw.ts'
+		},
 		alias: {
 			$stores: './src/stores',
 			$lib: './src/lib'
+		},
+		// required to supress pwa warnings. Doesn't seem to have any issues on the application
+		prerender: {
+			handleHttpError: 'warn'
 		}
 	}
 };

@@ -203,12 +203,20 @@
 				<!-- How it works and Get Started -->
 				<section class="flex w-full gap-3 pt-5">
 					<Card class="w-1/2 flex flex-col gap-2 items-center justify-between p-3 relative">
-						<div class="rounded-full h-12 w-12 bg-gray-300 -top-5 absolute" />
+						<img
+							src="/illustrations/how-ambos-works.png"
+							alt="How Ambos Works"
+							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
+						/>
 						<p class="text-center pt-6">How Ambos works?</p>
 						<Button variant="outline" class="w-full">Discover</Button>
 					</Card>
 					<Card class="w-1/2 flex flex-col gap-2 items-center justify-between p-3 relative">
-						<div class="rounded-full h-12 w-12 bg-gray-300 -top-5 absolute" />
+						<img
+							src="/illustrations/get-a-loan.png"
+							alt="Get a Loan"
+							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
+						/>
 						<p class="text-center pt-6">Get a loan</p>
 						<Button class="w-full"><a href={ROUTES.LOANS_V2} class="w-full">Get Started</a></Button>
 					</Card>
@@ -221,7 +229,11 @@
 						<p class="text-lg">Earn $5 Rewards for every successful referral.</p>
 					</div>
 					<div>
-						<div class="rounded-full bg-gray-300 h-12 w-12" />
+						<img
+							src="/illustrations/refer-a-friend.png"
+							alt="Refer a Friend"
+							class="rounded-full h-20 w-28 overflow-visible"
+						/>
 					</div>
 				</Card>
 			</CardContent>

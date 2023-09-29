@@ -6,17 +6,39 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 
 export default defineConfig({
+	define: {
+		__DATE__: `'${new Date().toISOString()}'`,
+		__RELOAD_SW__: false,
+		'process.env.NODE_ENV': process.env.NODE_ENV === 'production' ? '"production"' : '"development"'
+	},
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
-			devOptions: {
-				enabled: true
+			srcDir: './src',
+			mode: 'development',
+			strategies: 'injectManifest',
+			filename: 'prompt-sw.ts',
+			scope: '/',
+			base: '/',
+			selfDestroying: process.env.SELF_DESTROYING_SW === 'true',
+			injectManifest: {
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
 			},
-			registerType: 'autoUpdate',
+			workbox: {
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
+			},
+			devOptions: {
+				enabled: true,
+				suppressWarnings: process.env.SUPPRESS_WARNING === 'true',
+				type: 'module',
+				navigateFallback: '/'
+			},
+			// if you have shared info in svelte config file put in a separate module and use it also here
+			kit: {},
 			manifest: {
 				name: 'Ambos Finance',
 				short_name: 'Ambos',
-				start_url: '/dashboard',
+				start_url: '/dashboard-v2',
 				display: 'standalone',
 				description:
 					'Get cash for your crypto today, without selling, in a streamlined, secure, non-custodial application.',
@@ -53,7 +75,7 @@ export default defineConfig({
 		nodePolyfills({
 			// Whether to polyfill specific globals.
 			globals: {
-				Buffer: true // can also be 'build', 'dev', or false
+				Buffer: 'build' // can also be 'build', 'dev', or false
 			}
 		})
 	],
