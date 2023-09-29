@@ -10,6 +10,7 @@
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
+	import InputEditSlider from '../loans-v2/review/input-edit-slider.svelte';
 
 	let ethSupply = 10; // Initial value
 	let borrowAmount = 0; // Initial value
@@ -64,28 +65,29 @@
 		<CardContent class="flex flex-col gap-5">
 			<!-- Eth Supply -->
 			<div class="py-4">
-				<p class="font-extrabold text-md tracking-widest">How much ETH do you want to deposit?</p>
-
-				<div class="py-3">
-					<Range bind:value={depositValue} max={ethSupply} step={0.01} />
-				</div>
-				<Button
-					variant="outline"
-					class="border-secondary bg-popover shadow-md font-bold py-6 w-full"
-					>{depositValue} ETH - {f(depositUSD)}</Button
-				>
+				<InputEditSlider
+					title="How much ETH do you want to deposit?"
+					max={ethSupply}
+					showRange={true}
+					step={0.01}
+					bind:value={depositValue}
+					formatter={() => {
+						return `${f(depositValue)} - ${f(ethSupply)}`;
+					}}
+				/>
 			</div>
 			<!-- USD Borrow -->
 			<div>
-				<p class="font-extrabold text-md tracking-widest">How much USD do you want to borrow?</p>
-				<div class="py-3">
-					<Range bind:value={borrowAmount} max={maxBorrow} />
-				</div>
-				<Button
-					variant="outline"
-					class="border-secondary bg-popover shadow-md font-bold py-6 w-full"
-					>{f(borrowAmount)} - {f(maxBorrow)}</Button
-				>
+				<InputEditSlider
+					title="How much USD do you want to borrow?"
+					showRange={true}
+					max={maxBorrow}
+					step={1}
+					bind:value={borrowAmount}
+					formatter={() => {
+						return `${f(borrowAmount)} - ${f(maxBorrow)}`;
+					}}
+				/>
 				<p class="text-xs text-muted-foreground py-3">Increase the ETH deposit to borrow more</p>
 			</div>
 			<!-- Stats -->

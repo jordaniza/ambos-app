@@ -2,7 +2,7 @@
 	import { ROUTES } from '$lib/constants';
 	import { Popover, PopoverTrigger, PopoverContent } from '$lib/components/ui/popover';
 	import { Button } from '$lib/components/ui/button';
-	import NotificationCircle from '$lib/components/ui/notifcationCircle/notificationCircle.svelte';
+	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 </script>
 
 <Popover>

@@ -72,14 +72,13 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/notifications.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/notifications.png')]"
 	/>
 	<div slot="header" class="w-full tracking-widest pb-20">
 		<nav
 			class="w-full pt-4 px-4 pb-4 tracking-widest items-center justify-between text-popover flex gap-5"
 		>
 			<BackButton />
-			<Bell class="h-5 w-5" />
 		</nav>
 		<p class="text-xl">Notifications</p>
 	</div>

@@ -18,7 +18,7 @@
 	import { connect, disconnect } from '$stores/account';
 
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
-	import NotificationCircle from '$lib/components/ui/notifcationCircle/notificationCircle.svelte';
+	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 	import ThemeToggle from '$lib/components/ui/theme-toggle/theme-toggle.svelte';
 
 	let accountStore = getAccountStore();

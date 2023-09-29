@@ -19,7 +19,11 @@ const { format } = new Intl.NumberFormat('en-US', {
 // apply default usd formatting
 export const f = (n: number) => format(n);
 
+// eth formatting
 export const e = (n: number) => (n > 10 ? n.toFixed(2) : n.toFixed(4));
+
+// percentage formatting
+export const pc = (n: number) => (n < 0.01 ? `${n.toFixed(4)}%` : `${n.toFixed(2)}%`);
 
 type FlyAndScaleParams = {
 	y?: number;

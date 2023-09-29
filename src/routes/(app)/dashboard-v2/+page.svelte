@@ -55,7 +55,7 @@
 	<BaseScreen>
 		<div
 			slot="background"
-			class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/home.png')]"
+			class="w-full h-full bg-contain bg-primary bg-top bg-[url('/backgrounds/home.png')]"
 		/>
 
 		<span slot="header" class="-mt-4">
@@ -216,7 +216,7 @@
 							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
 						/>
 						<p class="text-center pt-6">How Ambos works?</p>
-						<Button variant="outline" class="w-full">Discover</Button>
+						<Button disabled={true} variant="outline" class="w-full">Discover</Button>
 					</Card>
 					<Card class="w-1/2 flex flex-col gap-2 items-center justify-between p-3 relative">
 						<img

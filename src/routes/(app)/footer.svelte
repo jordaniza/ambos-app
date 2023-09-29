@@ -14,10 +14,11 @@
 	const iconHeightClass = 'h-' + iconHeight;
 	$: currentRoute = $page.url.pathname;
 	$: walletTextColor = currentRoute === ROUTES.WALLET ? ' text-secondary ' : '';
+	$: walletIconColor = currentRoute === ROUTES.WALLET ? ' text-secondary ' : ' text-white ';
 </script>
 
 <footer
-	class="fixed bottom-0 left-0 w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs"
+	class="fixed bottom-0 left-0 select-none w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs"
 >
 	<!-- Dashboard Icon -->
 	<MenuLink href={ROUTES.DASHBOARD_V2} name="Dashboard">
@@ -47,7 +48,7 @@
         items-center
         bg-primary"
 			><a href={ROUTES.WALLET} class="w-full h-full pt-[1px]">
-				<Wallet class={'text-popover ' + iconHeightClass} />
+				<Wallet class={walletIconColor + ' ' + iconHeightClass} />
 			</a>
 		</button>
 		<p class={'text-center ' + walletTextColor}>Wallet</p>
@@ -72,5 +73,9 @@
 		bottom: 115%;
 		left: 50%;
 		transform: translateX(-50%);
+	}
+
+	* {
+		-webkit-tap-highlight-color: transparent;
 	}
 </style>

@@ -43,11 +43,10 @@
 	onMount(fetchEthPrice);
 </script>
 
-<!-- <Faq /> -->
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/calculator.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/calculator.png')]"
 	/>
 	<div slot="header" class="pb-20">
 		<TopBar

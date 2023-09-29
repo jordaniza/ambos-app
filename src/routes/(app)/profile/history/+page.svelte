@@ -6,7 +6,7 @@
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import NotificationCircle from '$lib/components/ui/notifcationCircle/notificationCircle.svelte';
+	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as Table from '$lib/components/ui/table';
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';

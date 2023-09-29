@@ -5,7 +5,7 @@
 	 */
 </script>
 
-<div class="h-full absolute inset-0 -z-10">
+<div class="h-1/2 absolute top-0 left-0 w-full -z-10">
 	<slot name="background" />
 </div>
 <div
@@ -15,6 +15,6 @@
 >
 	<slot name="header" />
 </div>
-<div class="rounded-3xl w-full relative bg-background h-full">
+<div class="rounded-3xl w-full absolute top-1/6 bg-background h-full">
 	<slot name="card" />
 </div>

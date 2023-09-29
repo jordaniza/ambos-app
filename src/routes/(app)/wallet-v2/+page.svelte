@@ -1,33 +1,22 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { BACKGROUNDS } from '$lib/constants';
-	import { f, getBarColor } from '$lib/utils';
-	import {
-		CreditCardIcon,
-		DollarSign,
-		GemIcon,
-		HistoryIcon,
-		InfoIcon,
-		LockIcon,
-		ReceiptIcon,
-		WalletIcon
-	} from 'lucide-svelte';
+	import { e, f } from '$lib/utils';
+	import { DollarSign, HistoryIcon, InfoIcon, WalletIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard-v2/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { getAccountStore } from '$lib/context/getStores';
-	import Wallet from '../loans-v2/transfer/transfer/wallet.svelte';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 
 	let priceUp = Math.random() > 0.5;
-	let availableBalance = 1500.733434;
-	let barWidth = 75;
-	let repayValue = 0;
-
 	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
 
 	$: address = $accountStore.address;
-	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
+	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
+	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
+	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
+	$: ethBalanceUSD = ethBalance * ethPrice;
+	$: totalUSDValue = ethBalanceUSD + usdcBalance;
 
 	// capitalise first letter of every word and lower case the rest
 	function toProperCase(str: string): string {
@@ -73,7 +62,7 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/wallet.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/wallet.png')]"
 	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20" />
 
@@ -86,14 +75,14 @@
 					style="background-image: url('backgrounds/card.png');"
 				>
 					<div class="flex w-full justify-between items-center gap-2">
-						<p class="text-3xl tracking-widest">{f(43656.75)}</p>
+						<p class="text-3xl tracking-widest">{f(totalUSDValue)}</p>
 						<img src="/Logo-light-transparent.png" alt="Ambos Finance" class="h-16 w-16" />
 					</div>
 					<p>Your Balance</p>
 					<p class="text-[10px] font-extralight text-gray-400">{address ?? '0x0000000'}</p>
 					<div class="pt-10 flex items-center gap-3 pb-1">
-						<Button class="py-0 text-sm h-8 rounded-lg w-1/3">Buy / Sell</Button>
-						<Button class="py-0 text-sm h-8 rounded-lg w-1/3">Transfer</Button>
+						<Button disabled={true} class="py-0 text-sm h-8 rounded-lg w-1/3">Buy / Sell</Button>
+						<Button disabled={true} class="py-0 text-sm h-8 rounded-lg w-1/3">Transfer</Button>
 					</div>
 				</div>
 			</div>
@@ -102,7 +91,7 @@
 				<div class="flex w-full justify-between tracking-widest">
 					<div class="flex items-center gap-3">
 						<WalletIcon class="text-muted-foreground h-4 w-4" />
-						<p class="font-bold">Your available amount</p>
+						<p class="font-bold">Your Available Balances</p>
 					</div>
 					<InfoIcon class="text-muted-foreground h-4 w-4" />
 				</div>
@@ -122,8 +111,8 @@
 						</div>
 					</div>
 					<div>
-						<p class="font-bold">2.34 ETH</p>
-						<p class="text-sm">{f(3750.0)}</p>
+						<p class="font-bold">{e(ethBalance)} ETH</p>
+						<p class="text-sm">{f(ethBalanceUSD)}</p>
 					</div>
 				</div>
 				<div class="flex justify-between items-center gap-2">
@@ -136,8 +125,8 @@
 						</div>
 					</div>
 					<div class="text-end">
-						<p class="font-bold">4250 USDC</p>
-						<p class="text-sm">{f(4249.99)}</p>
+						<p class="font-bold">{usdcBalance} USDC</p>
+						<p class="text-sm">{f(usdcBalance)}</p>
 					</div>
 				</div>
 			</Card>
@@ -164,4 +153,5 @@
 			</Card>
 		</div>
 	</div>
+	<div class="h-32" />
 </BaseScreen>

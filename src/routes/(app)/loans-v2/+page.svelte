@@ -1,8 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { BACKGROUNDS } from '$lib/constants';
-	import { f, getBarColor } from '$lib/utils';
+	import { e, f, getBarColor, getLiquidationPrice, pc } from '$lib/utils';
 	import {
 		CreditCardIcon,
 		DollarSign,
@@ -10,22 +9,68 @@
 		HistoryIcon,
 		InfoIcon,
 		LockIcon,
-		ReceiptIcon,
-		RewindIcon
+		ReceiptIcon
 	} from 'lucide-svelte';
 	import TopBar from '../dashboard-v2/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { getWeb3Store } from '$lib/context/getStores';
+	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
+
+	type HistoryItem = {
+		action: string;
+		currency: string;
+		usdValue: number;
+		timestamp: number;
+	};
+
+	const now = new Date().getTime();
+
+	const historyItems: HistoryItem[] = [
+		{ action: 'supplied', currency: 'ETH', usdValue: 2.34, timestamp: now - 1_000_000 },
+		{ action: 'borrowed', currency: 'USDC', usdValue: 4250, timestamp: now - 3_000_000_100 },
+		{ action: 'repaid', currency: 'USDC', usdValue: 2000.45, timestamp: now - 10_020_100_000 }
+	];
 
 	let priceUp = Math.random() > 0.5;
 	let availableBalance = 1500.733434;
-	let barWidth = 75;
 	let repayValue = 0;
+	let web3Store = getWeb3Store();
 
+	$: interestRate = $web3Store.poolReserveData.variableBorrowingRate.small ?? 0;
+	$: borrowed = $web3Store.userPoolData.totalDebtBase.small ?? 0;
+	$: supplied = $web3Store.balances['aWETH'].small ?? 0;
+	$: ethPrice = $web3Store.ethPrice.small ?? 0;
+	$: suppliedValue = supplied * ethPrice ?? 0;
+	$: maxLTV = $web3Store.userPoolData.ltv.small ?? 0;
+	$: loanLQPercentage = getLoanLiquidationPercentage(borrowed, suppliedValue, maxLTV);
+	$: liquidationPrice = getLiquidationPrice(borrowed, supplied, maxLTV);
+	$: barWidth = loanLQPercentage * 100;
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
 
+	function formatter(value: number): string {
+		return f(value);
+	}
+
+	function getLoanLiquidationPercentage(borrowed: number, supplied: number, maxLTV: number) {
+		// first get the borrowed out of supplied
+		const borrowedOutOfSupplied = borrowed / supplied;
+		// now we need that as a percentage of the maxLTV
+		return borrowedOutOfSupplied / maxLTV;
+	}
+
+	function getLiquidationStatus(liquidationPercentage: number) {
+		if (liquidationPercentage < 0.5) {
+			return 'Low';
+		} else if (liquidationPercentage < 0.7) {
+			return 'Medium';
+		} else {
+			return 'High';
+		}
+	}
+
 	function useMaxRepay(): void {
-		repayValue = Number(availableBalance.toFixed(2));
+		repayValue = Math.min(availableBalance, borrowed);
 	}
 
 	// capitalise first letter of every word and lower case the rest
@@ -50,21 +95,6 @@
 
 		return `${month} ${day} ${year} - ${hour}:${minute}`;
 	}
-
-	type HistoryItem = {
-		action: string;
-		currency: string;
-		usdValue: number;
-		timestamp: number;
-	};
-
-	const now = new Date().getTime();
-
-	const historyItems: HistoryItem[] = [
-		{ action: 'supplied', currency: 'ETH', usdValue: 2.34, timestamp: now - 1_000_000 },
-		{ action: 'borrowed', currency: 'USDC', usdValue: 4250, timestamp: now - 3_000_000_100 },
-		{ action: 'repaid', currency: 'USDC', usdValue: 2000.45, timestamp: now - 10_020_100_000 }
-	];
 </script>
 
 <!-- <Faq /> -->
@@ -72,11 +102,11 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-1/4 bg-cover bg-primary bg-top bg-[url('/backgrounds/loans.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
 	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
 		<h1 class="tracking-widest">Current Amount Borrowed</h1>
-		<h2 class="text-4xl tracking-widest">{f(100)}</h2>
+		<h2 class="text-4xl tracking-widest">{f(borrowed)}</h2>
 	</div>
 
 	<div slot="card">
@@ -106,13 +136,13 @@
 						</div>
 					</div>
 					<div>
-						<p class="font-bold">2.34 ETH</p>
-						<p class="text-sm">{f(3750.0)}</p>
+						<p class="font-bold text-right">{e(supplied)} ETH</p>
+						<p class="text-sm">{f(suppliedValue)}</p>
 					</div>
 				</div>
 				<section class="flex gap-2">
-					<Button variant="outline" class="w-1/2 text-primary">Remove ETH</Button>
-					<Button class="w-1/2">Add ETH</Button>
+					<Button disabled={true} variant="outline" class="w-1/2 text-primary">Remove ETH</Button>
+					<Button disabled={true} class="w-1/2">Add ETH</Button>
 				</section>
 			</Card>
 			<!-- Borrowed -->
@@ -134,14 +164,14 @@
 						</div>
 					</div>
 					<div class="text-end">
-						<p class="font-bold">4250 USDC</p>
-						<p class="text-sm">{f(4249.99)}</p>
+						<p class="font-bold">{borrowed.toFixed(2)} USDC</p>
+						<p class="text-sm">{f(borrowed)}</p>
 					</div>
 				</div>
 				<Separator />
 				<div class="flex justify-between items-center">
 					<p>Interest Rate</p>
-					<p>0.23%</p>
+					<p>{pc(interestRate)}</p>
 				</div>
 			</Card>
 			<!-- Loan Health -->
@@ -159,17 +189,17 @@
 							<div class={barStyle} style={`width: ${barWidth}%;`} />
 						</div>
 					</div>
-					<p class="text-secondary">40%</p>
+					<p class="text-secondary">{Math.floor(barWidth)}%</p>
 				</div>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex justify-between items-center w-full">
 						<p>Risk of Liquidation</p>
-						<p>Low</p>
+						<p>{getLiquidationStatus(loanLQPercentage)}</p>
 					</div>
 				</div>
 				<div class="flex justify-between items-center w-full">
 					<p>Liquidation Price</p>
-					<p>{f(2000)} / ETH</p>
+					<p>{f(liquidationPrice)} / ETH</p>
 				</div>
 				<Separator />
 				<div class="flex flex-col items-start -mb-2">
@@ -191,7 +221,7 @@
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex justify-between items-center w-full">
 						<p>Outstanding Amount</p>
-						<p class="text-secondary">{f(1000)} (+{f(500)} interest)</p>
+						<p class="text-secondary">{f(borrowed)} (+{f(500)} interest)</p>
 					</div>
 				</div>
 				<div class="flex justify-between items-center w-full">
@@ -200,11 +230,11 @@
 				</div>
 				<Separator />
 				<div class="flex flex-col gap-1 pt-3">
-					<div class="flex justify-between gap-2">
-						<input
-							class="grow border-secondary border-[1px] rounded-xl px-4 font-bold"
-							type="number"
+					<div class="flex justify-between w-full gap-2">
+						<FormatInput
+							{formatter}
 							bind:value={repayValue}
+							class="grow w-full border-secondary border-[1px] rounded-xl px-4 font-bold"
 						/>
 						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
 							<DollarSign class="text-secondary stroke-2 h-7 w-7" />
@@ -212,17 +242,19 @@
 					</div>
 					<div class="flex justify-between items-center gap-2">
 						<div class="flex justify-between items-center w-full text-xs text-muted-foreground">
-							<p>Available Balance: {f(availableBalance)}</p>
+							<p class="pl-1">Available Balance: {f(availableBalance)}</p>
 							<Button variant="link" class="p-0 text-rightg text-xs" on:click={useMaxRepay}
 								>Use Max</Button
 							>
 						</div>
 					</div>
-					<Button variant="outline" class="w-full text-primary">Confirm Repayment</Button>
+					<Button variant="outline" disabled={true} class="w-full text-primary"
+						>Confirm Repayment</Button
+					>
 				</div></Card
 			>
 			<!-- Loan History -->
-			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4">
+			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 mb-20">
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	export let href: string;
@@ -8,7 +9,16 @@
 	$: textStyle = currentRoute === href ? ' text-secondary ' : '';
 </script>
 
-<div class={textStyle + 'flex flex-col gap-1 items-center w-1/5'}>
+<button
+	on:click={() => goto(href)}
+	class={textStyle + 'flex flex-col gap-1 items-center w-1/5 select-none focus:outline-none '}
+>
 	<slot />
-	<a {href}>{name}</a>
-</div>
+	<p>{name}</p>
+</button>
+
+<style>
+	* {
+		-webkit-tap-highlight-color: transparent;
+	}
+</style>

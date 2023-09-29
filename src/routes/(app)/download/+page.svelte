@@ -139,14 +139,20 @@
 				<br />
 			</p>
 			{#if installationState === 'idle'}
-				<Button class="w-1/3" disabled={installing} on:click={installPWA}>Install App</Button>
+				<Button class="w-full sm:w-1/3 max-w-[350px]" disabled={installing} on:click={installPWA}
+					>Install App</Button
+				>
 			{:else if installationState === 'loading'}
 				<Button class="w-1/3" disabled><LoadingSpinner /></Button>
 			{:else if installationState === 'manual'}
-				<div class="space-y-2">
+				<div class="space-y-5">
 					<p class="">Please install using the installation guide below:</p>
-					<Button variant="secondary" class="w-1/3" on:click={toggleIos}>iOS</Button>
-					<Button class="w-1/3" on:click={toggleAndroid}>Android</Button>
+					<div class="w-full flex flex-wrap gap-1 justify-center items-center">
+						<Button variant="secondary" class="max-w-[350px] w-full sm:w-1/3" on:click={toggleIos}
+							>iOS</Button
+						>
+						<Button class="w-full sm:w-1/3 max-w-[350px]" on:click={toggleAndroid}>Android</Button>
+					</div>
 				</div>
 			{/if}
 		</div>
