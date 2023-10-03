@@ -3,7 +3,7 @@
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import Calculator from '../../calculator/calculator.svelte';
-	import { BACKGROUNDS, ROUTES } from '$lib/constants';
+	import { ROUTES } from '$lib/constants';
 
 	let ethSupply = 10; // Initial value
 	let borrowAmount = 0; // Initial value

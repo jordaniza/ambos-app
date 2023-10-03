@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { e, f } from '$lib/utils';
+	import { e, f, pc } from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
@@ -11,28 +11,56 @@
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
 	import InputEditSlider from '../loans-v2/review/input-edit-slider.svelte';
+	import {
+		getEthValue,
+		getEthValueRemainingIfUserHadSold,
+		getFeesAndCharges,
+		getLiquidationPrice,
+		getMaxBorrow,
+		getMinimumDepositValue,
+		getPercentageEthPriceChange,
+		getReturnsAfterInterestAndFees
+	} from './calculator';
+	import { getWeb3Store } from '$lib/context/getStores';
 
-	let ethSupply = 10; // Initial value
-	let borrowAmount = 0; // Initial value
-	let ethPrice = 0; // Initial or fetched value
+	let ethMaxValue = 10;
+	let ethSupplyQty = ethMaxValue / 2;
+	let borrowAmount = 0;
+	let ethPrice = 0;
+	let ethPriceChangeWholePc = 20; // Initial value
 	let fetchedAt: Date;
 	let newEthPrice = 0;
-	let ethPriceChange = 20; // Initial value
-	let liquidationThreshold = 0.85; // 85%
 	let interestRate = 0.05; // 5%
-	let depositValue = ethSupply / 2;
+	let web3Store = getWeb3Store();
 
 	// Computed values
-	$: interest = borrowAmount * interestRate;
-	$: minDepositValue = (borrowAmount + interest) / liquidationThreshold;
-	$: liquidationPrice = ethSupply > 0 ? minDepositValue / ethSupply : 0;
-	$: ethSupplyValue = ethSupply * ethPrice;
-	$: newEthPrice = ethPrice * (1 + ethPriceChange / 100);
-	$: ethRemainingIfUserHadSold = ethSupplyValue - borrowAmount;
-	$: ethValueIfUserHadSold = (ethRemainingIfUserHadSold / ethPrice) * newEthPrice;
-	$: changeInEthPrice = ((newEthPrice - ethPrice) / ethPrice) * 100;
-	$: depositUSD = depositValue * ethPrice;
-	$: maxBorrow = depositUSD / 2;
+	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
+	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmount, maxLTV);
+	$: minDepositValue = getMinimumDepositValue(liquidationPrice, ethSupplyQty);
+	$: depositUSDValue = getEthValue(ethSupplyQty, ethPrice);
+	$: feesAndCharges = getFeesAndCharges(depositUSDValue, borrowAmount);
+	$: percentageChangeInEthPrice = getPercentageEthPriceChange(ethPrice, newEthPrice);
+	$: newEthPrice = ethPrice * (1 + ethPriceChangeWholePc / 100);
+	$: newEthValue = ethSupplyQty * newEthPrice;
+	$: returnsAfterInterestAndFees = getReturnsAfterInterestAndFees(
+		ethSupplyQty,
+		percentageChangeInEthPrice,
+		newEthPrice,
+		interestRate,
+		borrowAmount
+	);
+	$: ethRemainingIfUserHadSold = getEthValueRemainingIfUserHadSold(
+		ethSupplyQty,
+		ethPrice,
+		percentageChangeInEthPrice,
+		borrowAmount
+	);
+	$: liquidated = liquidationPrice >= newEthPrice;
+	$: returnIncludingLiquidation = liquidated
+		? returnsAfterInterestAndFees - newEthValue
+		: returnsAfterInterestAndFees;
+	$: borrowAmountEthEquivalent = borrowAmount / ethPrice;
 
 	$: {
 		if (borrowAmount > maxBorrow) {
@@ -40,7 +68,6 @@
 		}
 	}
 
-	// More logic here$lib.
 	async function fetchEthPrice() {
 		try {
 			const response = await fetch(
@@ -67,12 +94,12 @@
 			<div class="py-4">
 				<InputEditSlider
 					title="How much ETH do you want to deposit?"
-					max={ethSupply}
+					max={ethMaxValue}
 					showRange={true}
 					step={0.01}
-					bind:value={depositValue}
+					bind:value={ethSupplyQty}
 					formatter={() => {
-						return `${e(depositValue)} - ${e(ethSupply)} ETH`;
+						return `${e(ethSupplyQty)} - ${e(ethMaxValue)} ETH`;
 					}}
 				/>
 			</div>
@@ -96,11 +123,11 @@
 				<div class="flex w-full gap-2">
 					<div class="bg-background w-1/2 rounded-2xl px-3 py-2 text-left">
 						<p class="font-bold">Min Deposit Value</p>
-						<p>{f(2392)}</p>
+						<p>{f(minDepositValue)}</p>
 					</div>
 					<div class="bg-background w-1/2 rounded-2xl px-3 py-2 text-left">
 						<p class="font-bold">Interest Rate</p>
-						<p>{interestRate}%</p>
+						<p>{pc(interestRate ?? 0)}</p>
 					</div>
 				</div>
 
@@ -119,7 +146,10 @@
 						<Accordion.Trigger class="w-full">
 							<div class="font-bold">Est. Fees & Charges</div>
 							<div slot="trigger-right">
-								{f(123)} <span class="pl-1 text-muted-foreground">12.34%</span>
+								{f(feesAndCharges.total)}
+								<span class="pl-1 text-muted-foreground"
+									>{pc(feesAndCharges.percentOfBorrowed)}</span
+								>
 							</div>
 						</Accordion.Trigger>
 						<Accordion.Content>
@@ -127,19 +157,19 @@
 								<div class="flex w-full justify-between">
 									<p>Ambos Fee</p>
 									<div>
-										<p>{f(1234)}</p>
+										<p>{f(feesAndCharges.ambosFee)}</p>
 									</div>
 								</div>
 								<div class="flex w-full justify-between">
 									<p>Est. Exchange Fees</p>
 									<div>
-										<p>{f(1234)}</p>
+										<p>{f(feesAndCharges.exchangeFee)}</p>
 									</div>
 								</div>
 								<div class="flex w-full justify-between">
 									<p>Est. Network Fees</p>
 									<div>
-										<p>{f(1234)}</p>
+										<p>{f(feesAndCharges.networkFee)}</p>
 									</div>
 								</div>
 							</div>
@@ -174,10 +204,10 @@
 						class={(newEthPrice >= ethPrice ? 'text-primary' : 'text-destructive') +
 							' font-thin pl-2'}
 					>
-						{#if changeInEthPrice > 0}
+						{#if percentageChangeInEthPrice > 0}
 							+
 						{/if}
-						{changeInEthPrice.toFixed(2)}%
+						{pc(percentageChangeInEthPrice * 100)}
 					</span>
 				</Button>
 			</div>
@@ -185,29 +215,42 @@
 			<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
 				<div class="flex justify-between">
 					<p class="font-bold">You deposited</p>
-					<p>{f(depositUSD)} in USD</p>
+					<p>{f(depositUSDValue)}</p>
 				</div>
 				<div class="flex justify-between">
 					<p class="font-bold">You borrowed</p>
-					<p class="text-destructive">{f(borrowAmount)} in USD</p>
+					<p class="text-destructive">{f(borrowAmount)}</p>
 				</div>
 				<div class="flex justify-between">
-					<p class="font-bold">Profit - including fees</p>
-					<p class="text-primary">{f(depositUSD)} in USD</p>
+					<p class="font-bold">
+						Total {returnsAfterInterestAndFees > 0 ? 'Profit - including fees' : 'Loss'}
+					</p>
+					<p class={returnsAfterInterestAndFees > 0 ? 'text-primary' : 'text-destructive'}>
+						{f(returnIncludingLiquidation)}
+					</p>
 				</div>
 			</div>
 			<div class="h-72">
 				<CalculatorBars
+					{liquidated}
 					borrowed={borrowAmount}
-					ethRemaining={ethRemainingIfUserHadSold}
-					ethIfYouSold={ethValueIfUserHadSold}
+					ethRemaining={newEthValue}
+					ethIfYouSold={ethRemainingIfUserHadSold}
 				/>
 				<div />
 			</div>
 			<div class="bg-background text-xs rounded-xl px-3 py-2 text-center">
-				By comparison if you'd have sold {f(borrowAmount)} of ETH initially, you'd have {f(
-					ethValueIfUserHadSold
-				)} in ETH remaining.
+				{#if liquidated}
+					You <span class="font-bold">borrowed {f(borrowAmount)}</span> in USD, but
+					<span class="text-red-500">your ETH was liquidated</span>
+					to cover lenders. You no longer have to repay your loan, but you cannot claim your deposit
+					back.
+					<br />
+					<br />
+				{/if}
+				For comparison, if you had sold {e(borrowAmountEthEquivalent)} of ETH instead of borrowing {f(
+					borrowAmount
+				)}, you'd have {f(ethRemainingIfUserHadSold)} in ETH remaining.
 			</div>
 		</CardContent>
 	</Card>

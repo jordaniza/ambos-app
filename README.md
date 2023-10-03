@@ -10,16 +10,17 @@ src/(app) contains the actual application. They differ in the +layout.svelte fil
 ## Development
 
 ```sh
-yarn                        # install dependencies
-yarn dev                    # run dev server
-yarn build                  # build for production
-yarn preview                # preview production build
+yarn                             # install dependencies
+yarn dev                         # run dev server
+yarn build                       # build for production
+yarn preview                     # preview production build
 
-shadcn-svelte@latest add    # add a new component
+shadcn-svelte@latest add         # add a new component
 
-yarn typechain              # generate typechain types for json files in the src/lib/abis/json folder
+ # generate typechain types for json files in the src/lib/abis/json folder
+yarn typechain
 
-yarn test                   # run tests
+yarn test:{unit,integration,e2e} # run tests
 ```
 
 ## Data Flow
@@ -41,3 +42,10 @@ PWA is enabled by VitePWA for Sveltekit using the injectManifest method. The rel
 - vite.config.ts::plugins::SvelteKitPWA - the VitePWA plugin configuration
 
 Note that the app is served with prerender=true and will cache static assets. Ensure you're aware of this, and the implications for SSR. In our case, this is a blockchain app, so it's client-heavy and doesn't need to be indexed by search engines.
+
+## Testing
+
+Vitest can be run in unit, integration or e2e mode. Scripts are in the package.json file.
+Define each test suite by creating a file with the {unit,integration,e2e}.spec.ts extension.
+
+Vitest scans for all files in src that contains {unit,integration,e2e}.spec.ts and runs them.

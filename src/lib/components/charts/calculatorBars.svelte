@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Base from '$lib/components/charts/base.svelte';
-	import { f } from '$lib/utils';
 	export let resize: () => void = () => {};
 	export let borrowed = 10;
 	export let ethRemaining = 1000;
 	export let ethIfYouSold = 13;
+	export let liquidated = false;
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {
@@ -25,7 +25,7 @@
 				columnWidth: '20%'
 			}
 		},
-		colors: ['hsl(131 42% 49%)', 'hsl(219 97% 61%)', 'hsl(0 84.2% 60.2%)'],
+		colors: ['hsl(219 97% 61%)', 'hsl(131 42% 49%)', 'hsl(0 84.2% 60.2%)'],
 		yaxis: {
 			show: true,
 			labels: {
@@ -71,7 +71,7 @@
 		}
 	];
 
-	$: currentSeries = ethRemaining > 0 ? seriesFull : seriesPart;
+	$: currentSeries = !liquidated ? seriesFull : seriesPart;
 	$: options.series = currentSeries;
 </script>
 
