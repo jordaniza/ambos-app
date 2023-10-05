@@ -145,7 +145,7 @@
 	}
 </script>
 
-<Success open={showSuccessModal} finalTxHash={transaction?.finalTxHash ?? ''} />
+<Success {borrowAmount} open={showSuccessModal} finalTxHash={transaction?.finalTxHash ?? ''} />
 <BaseScreen>
 	<div
 		slot="background"
