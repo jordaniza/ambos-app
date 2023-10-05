@@ -74,7 +74,11 @@
 	$: {
 		if (browser) {
 			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
-			if (!seen && !$page.url.pathname.includes(EXCLUDED_SPLASH_ROUTES as any)) {
+			const { pathname } = $page.url;
+			const excludeFromWelcome =
+				pathname.includes(EXCLUDED_SPLASH_ROUTES as any) || pathname === '/';
+
+			if (!seen && !excludeFromWelcome) {
 				goto(ROUTES.WELCOME);
 			}
 		}

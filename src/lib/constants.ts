@@ -3,6 +3,7 @@ import { ChainId } from '@biconomy/core-types';
 export const APP_NAME = 'Ambos Finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const ROUTES = {
+	ROOT: '',
 	DASHBOARD: '/dashboard',
 	DASHBOARD_V2: '/dashboard-v2',
 	WALLET: '/wallet-v2',
@@ -32,7 +33,7 @@ export const EXCLUDED_FOOTER_ROUTES = [
 	ROUTES.DOWNLOAD
 ];
 
-export const EXCLUDED_SPLASH_ROUTES = [ROUTES.WELCOME, ROUTES.DOWNLOAD];
+export const EXCLUDED_SPLASH_ROUTES = [ROUTES.WELCOME, ROUTES.DOWNLOAD, ROUTES.ROOT];
 
 type BG = {
 	[key in keyof typeof ROUTES]?: string;
