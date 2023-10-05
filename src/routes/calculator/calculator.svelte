@@ -28,8 +28,8 @@
 		setSupplyEth
 	} from '$stores/transactions/builders';
 
-	let ethMaxValue = 100;
-	let ethSupplyQty = 10;
+	let ethMaxValue = 10;
+	let ethSupplyQty = 5;
 	let borrowAmount = 0;
 	let ethPrice = 0;
 	let ethPriceChangeWholePc = 20; // Initial value
@@ -124,7 +124,7 @@
 					title="How much USD do you want to borrow?"
 					showRange={true}
 					max={maxBorrow}
-					step={1}
+					step={0.01}
 					bind:value={borrowAmount}
 					formatter={() => {
 						return `${f(borrowAmount)} - ${f(maxBorrow)}`;

@@ -1,42 +1,54 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { BACKGROUNDS } from '$lib/constants';
-	import { f, getBarColor } from '$lib/utils';
-	import {
-		Bell,
-		CreditCardIcon,
-		DollarSign,
-		GemIcon,
-		HistoryIcon,
-		InfoIcon,
-		LockIcon,
-		ReceiptIcon,
-		RewindIcon
-	} from 'lucide-svelte';
-	import TopBar from '../dashboard-v2/top-bar.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { f } from '$lib/utils';
+	import { HistoryIcon } from 'lucide-svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import Logout from '$lib/components/connect/logout.svelte';
+	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
+	import { updateTransaction, type TXDetail } from '$stores/transactions/state';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
+	import { onDestroy } from 'svelte';
 
-	let priceUp = Math.random() > 0.5;
-	let availableBalance = 1500.733434;
-	let barWidth = 75;
-	let repayValue = 0;
+	const txStore = getTxStore();
+	const web3Store = getWeb3Store();
 
-	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
+	$: transactions = Object.entries($txStore.transactions).sort(sortFunctions.updatedOn) as [
+		string,
+		TXDetail
+	][];
+	$: chainId = $web3Store.chainId ?? 1;
+	$: blockExplorer = BLOCK_EXPLORER_URLS[chainId];
 
-	function useMaxRepay(): void {
-		repayValue = Number(availableBalance.toFixed(2));
-	}
+	type Entry = [string, TXDetail];
+	const sortFunctions: Record<string, (a: Entry, b: Entry) => number> = {
+		updatedOn: (a, b) => new Date(b[1].updatedOn).getTime() - new Date(a[1].updatedOn).getTime(),
+
+		state: (a, b) => {
+			if (a[1].state === b[1].state) {
+				return sortFunctions.updatedOn(a, b);
+			}
+			return a[1].state.localeCompare(b[1].state);
+		},
+
+		type: (a, b) => {
+			if (a[1].txType === b[1].txType) {
+				return sortFunctions.updatedOn(a, b);
+			}
+			return a[1].txType.localeCompare(b[1].txType);
+		}
+	};
 
 	// capitalise first letter of every word and lower case the rest
+	// also remove any underscores with spaces
 	function toProperCase(str: string): string {
-		return str.replace(
+		const proper = str.replace(
 			/\w\S*/g,
 			(txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
 		);
+		return proper.replace(/_/g, ' ');
 	}
 
 	function formatTimestamp(timestamp: number): string {
@@ -54,20 +66,14 @@
 		return `${month} ${day} ${year} - ${hour}:${minute}`;
 	}
 
-	type HistoryItem = {
-		action: string;
-		currency: string;
-		usdValue: number;
-		timestamp: number;
-	};
-
-	const now = new Date().getTime();
-
-	const historyItems: HistoryItem[] = [
-		{ action: 'supplied', currency: 'ETH', usdValue: 2.34, timestamp: now - 1_000_000 },
-		{ action: 'borrowed', currency: 'USDC', usdValue: 4250, timestamp: now - 3_000_000_100 },
-		{ action: 'repaid', currency: 'USDC', usdValue: 2000.45, timestamp: now - 10_020_100_000 }
-	];
+	onDestroy(() => {
+		// mark all notifications as seen
+		for (const [id, item] of transactions) {
+			if (!item.seen) {
+				updateTransaction(txStore, id, { seen: true });
+			}
+		}
+	});
 </script>
 
 <BaseScreen>
@@ -94,15 +100,25 @@
 						<p class="tracking-widest font-bold pt-[1.5px]">Loan History</p>
 					</div>
 				</div>
-				{#each historyItems as item}
-					<Card padding="base" class="flex flex-col shadow-none justify-between items-center gap-2">
+				{#each transactions as [id, item]}
+					<Card
+						padding="base"
+						class="relative flex flex-col shadow-none justify-between items-center gap-2"
+					>
+						<NotificationCircle txId={id} position="absolute top-0 left-0" />
 						<div class="flex justify-between items-center w-full text-muted-foreground">
-							<p>{toProperCase(item.action)}</p>
-							<p>{formatTimestamp(item.timestamp)}</p>
+							<p>{toProperCase(item.txType)}</p>
+							<p>{formatTimestamp(item.updatedOn)}</p>
 						</div>
 						<div class="flex justify-between items-center w-full">
-							<p>{item.currency}</p>
-							<p>{f(item.usdValue)}</p>
+							<p>{item.state}</p>
+							<Button variant="link">
+								<a
+									class="w-full h-full"
+									href={`${blockExplorer}/tx/${item.finalTxHash}`}
+									target="_blank">Details</a
+								>
+							</Button>
 						</div>
 					</Card>
 				{/each}

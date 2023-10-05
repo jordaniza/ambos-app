@@ -5,14 +5,19 @@
 	import { welcomeSteps } from './steps';
 	import { browser } from '$app/environment';
 	import Carousel from 'svelte-carousel';
+	import { goto } from '$app/navigation';
 	let currentPageIndex = 0;
+
+	function handleSkip() {
+		goto(ROUTES.DASHBOARD_V2);
+	}
 </script>
 
 <div class="h-full flex-col relative">
 	<!-- title bar -->
 	<div class="flex justify-between p-4">
 		<h1>{welcomeSteps[currentPageIndex ?? 0].title}</h1>
-		<a class="text-primary" href={ROUTES.DASHBOARD_V2}>Skip →</a>
+		<button class="text-primary" on:click={handleSkip}>Skip →</button>
 	</div>
 
 	<div class="h-[90%] w-full pb-5">
@@ -46,7 +51,11 @@
 					<div class="flex flex-col justify-center items-center">
 						<!-- image -->
 						<div class=" flex flex-col pb-10 justify-end items-center">
-							<div class="h-72 w-72 rounded-full bg-primary opacity-40" />
+							{#if step.img}
+								<img class="h-72 w-72 rounded-full" src={step.img} alt={step.heading} />
+							{:else}
+								<div class="h-72 w-72 rounded-full bg-primary opacity-40" />
+							{/if}
 						</div>
 
 						<!-- content -->

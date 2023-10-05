@@ -11,7 +11,7 @@
 	const open = () => (isOpen = true);
 
 	function openAfterTimeout() {
-		if (startOpen) setTimeout(() => open(), 1000);
+		if (startOpen) setTimeout(() => open(), 300);
 	}
 
 	onMount(() => openAfterTimeout());
@@ -22,7 +22,7 @@
 		class="max-w-[90%] sm:max-w-[425px] flex flex-col gap-4 pb-10 pt-12 text-center bg-popover"
 	>
 		<div class="flex justify-center items-center py-1">
-			<div class="h-32 w-32 bg-gray-200 rounded-full" />
+			<img src="/illustrations/coin.png" alt="coin" class="h-32 w-32" />
 		</div>
 		<h2 class="font-extrabold text-xl">Welcome to Ambos Finance!</h2>
 		<p class="pb-2">
@@ -31,7 +31,7 @@
 			superpower awaits!
 		</p>
 		<Button class="rounded-lg">
-			<a href={ROUTES.NEW_LOAN} class="w-full"> Get your loan </a>
+			<a href={ROUTES.LOANS_V2_CALCULATE} class="w-full"> Get your loan </a>
 		</Button>
 		<Button class="rounded-lg bg-popover" variant="outline" on:click={close}>Go to app</Button>
 		<Button variant="link" class="text-secondary underline underline-offset-1 font-semibold"

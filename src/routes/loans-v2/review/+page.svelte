@@ -28,6 +28,7 @@
 	} from '$stores/transactions/state';
 	import { toast } from 'svelte-sonner';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import Success from './success.svelte';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -50,12 +51,26 @@
 	$: transaction = getLatestTransactionOfType($txStore, 'INCREASE_DEBT');
 	$: state = transaction?.state;
 	$: seen = transaction?.seen;
+	$: showSuccessModal = state === 'SUCCESSFUL' && !seen;
 
 	$: if (state !== undefined) {
 		// update the notification
-		const [message, showToast] = updateMessage(state, seen);
+		const [message, showToast, typeToast] = updateMessage(state, seen);
 		if (message && showToast) {
-			toast(message);
+			switch (typeToast) {
+				case 'error':
+					toast.error(message);
+					break;
+				case 'success':
+					toast.success(message);
+					break;
+				case 'pending':
+					toast.info(message);
+					break;
+				default:
+					toast(message);
+					break;
+			}
 		}
 
 		// the state should be loading while pending
@@ -83,23 +98,23 @@
 		setIncreaseDebtBuilderStage(txStore, 'review');
 	});
 
-	function updateMessage(state: TXState, seen: boolean | undefined): [string, boolean] {
-		if (seen) return ['', false];
+	function updateMessage(state: TXState, seen: boolean | undefined): [string, boolean, string] {
+		if (seen) return ['', false, ''];
 		switch (state) {
 			case 'STARTED':
-				return ['Started a new loan.', false];
+				return ['Started a new loan.', false, 'pending'];
 			case 'SIGNING':
-				return ['Awaiting Signature', true];
+				return ['Awaiting Signature', true, 'pending'];
 			case 'SIGNED':
-				return ['Loan submitted, your loan is being processed', true];
+				return ['Loan submitted, your loan is being processed', true, 'success'];
 			case 'FAILED':
-				return ['There was a problem processing your loan.', true];
+				return ['There was a problem processing your loan.', true, 'error'];
 			case 'REJECTED':
-				return ['Your loan application was rejected', true];
+				return ['Your loan application was rejected', true, 'error'];
 			case 'SUCCESSFUL':
-				return ['Success! Your loan has been processed successfully.', true];
+				return ['Success! Your loan has been processed successfully.', true, 'success'];
 			default:
-				return ['', false];
+				return ['', false, ''];
 		}
 	}
 
@@ -122,7 +137,7 @@
 			address,
 			BN(ethSupply),
 			// usdc
-			ethers.utils.parseUnits(borrowAmount.toString(), 6),
+			ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
 			InterestRateMode.VARIABLE_IR,
 			provider,
 			smartAccount
@@ -130,6 +145,7 @@
 	}
 </script>
 
+<Success open={showSuccessModal} finalTxHash={transaction?.finalTxHash ?? ''} />
 <BaseScreen>
 	<div
 		slot="background"
@@ -146,15 +162,17 @@
 		<LoanStepper />
 		<!-- Review Params -->
 		<Card class="bg-popover px-4 py-4 flex flex-col gap-4">
-			<Card class="bg-background rounded-xl py-2 px-4 flex flex-col gap-2">
+			<Card
+				class="bg-[url('/backgrounds/card.png')] text-popover rounded-3xl p-6 flex flex-col gap-2"
+			>
 				<div class="w-full flex justify-between items-center">
 					<div class=" rounded-xl">
-						<p class="font-extrabold">ETH</p>
-						<p class="text-sm text-secondary">Your Ambos Wallet</p>
-						<p class="text-xl">{e(ethBalance)} ETH</p>
+						<p class="font-extrabold text-lg">ETH</p>
+						<p class="text-sm font-extralight text-muted-foreground">Your Ambos Wallet</p>
+						<p class="text-2xl">{e(ethBalance)} ETH</p>
 					</div>
 					<div class="flex flex-col items-end justify-between">
-						<div class="h-10 w-10 bg-popover p-2 rounded-lg">
+						<div class="h-10 w-10 bg-popover p-2 rounded-full">
 							<Eth />
 						</div>
 					</div>

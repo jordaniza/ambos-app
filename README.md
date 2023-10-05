@@ -4,9 +4,6 @@ This application is written in Sveltekit and deployed on Vercel.
 
 Automated deployment is set up for the `main` branch, with a staging environment for the `develop` branch.
 
-src/(landing) is the static landing page, which is deployed to ambos.finance
-src/(app) contains the actual application. They differ in the +layout.svelte file, which is the common set of components that are shared between child pages.
-
 ## Development
 
 ```sh

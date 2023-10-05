@@ -18,9 +18,9 @@
 		pending.length > 0
 			? 'bg-yellow-500'
 			: failed.length > 0
-			? 'bg-red-500'
+			? 'bg-destructive'
 			: successful.length > 0
-			? 'bg-green-500'
+			? 'bg-primary'
 			: '';
 </script>
 

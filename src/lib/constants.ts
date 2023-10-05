@@ -62,3 +62,8 @@ export const RAY_DECIMALS = 27;
 export const IS_TESTNET: { [key in ChainId]?: boolean } = {
 	[ChainId.POLYGON_MUMBAI]: true
 };
+
+export const LOCAL_STORAGE_KEYS = {
+	// whether the user has seen the welcome screen
+	WELCOME: 'seen_welcome'
+};

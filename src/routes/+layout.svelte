@@ -21,8 +21,9 @@
 	import Footer from './footer.svelte';
 	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
-	import { EXCLUDED_FOOTER_ROUTES } from '$lib/constants';
+	import { EXCLUDED_FOOTER_ROUTES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -61,6 +62,15 @@
 			const currentValue = readTransactionsFromLocalStorage();
 			if (JSON.stringify(currentValue) !== JSON.stringify($txStore.transactions)) {
 				writeTransactionsToLocalStorage($txStore);
+			}
+		}
+	}
+
+	$: {
+		if (browser) {
+			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
+			if (!seen) {
+				goto(ROUTES.WELCOME);
 			}
 		}
 	}

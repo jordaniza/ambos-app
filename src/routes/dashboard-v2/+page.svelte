@@ -4,24 +4,29 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Eth from '$lib/eth.svelte';
 	import { f, e, getBarColor, getLiquidationPrice } from '$lib/utils';
-	import {
-		CreditCard,
-		CreditCardIcon,
-		DollarSign,
-		InfoIcon,
-		LockIcon,
-		Receipt
-	} from 'lucide-svelte';
+	import { CreditCardIcon, DollarSign, InfoIcon, LockIcon, Receipt } from 'lucide-svelte';
 	import Sparkline from '$lib/components/charts/sparkline.svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import { BACKGROUNDS, ROUTES } from '$lib/constants';
+	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
+	import { browser } from '$app/environment';
 
 	let web3Store = getWeb3Store();
 	let priceUp = Math.random() > 0.5;
 	let resize: () => void;
+	let seen: string | null = null;
+
+	$: {
+		if (browser) {
+			const key = LOCAL_STORAGE_KEYS.WELCOME;
+			seen = localStorage.getItem(key);
+			if (!seen) {
+				localStorage.setItem(key, 'true');
+			}
+		}
+	}
 
 	// chart needs to update with correct decimal points for ETH price
 	$: {
@@ -50,7 +55,7 @@
 <section class="h-full w-full">
 	<!-- Top Bar -->
 	<TopBar />
-	<WelcomeDialog startOpen={false} />
+	<WelcomeDialog startOpen={!seen} />
 	<!-- Total Balance -->
 	<BaseScreen>
 		<div
