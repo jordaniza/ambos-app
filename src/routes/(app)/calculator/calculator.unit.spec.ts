@@ -9,7 +9,6 @@ import {
 	getMinimumDepositValue,
 	getReturnsAfterInterestAndFees
 } from './calculator';
-import { e } from '$lib/utils';
 
 const ONE_WEI = 1 / 10 ** 18;
 

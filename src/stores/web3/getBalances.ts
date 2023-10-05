@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
 import { ADDRESSES, type ERC20, SupportedTokens, type TSupportedTokens } from '$lib/contracts';
-import type { Web3Store, web3Store } from '.';
+import { handleError, type Web3Store, type web3Store } from '.';
 import { get } from 'svelte/store';
 import { USDC__factory, WETH__factory } from '$lib/abis/ts';
 
@@ -80,7 +80,7 @@ export async function getSetTokenBalance(
 		);
 		setTokenBalance(supportedTokenName, store, balance, blockNumber, decimals);
 	} catch (e) {
-		console.error('Error fetching token balance: ', e);
+		handleError(store, e as Error, 'setTokenBalance error');
 	}
 }
 

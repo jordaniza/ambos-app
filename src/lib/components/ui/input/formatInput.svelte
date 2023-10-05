@@ -11,7 +11,7 @@
 	} & HTMLInputAttributes;
 
 	export let value: $$Props['value'] = undefined;
-	export let formatter: (value: number) => string;
+	export let formatter: (...args: number[]) => string;
 
 	let isFocused = false;
 	let tempValue: string = formatter(value);

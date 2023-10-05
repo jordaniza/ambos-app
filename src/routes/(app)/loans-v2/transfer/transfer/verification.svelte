@@ -6,17 +6,49 @@
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ROUTES } from '$lib/constants';
-	import { onMount } from 'svelte';
+	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import { increaseTxCounter } from '$stores/transactions/state';
+	import { onDestroy, onMount } from 'svelte';
 
+	// is the component visible, can be set to false to hide the component
 	export let showVerifying: boolean;
+	// are we awaiting verification
 	export let isVerifying: boolean = true;
+	// number of ETH detected as transferred
+	export let transferred: number;
+
 	const setEscape = () => (showVerifying = false);
+	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
+	let interval: NodeJS.Timeout;
+
+	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
 
 	onMount(() => {
-		setTimeout(() => {
-			isVerifying = false;
-		}, 5000);
+		watchForNewEth();
 	});
+
+	onDestroy(() => {
+		clearInterval(interval);
+	});
+
+	/**
+	 * 5 second polling to check if the user has received any new ETH
+	 * If they have, we stop the polling and trigger the verification component
+	 * TODO: we need to attach a global listener here so the user can be notified
+	 * outside of the component flow
+	 */
+	function watchForNewEth() {
+		const initialETH = ethBalance;
+		interval = setInterval(() => {
+			increaseTxCounter(txStore);
+			if (ethBalance > initialETH) {
+				isVerifying = false;
+				transferred = ethBalance - initialETH;
+				clearInterval(interval);
+			}
+		}, 5000);
+	}
 </script>
 
 <Card class="bg-popover px-4 py-2 text-center">

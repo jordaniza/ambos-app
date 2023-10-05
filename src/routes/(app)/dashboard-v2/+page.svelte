@@ -225,7 +225,9 @@
 							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
 						/>
 						<p class="text-center pt-6">Get a loan</p>
-						<Button class="w-full"><a href={ROUTES.LOANS_V2} class="w-full">Get Started</a></Button>
+						<Button class="w-full"
+							><a href={ROUTES.LOANS_V2_CALCULATE} class="w-full">Get Started</a></Button
+						>
 					</Card>
 				</section>
 

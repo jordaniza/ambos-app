@@ -1,7 +1,7 @@
 import { type Oracle, Oracle__factory } from '$lib/abis/ts';
 import { ADDRESSES } from '$lib/contracts';
 import { type BigNumber, ethers } from 'ethers';
-import type { web3Store } from '.';
+import { handleError, type web3Store } from '.';
 
 export async function getOracleWETHPrice(provider: ethers.providers.Web3Provider) {
 	const { chainId } = await provider.getNetwork();
@@ -51,7 +51,7 @@ export async function getSetEthPrice(
 		const { price, decimals } = await getOracleWETHPrice(provider);
 		setEthPrice(store, price, blockNumber, decimals);
 	} catch (e) {
-		console.error('Error fetching token balance: ', e);
+		handleError(store, e as Error, 'getSetEthPrice error');
 	}
 }
 

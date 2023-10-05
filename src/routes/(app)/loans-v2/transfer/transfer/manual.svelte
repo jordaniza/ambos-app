@@ -4,7 +4,7 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { getAccountStore } from '$lib/context/getStores';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 

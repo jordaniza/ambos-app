@@ -7,7 +7,8 @@
 	export let max: number;
 	export let step: number;
 	export let value: number;
-	export let formatter: (value: number) => string;
+	export let formatter: (...args: number[]) => string;
+	export let formatterArgs: number[] = [value];
 	export let showRange = false;
 
 	function setShowRange() {
@@ -31,7 +32,7 @@
 	{/if}
 	<FormatInput
 		bind:value
-		{formatter}
+		formatter={() => formatter(...formatterArgs)}
 		disabled={!showRange}
 		class="
             border-[1px] rounded-xl border-secondary text-center py-2

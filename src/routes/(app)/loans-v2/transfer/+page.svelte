@@ -9,14 +9,44 @@
 	import { BACKGROUNDS, ROUTES } from '$lib/constants';
 	import Transfer from './transfer/transfer.svelte';
 	import { onMount } from 'svelte';
+	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import { e } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
+	import NetworkLogo from '$lib/components/ui/network/network-logos.svelte';
+	import NetworkName from '$lib/components/ui/network/network-names.svelte';
+	import { setIncreaseDebtBuilderStage as setIncreaseDebtBuilderStage } from '$stores/transactions/builders';
 
-	let newETH = 0;
-	let target = 5.23;
+	// display ticker to show new ETH transferred
+	let increaseTicker = 0;
+
+	// bound to the transfer component to trigger the animation
+	let transferred: number;
+
+	// flag to show the ticker
 	let showNewETH = false;
 
+	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
+
+	$: ethBuilderSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
+	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+
+	$: toBeTransferred = Math.max(0, ethBuilderSupply - ethBalance);
+
+	$: {
+		if (transferred > 0) {
+			triggerEffect();
+		}
+	}
+
 	onMount(() => {
-		triggerEffect();
+		setIncreaseDebtBuilderStage(txStore, 'transfer');
 	});
+
+	async function copyBalanceToClipboard() {
+		toast.success('Copied to clipboard');
+		await navigator.clipboard.writeText(ethBalance.toString());
+	}
 
 	function triggerEffect() {
 		showNewETH = true;
@@ -24,16 +54,16 @@
 		const step = 10;
 
 		const totalSteps = duration / step;
-		const increasePerStep = target / totalSteps;
+		const increasePerStep = transferred / totalSteps;
 
-		newETH = 0; // Reset the counter before starting the animation
+		increaseTicker = 0; // Reset the counter before starting the animation
 
 		const interval = setInterval(() => {
-			newETH += increasePerStep;
+			increaseTicker += increasePerStep;
 
 			// When we've reached or exceeded our target, clear the interval
-			if (newETH >= target) {
-				newETH = target; // Ensure we don't overshoot the target
+			if (increaseTicker >= transferred) {
+				increaseTicker = transferred; // Ensure we don't overshoot the target
 				clearInterval(interval);
 			}
 		}, step);
@@ -63,7 +93,7 @@
 						<div class=" rounded-xl">
 							<p class="font-extrabold">ETH</p>
 							<p class="text-sm text-secondary">Your Ambos Wallet</p>
-							<p class="text-xl">{(0.152 + newETH).toFixed(2)} ETH</p>
+							<p class="text-xl">{e(ethBalance)} ETH</p>
 						</div>
 						<div class="flex flex-col items-end justify-between">
 							<div class="h-10 w-10 bg-popover p-2 rounded-lg">
@@ -73,7 +103,7 @@
 								class={'font-xl text-primary transition-opacity duration-300 ' +
 									(showNewETH ? ' opacity-100' : ' opacity-0')}
 							>
-								+ {newETH.toFixed(2)} ETH
+								+ {increaseTicker.toFixed(2)} ETH
 							</p>
 						</div>
 					</div>
@@ -85,24 +115,26 @@
 						<p class="text-secondary">Edit</p>
 					</div>
 					<div class="border border-secondary p-1 rounded-xl flex">
-						<input type="number" class="w-full px-4 py-2 font-bold mr-2 text-sm" />
-						<Button variant="secondary" class="px-5">Copy</Button>
+						<p class="w-full px-4 py-2 font-bold flex items-center justify-between mr-2 text-sm">
+							{e(toBeTransferred)} ETH
+						</p>
+						<Button variant="secondary" class="px-5" on:click={copyBalanceToClipboard}>Copy</Button>
 					</div>
 					<Card class="flex justify-between px-3 py-2 text-sm">
 						<div class="flex items-center">
-							<div class="h-8 w-8 pt-1">
-								<Eth />
+							<div class="h-8 w-8 bg-popover flex items-center justify-center rounded-full">
+								<NetworkLogo class="h-5 w-5" />
 							</div>
-							<p class="pl-2 font-bold">Network</p>
+							<NetworkName class="pl-2 font-bold" />
 						</div>
 						<div class="flex items-center justify-end gap-2">
-							<p>Ethereum</p>
+							<p>ETH</p>
 							<InfoIcon class="h-4 w-4 text-muted-foreground" />
 						</div></Card
 					>
 				</div></Card
 			>
 		</Card>
-		<Transfer />
+		<Transfer bind:transferred />
 	</div>
 </BaseScreen>

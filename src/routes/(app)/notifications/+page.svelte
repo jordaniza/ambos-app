@@ -18,6 +18,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
+	import Logout from '$lib/components/connect/logout.svelte';
 
 	let priceUp = Math.random() > 0.5;
 	let availableBalance = 1500.733434;
@@ -106,6 +107,7 @@
 					</Card>
 				{/each}
 			</Card>
+			<Logout />
 		</div>
 	</div>
 </BaseScreen>

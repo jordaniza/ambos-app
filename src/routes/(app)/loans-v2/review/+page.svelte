@@ -4,26 +4,129 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
-	import { BACKGROUNDS, ROUTES } from '$lib/constants';
-	import { f } from '$lib/utils';
+	import { ROUTES } from '$lib/constants';
+	import { BN, e, f, getLiquidationPrice, pc } from '$lib/utils';
 	import InputEditSlider from './input-edit-slider.svelte';
 	import { InfoIcon } from 'lucide-svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import { getEthValue, getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
+	import * as Accordion from '$lib/components/ui/accordion';
+	import { onMount } from 'svelte';
+	import {
+		setBorrowUsd,
+		setIncreaseDebtBuilderStage,
+		setSupplyEth
+	} from '$stores/transactions/builders';
+	import { getCashNow } from '$stores/transactions/batchActions';
+	import { ethers } from 'ethers';
+	import { InterestRateMode } from '$stores/web3/getPoolData';
+	import {
+		getLatestTransactionOfType,
+		TX_STATES_SUMMARY,
+		type TXState
+	} from '$stores/transactions/state';
+	import { toast } from 'svelte-sonner';
+	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 
-	let ethSupply = 10;
-	let depositValue = ethSupply / 2;
-	let ethPrice = 1600;
-	let maxBorrow = (depositValue * ethPrice) / 2;
-	let borrowAmount = maxBorrow / 2;
+	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
+	let accountStore = getAccountStore();
 
-	$: notEnoughETH = depositValue > ethSupply * (3 / 4);
+	let ethSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
+	let borrowAmount = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
+	let isPending = false;
 
-	function formatETHValue(value: number): string {
-		return `${value} ETH - ${f(value * ethPrice)}`;
+	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+	$: ethPrice = $web3Store.ethPrice.small ?? 0;
+
+	$: depositValueUSD = getEthValue(ethSupply, ethPrice);
+	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
+
+	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
+	$: feesAndCharges = getFeesAndCharges(depositValueUSD, borrowAmount);
+
+	$: transaction = getLatestTransactionOfType($txStore, 'INCREASE_DEBT');
+	$: state = transaction?.state;
+	$: seen = transaction?.seen;
+
+	$: if (state !== undefined) {
+		// update the notification
+		const [message, showToast] = updateMessage(state, seen);
+		if (message && showToast) {
+			toast(message);
+		}
+
+		// the state should be loading while pending
+		if (TX_STATES_SUMMARY['PENDING'].includes(state)) {
+			isPending = true;
+		} else {
+			isPending = false;
+		}
+		// depending on the state, reset the form
+		if (state === 'SIGNED') {
+			setSupplyEth(txStore, 0);
+			setBorrowUsd(txStore, 0);
+		}
 	}
 
-	function formatBorrowValue(value: number): string {
+	$: {
+		setSupplyEth(txStore, ethSupply);
+	}
+
+	$: {
+		setBorrowUsd(txStore, borrowAmount);
+	}
+
+	onMount(() => {
+		setIncreaseDebtBuilderStage(txStore, 'review');
+	});
+
+	function updateMessage(state: TXState, seen: boolean | undefined): [string, boolean] {
+		if (seen) return ['', false];
+		switch (state) {
+			case 'STARTED':
+				return ['Started a new loan.', false];
+			case 'SIGNING':
+				return ['Awaiting Signature', true];
+			case 'SIGNED':
+				return ['Loan submitted, your loan is being processed', true];
+			case 'FAILED':
+				return ['There was a problem processing your loan.', true];
+			case 'REJECTED':
+				return ['Your loan application was rejected', true];
+			case 'SUCCESSFUL':
+				return ['Success! Your loan has been processed successfully.', true];
+			default:
+				return ['', false];
+		}
+	}
+
+	function formatETHValue(value: number, ethPrice: number): string {
+		return `${e(value)} ETH - ${f(value * ethPrice)}`;
+	}
+
+	function formatBorrowValue(value: number, maxBorrow: number): string {
 		return `${f(value)} of ${f(maxBorrow)}`;
+	}
+
+	function handleSubmit() {
+		const { address, provider, smartAccount } = $accountStore;
+		if (!address || !provider || !smartAccount) {
+			console.warn('Missing address, provider, or smartAccount');
+			return;
+		}
+		getCashNow(
+			txStore,
+			address,
+			BN(ethSupply),
+			// usdc
+			ethers.utils.parseUnits(borrowAmount.toString(), 6),
+			InterestRateMode.VARIABLE_IR,
+			provider,
+			smartAccount
+		);
 	}
 </script>
 
@@ -48,7 +151,7 @@
 					<div class=" rounded-xl">
 						<p class="font-extrabold">ETH</p>
 						<p class="text-sm text-secondary">Your Ambos Wallet</p>
-						<p class="text-xl">0.152 ETH</p>
+						<p class="text-xl">{e(ethBalance)} ETH</p>
 					</div>
 					<div class="flex flex-col items-end justify-between">
 						<div class="h-10 w-10 bg-popover p-2 rounded-lg">
@@ -59,40 +162,69 @@
 			</Card>
 			<InputEditSlider
 				title="You Supply"
-				bind:value={depositValue}
-				max={ethSupply}
+				bind:value={ethSupply}
+				max={ethBalance}
 				step={0.01}
-				formatter={formatETHValue}
+				formatter={() => formatETHValue(ethSupply, ethPrice)}
 			/>
 			<InputEditSlider
 				title="Borrowing"
 				bind:value={borrowAmount}
 				max={maxBorrow}
 				step={1}
-				formatter={formatBorrowValue}
+				formatter={() => formatBorrowValue(borrowAmount, maxBorrow)}
 			/>
 			<div
 				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
 			>
 				<p class="font-bold">Liquidation Price</p>
 				<div class="flex gap-2 justify-end items-center">
-					<p>{f(923)} / ETH</p>
+					<p>{f(liquidationPrice)} / ETH</p>
 					<InfoIcon class="h-4 text-muted-foreground" />
 				</div>
 			</div>
-			<div
-				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
-			>
-				<p class="font-bold">Est. Fees & Charges</p>
-				<div class="flex gap-2 justify-end items-center">
-					<p>{f(923)} <span class="text-muted-foreground pl-1">{(16.38).toFixed(2)}%</span></p>
-					<InfoIcon class="h-4 text-muted-foreground" />
-				</div>
-			</div>
-			{#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if}
-			<Button variant={notEnoughETH ? 'secondary' : 'default'} class="w-full py-5"
-				>{notEnoughETH ? 'Transfer More' : 'Confirm & Get Loan'}</Button
-			>
+			<!-- Fees and Charges -->
+			<Accordion.Root class="flex w-full text-xs justify-between bg-background rounded-2xl px-3">
+				<Accordion.Item value="item-1" class="w-full">
+					<Accordion.Trigger class="w-full py-2">
+						<div class="font-bold">Est. Fees & Charges</div>
+						<div slot="trigger-right">
+							{f(feesAndCharges.total)}
+							<span class="pl-1 text-muted-foreground">{pc(feesAndCharges.percentOfBorrowed)}</span>
+						</div>
+					</Accordion.Trigger>
+					<Accordion.Content>
+						<div class="pt-1 text-xs">
+							<div class="flex w-full justify-between">
+								<p>Ambos Fee</p>
+								<div>
+									<p>{f(feesAndCharges.ambosFee)}</p>
+								</div>
+							</div>
+							<div class="flex w-full justify-between">
+								<p>Est. Exchange Fees</p>
+								<div>
+									<p>{f(feesAndCharges.exchangeFee)}</p>
+								</div>
+							</div>
+							<div class="flex w-full justify-between">
+								<p>Est. Network Fees</p>
+								<div>
+									<p>{f(feesAndCharges.networkFee)}</p>
+								</div>
+							</div>
+						</div>
+					</Accordion.Content>
+				</Accordion.Item>
+			</Accordion.Root>
+			<!-- {#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if} -->
+			<Button on:click={handleSubmit} class="w-full py-5">
+				{#if isPending}
+					<LoadingSpinner class="text-popover animate-spin" />
+				{:else}
+					Confirm & Get Loan
+				{/if}
+			</Button>
 			<Button variant="link">Repayment Terms</Button>
 		</Card>
 	</div>

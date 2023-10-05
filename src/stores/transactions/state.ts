@@ -1,5 +1,6 @@
-import { get, writable, type Writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { v4 as uuid } from 'uuid';
+import { defaultBuilders, type TxBuilders } from './builders';
 
 export type UUID = string;
 
@@ -67,7 +68,7 @@ export const SUPPORTED_BATCH_TRANSACTIONS: Record<
 	DECREASE_DEBT: ['APPROVE_AWETH', 'REPAY_USDC', 'WITHDRAW_WETH']
 } as const;
 
-const SUPPORTED_TRANSACTIONS = [
+export const SUPPORTED_TRANSACTIONS = [
 	...SUPPORTED_SINGLE_TRANSACTIONS,
 	...Object.keys(SUPPORTED_BATCH_TRANSACTIONS)
 ] as const;
@@ -93,6 +94,7 @@ export type TransactionStore = {
 	transactions: {
 		[id: UUID]: TXDetail;
 	};
+	builders: TxBuilders;
 	txCounter: number;
 };
 
@@ -110,7 +112,8 @@ export function exists(store: TxStore, key: string): boolean {
 
 export const txStore = writable<TransactionStore>({
 	transactions: {},
-	txCounter: 0
+	txCounter: 0,
+	builders: defaultBuilders
 });
 export type TxStore = typeof txStore;
 

@@ -21,10 +21,15 @@
 		getPercentageEthPriceChange,
 		getReturnsAfterInterestAndFees
 	} from './calculator';
-	import { getWeb3Store } from '$lib/context/getStores';
+	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import {
+		setBorrowUsd,
+		setIncreaseDebtBuilderStage,
+		setSupplyEth
+	} from '$stores/transactions/builders';
 
-	let ethMaxValue = 10;
-	let ethSupplyQty = ethMaxValue / 2;
+	let ethMaxValue = 100;
+	let ethSupplyQty = 10;
 	let borrowAmount = 0;
 	let ethPrice = 0;
 	let ethPriceChangeWholePc = 20; // Initial value
@@ -32,6 +37,7 @@
 	let newEthPrice = 0;
 	let interestRate = 0.05; // 5%
 	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
 
 	// Computed values
 	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
@@ -82,7 +88,16 @@
 		}
 	}
 
-	onMount(fetchEthPrice);
+	onMount(() => {
+		setIncreaseDebtBuilderStage(txStore, 'calculate');
+		fetchEthPrice();
+	});
+
+	function handleStartBorrowing() {
+		setSupplyEth(txStore, ethSupplyQty);
+		setBorrowUsd(txStore, borrowAmount);
+		goto(ROUTES.LOANS_V2_TRANSFER);
+	}
 </script>
 
 <!-- <Faq /> -->
@@ -177,9 +192,8 @@
 					</Accordion.Item>
 				</Accordion.Root>
 
-				<Button
-					class="w-full rounded-xl mt-2 py-6 text-base"
-					on:click={() => goto(ROUTES.LOANS_V2_TRANSFER)}>Start Borrowing Now!</Button
+				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
+					>Start Borrowing Now!</Button
 				>
 				<Button variant="link" class="pb-0">Check out the loan terms</Button>
 			</section>

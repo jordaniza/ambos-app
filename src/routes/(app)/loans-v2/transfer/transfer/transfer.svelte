@@ -8,6 +8,8 @@
 	import Verification from './verification.svelte';
 	import Wallet from './wallet.svelte';
 
+	export let transferred: number;
+
 	let manualWalletExchange = ['Manual', 'Wallet', 'Exchange'];
 	let manualWalletExchangeIndex = 0;
 	let transferBuy = ['Transfer Ethereum', 'Buy Ethereum'];
@@ -39,10 +41,10 @@
 {#if showVerifying}
 	<!-- verifying in progress and should show it -->
 	{#if isVerifying}
-		<Verification bind:showVerifying bind:isVerifying />
+		<Verification bind:showVerifying bind:isVerifying bind:transferred />
 		<!-- Else it's done -->
 	{:else}
-		<Success />
+		<Success {transferred} />
 	{/if}
 
 	<!-- if not showVerifying, give options -->

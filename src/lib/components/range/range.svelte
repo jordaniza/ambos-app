@@ -1,10 +1,15 @@
-<script>
+<script lang="ts">
 	export let value = 50;
 	export let max = 100;
 	export let min = 0;
 	export let step = 1;
 
-	$: thumbPercentage = ((value - min) / (max - min)) * 100;
+	const minMaxZeroHundred = (x: number) => Math.max(Math.min(x, 100), 0);
+
+	$: thumbPercentage = minMaxZeroHundred(((value - min) / (max - min)) * 100);
+	$: {
+		if (value > max) value = max;
+	}
 </script>
 
 <div class="slider-container">

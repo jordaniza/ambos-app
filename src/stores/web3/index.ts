@@ -70,7 +70,12 @@ const defaultUserLoanData: UserLoanData = {
 	lastUpdatedBlock: null
 };
 
+type ErrCounter = {
+	errors: number;
+};
+
 export type Web3Store = {
+	errs: ErrCounter;
 	balances: StoreTokenBalances;
 	ethPrice: EthPrice;
 	userPoolData: UserLoanData;
@@ -80,6 +85,9 @@ export type Web3Store = {
 };
 
 const DEFAULT_STORE: Web3Store = {
+	errs: {
+		errors: 0
+	},
 	chainId: null,
 	isTestnet: false,
 	ethPrice: {
@@ -127,4 +135,27 @@ export async function refreshW3Store(
 		getSetEthPrice(provider, store, currentBlock),
 		getSetPoolData(userAddress, reserveTokenAddress, provider, store, currentBlock)
 	]);
+}
+
+export function handleError(store: typeof web3Store, e: Error, logMessage?: string): void {
+	if ('error' in e) {
+		const messageError = e.error as any;
+		if ('message' in messageError) {
+			/**
+			 * Beleive this an error on the RPC side, so nothing we can do at this stage
+			 * other than log the error and provide a bit of a warning as they count up
+			 */
+			if (messageError.message === 'method handler crashed') {
+				store.update((s) => {
+					s.errs.errors++;
+					if (s.errs.errors % 5 === 0) console.warn(`RPC: ${s.errs.errors} handler errors`);
+					return s;
+				});
+			} else {
+				console.error(logMessage, e.message);
+			}
+		}
+	} else {
+		console.error(logMessage ?? '', e);
+	}
 }

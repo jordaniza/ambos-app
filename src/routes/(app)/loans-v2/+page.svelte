@@ -14,7 +14,7 @@
 	import TopBar from '../dashboard-v2/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { getWeb3Store } from '$lib/context/getStores';
+	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
 
 	type HistoryItem = {
@@ -36,6 +36,7 @@
 	let availableBalance = 1500.733434;
 	let repayValue = 0;
 	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
 
 	$: interestRate = $web3Store.poolReserveData.variableBorrowingRate.small ?? 0;
 	$: borrowed = $web3Store.userPoolData.totalDebtBase.small ?? 0;

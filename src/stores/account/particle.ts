@@ -45,7 +45,6 @@ export const getProvider = (
 	try {
 		const particleProvider = new ParticleProvider(particle.auth);
 		const w3Provider = new providers.Web3Provider(particleProvider, 'any');
-
 		return w3Provider;
 	} catch (error) {
 		console.error(error);
