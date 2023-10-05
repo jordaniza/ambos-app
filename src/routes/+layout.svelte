@@ -21,7 +21,12 @@
 	import Footer from './footer.svelte';
 	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
-	import { EXCLUDED_FOOTER_ROUTES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import {
+		EXCLUDED_FOOTER_ROUTES,
+		EXCLUDED_SPLASH_ROUTES,
+		LOCAL_STORAGE_KEYS,
+		ROUTES
+	} from '$lib/constants';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 
@@ -69,7 +74,7 @@
 	$: {
 		if (browser) {
 			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
-			if (!seen) {
+			if (!seen && !$page.url.pathname.includes(EXCLUDED_SPLASH_ROUTES as any)) {
 				goto(ROUTES.WELCOME);
 			}
 		}
