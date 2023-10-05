@@ -57,9 +57,9 @@
 	// required for PWA Support
 	$: webManifestLink = pwaInfo?.webManifest.linkTag ?? '';
 	$: currentPage = $page.url.pathname;
-	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(
-		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
-	);
+	$: excludedRoute =
+		EXCLUDED_FOOTER_ROUTES.includes(currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]) ||
+		currentPage === '/';
 
 	// update localstorage with transaction updates
 	$: {
@@ -74,11 +74,8 @@
 	$: {
 		if (browser) {
 			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
-			const { pathname } = $page.url;
-			const excludeFromWelcome =
-				pathname.includes(EXCLUDED_SPLASH_ROUTES as any) || pathname === '/';
 
-			if (!seen && !excludeFromWelcome) {
+			if (!seen && !excludedRoute) {
 				goto(ROUTES.WELCOME);
 			}
 		}
@@ -93,6 +90,7 @@
 
 	// attempt to connect when the user loads the page and fetch web3data
 	onMount(async () => {
+		if (currentPage === '/') return;
 		try {
 			loadTheme();
 			setChainId(web3Store, chainId);
