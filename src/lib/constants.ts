@@ -4,11 +4,9 @@ export const APP_NAME = 'Ambos Finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const ROUTES = {
 	ROOT: '',
-	DASHBOARD: '/dashboard',
-	DASHBOARD_V2: '/dashboard-v2',
-	WALLET: '/wallet-v2',
+	DASHBOARD_V2: '/dashboard',
+	WALLET: '/wallet',
 	WELCOME: '/welcome',
-	MY_LOANS: '/loans',
 	PROFILE: '/notifications',
 	NOTIFICATIONS: '/notifications',
 	LANDING_PAGE: '/',
@@ -16,11 +14,10 @@ export const ROUTES = {
 	CALCULATOR: '/calculator',
 	SEND_CRYPTO: '/wallet/send',
 	HISTORY: '/profile/history',
-	NEW_LOAN: '/loans/new',
-	LOANS_V2: '/loans-v2',
-	LOANS_V2_TRANSFER: '/loans-v2/transfer',
-	LOANS_V2_REVIEW: '/loans-v2/review',
-	LOANS_V2_CALCULATE: '/loans-v2/calculator',
+	LOANS_V2: '/loans',
+	LOANS_V2_TRANSFER: '/loans/transfer',
+	LOANS_V2_REVIEW: '/loans/review',
+	LOANS_V2_CALCULATE: '/loans/calculator',
 	DOWNLOAD: '/download'
 } as const;
 

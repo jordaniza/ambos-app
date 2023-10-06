@@ -17,12 +17,15 @@
 	let priceUp = Math.random() > 0.5;
 	let resize: () => void;
 	let seen: string | null = null;
+	let showWelcome = false;
+	let openEthDialog: () => void;
 
 	$: {
 		if (browser) {
 			const key = LOCAL_STORAGE_KEYS.WELCOME;
 			seen = localStorage.getItem(key);
 			if (!seen) {
+				showWelcome = true;
 				localStorage.setItem(key, 'true');
 			}
 		}
@@ -48,14 +51,17 @@
 	$: totalBalance = ethBalanceUSD + usdcBalance;
 	$: barWidth = (liquidationPrice / ethPrice) * 100;
 	$: isSafe = barWidth < 70;
-
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
+
+	function handleStartLoan() {
+		openEthDialog();
+	}
 </script>
 
 <section class="h-full w-full">
 	<!-- Top Bar -->
 	<TopBar />
-	<WelcomeDialog startOpen={!seen} />
+	<WelcomeDialog startOpen={showWelcome} bind:openEthDialog />
 	<!-- Total Balance -->
 	<BaseScreen>
 		<div
@@ -230,9 +236,7 @@
 							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
 						/>
 						<p class="text-center pt-6">Get a loan</p>
-						<Button class="w-full"
-							><a href={ROUTES.LOANS_V2_CALCULATE} class="w-full">Get Started</a></Button
-						>
+						<Button class="w-full" on:click={handleStartLoan}>Get Started</Button>
 					</Card>
 				</section>
 

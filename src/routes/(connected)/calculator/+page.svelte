@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import Calculator from './calculator.svelte';
-	import { BACKGROUNDS } from '$lib/constants';
-	import TopBar from '../dashboard-v2/top-bar.svelte';
+	import TopBar from '../dashboard/top-bar.svelte';
 
 	let ethSupply = 10; // Initial value
 	let borrowAmount = 0; // Initial value

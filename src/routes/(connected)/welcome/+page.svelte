@@ -13,6 +13,17 @@
 	}
 </script>
 
+<!-- Shadow effect behind the images, ngl just asked GPT to do this -->
+<svg width="0" height="0" style="position:absolute">
+	<filter id="svg-shadow" x="-50%" y="-50%" width="200%" height="200%">
+		<feGaussianBlur in="SourceAlpha" stdDeviation="50" />
+		<feOffset dx="0" dy="0" result="offsetblur" />
+		<feFlood flood-color="green" flood-opacity="1" result="color" />
+		<feComposite in2="offsetblur" operator="in" result="shadow" />
+		<feComposite in2="shadow" operator="over" in="SourceGraphic" />
+	</filter>
+</svg>
+
 <div class="h-full flex-col relative">
 	<!-- title bar -->
 	<div class="flex justify-between p-4">
@@ -52,7 +63,7 @@
 						<!-- image -->
 						<div class=" flex flex-col pb-10 justify-end items-center">
 							{#if step.img}
-								<img class="h-72 w-72 rounded-full" src={step.img} alt={step.heading} />
+								<img class="h-72 w-72 shadow-svg" src={step.img} alt={step.heading} />
 							{:else}
 								<div class="h-72 w-72 rounded-full bg-primary opacity-40" />
 							{/if}
@@ -88,5 +99,8 @@
 
 	:global(.sc-carousel__content-container) {
 		height: 90%;
+	}
+	.shadow-svg {
+		filter: url(#svg-shadow);
 	}
 </style>

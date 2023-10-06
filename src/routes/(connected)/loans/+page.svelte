@@ -11,7 +11,7 @@
 		LockIcon,
 		ReceiptIcon
 	} from 'lucide-svelte';
-	import TopBar from '../dashboard-v2/top-bar.svelte';
+	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';

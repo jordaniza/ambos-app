@@ -10,7 +10,7 @@
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
-	import InputEditSlider from '../loans-v2/review/input-edit-slider.svelte';
+	import InputEditSlider from '../loans/review/input-edit-slider.svelte';
 	import {
 		getEthValue,
 		getEthValueRemainingIfUserHadSold,
@@ -31,15 +31,14 @@
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
 	let borrowAmount = 0;
-	let ethPrice = 0;
 	let ethPriceChangeWholePc = 20; // Initial value
-	let fetchedAt: Date;
 	let newEthPrice = 0;
 	let interestRate = 0.05; // 5%
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
 
 	// Computed values
+	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
 	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmount, maxLTV);
@@ -74,23 +73,8 @@
 		}
 	}
 
-	async function fetchEthPrice() {
-		try {
-			const response = await fetch(
-				'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
-			);
-			const data = await response.json();
-			ethPrice = data.ethereum.usd;
-			fetchedAt = new Date();
-			setTimeout(() => (borrowAmount = maxBorrow * 0.5), 0);
-		} catch (error) {
-			console.error(error);
-		}
-	}
-
 	onMount(() => {
 		setIncreaseDebtBuilderStage(txStore, 'calculate');
-		fetchEthPrice();
 	});
 
 	function handleStartBorrowing() {
