@@ -17,7 +17,7 @@
 	import { toast } from 'svelte-sonner';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import WalletDialogies from './wallet-dialogies.svelte';
+	import WalletDialogies from './wallet-dialogues.svelte';
 
 	let priceUp = Math.random() > 0.5;
 	let accountStore = getAccountStore();
@@ -73,7 +73,13 @@
 
 	const now = new Date().getTime();
 
-	let;
+	let triggers = {
+		buy: () => {},
+		sell: () => {},
+		receive: () => {},
+		transfer: () => {},
+		withdraw: () => {}
+	};
 
 	const historyItems: HistoryItem[] = [
 		{ action: 'receive', currency: 'ETH', usdValue: 2543.34, timestamp: now - 1_000_000 },
@@ -83,7 +89,7 @@
 </script>
 
 <!-- <Faq /> -->
-<WalletDialogies bind:openBuy bind:openSell />
+<WalletDialogies bind:triggers />
 <TopBar page="Wallet">
 	<button class="rounded-2xl bg-card-foreground opacity-80 text-xs px-2 py-0">
 		<a href={explorerURL} class="w-full flex items-center gap-1" target="_blank">
@@ -113,14 +119,22 @@
 					</div>
 					<p>Your Balance</p>
 					<div class="flex w-full items-center justify-between">
-						<p class="text-[10px] font-extralight text-gray-400">{address ?? '0x0000000'}</p>
+						<p class="text-[10px] font-extralight text-gray-400">{address ?? 'Not Connected'}</p>
 						<button class="h-3 w-3 text-muted mr-5" on:click={handleCopy}
 							><CopyIcon class="w-full h-full" /></button
 						>
 					</div>
 					<div class="pt-10 flex items-center gap-3 pb-1">
-						<Button disabled={true} class="py-0 text-sm h-8 rounded-lg w-1/3">Receive</Button>
-						<Button disabled={true} class="py-0 text-sm h-8 rounded-lg w-1/3">Withdraw</Button>
+						<Button
+							on:click={triggers.receive}
+							disabled={!address}
+							class="py-0 text-sm h-8 rounded-lg w-1/3">Receive</Button
+						>
+						<Button
+							on:click={triggers.withdraw}
+							disabled={!address}
+							class="py-0 text-sm h-8 rounded-lg w-1/3">Withdraw</Button
+						>
 					</div>
 				</div>
 			</div>
@@ -183,9 +197,9 @@
 					</div>
 				</Card>
 				<div class="flex w-full gap-3">
-					<Button on:click={openBuy} class="w-1/2">Buy</Button>
+					<Button on:click={triggers.buy} class="w-1/2">Buy</Button>
 					<Button
-						on:click={openSell}
+						on:click={triggers.sell}
 						class="w-1/2 text-secondary border-secondary"
 						variant="outline">Sell</Button
 					>

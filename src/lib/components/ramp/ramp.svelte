@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { getTransakURLOff } from '$lib/components/ramp/transak';
+	import { getTransakURLOff, getTransakURLOn } from '$lib/components/ramp/transak';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
+	import type { EthereumAddress } from '$lib/utils';
 	import { onMount } from 'svelte';
+	import type { ITransakDto } from './Interface';
+
+	export let options: Partial<ITransakDto> = {};
+	export let direction: 'buy' | 'sell' = 'buy';
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
@@ -14,7 +19,13 @@
 			console.error('No address or chainId found');
 			return;
 		}
-		return getTransakURLOff(chainId, 1000);
+		if (direction === 'sell') {
+			return getTransakURLOff(chainId, 1000, options);
+		} else if (direction === 'buy') {
+			return getTransakURLOn(chainId, address as EthereumAddress, options);
+		} else {
+			throw new Error('No direction found in transak widget');
+		}
 	}
 
 	onMount(() => {
@@ -34,7 +45,7 @@
 
 {#if src}
 	<iframe
-		title="TRANSAK ONRAMP"
+		title="TRANSAK WIDGET"
 		id="transak-iframe"
 		{src}
 		allow="camera;microphone;fullscreen;payment"

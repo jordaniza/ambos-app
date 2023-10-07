@@ -50,10 +50,25 @@ const objectToQueryString = (obj: Record<string, any>): string => {
 		.join('&');
 };
 
-export const getTransakURLOn = (chainId: ChainId, address: EthereumAddress): string => {
+export const getTransakURLOn = (
+	chainId: ChainId,
+	address: EthereumAddress,
+	additionalOptions: Partial<ITransakDto> = {}
+): string => {
 	const baseURL = 'https://global.transak.com';
 	const { apiKey, ...options } = optionsOn(getTransakNetwork(chainId), address);
-	const qs = objectToQueryString(options);
+	const qs = objectToQueryString({ ...options, ...additionalOptions });
+	return `${baseURL}?${apiKey}&${qs}`;
+};
+
+export const getTransakURLOff = (
+	chainId: ChainId,
+	amount: number,
+	additionalOptions: Partial<ITransakDto> = {}
+): string => {
+	const baseURL = 'https://global.transak.com';
+	const { apiKey, ...options } = optionsOff(getTransakNetwork(chainId), amount);
+	const qs = objectToQueryString({ ...options, ...additionalOptions });
 	return `${baseURL}?${apiKey}&${qs}`;
 };
 
@@ -78,7 +93,7 @@ export const optionsOn = (
 	...commonOptions,
 	...networkConfigOnRamp[selectedNetwork],
 	walletAddress,
-	// exchangeScreenTitle: 'Buy ETH',
+	exchangeScreenTitle: 'Buy ETH',
 	productsAvailed: 'BUY'
 });
 
@@ -111,5 +126,6 @@ export const getTransakNetwork = (chainId: ChainId | null): string => {
 		throw new Error('Unsupported chainId for tranasak');
 	}
 	// need to add new chains as they are supported
+	console.warn('Transak network is set to polygon');
 	return 'polygon';
 };

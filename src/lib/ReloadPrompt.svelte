@@ -1,8 +1,13 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
 	import { useRegisterSW } from 'virtual:pwa-register/svelte';
 
-	// replaced dynamically: TODO figure out how to declare this using vite.define and dts
+	// replaced dynamically
+
+	// @ts-ignore
 	let buildDate = __DATE__;
+
+	// @ts-ignore
 	let reloadSW = __RELOAD_SW__;
 
 	const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
@@ -21,68 +26,32 @@
 			console.log('SW registration error', error);
 		}
 	});
-	const close = () => {
-		offlineReady.set(false);
-		needRefresh.set(false);
-	};
 
-	$: toast = $offlineReady || $needRefresh;
+	$: {
+		if ($offlineReady) {
+			toast.info('App ready to work offline');
+		} else if ($needRefresh) {
+			toast.info('New content available, click on reload button to update.', {
+				duration: Number.POSITIVE_INFINITY,
+				action: {
+					label: 'Reload',
+					onClick: () => updateServiceWorker(true)
+				}
+			});
+		}
+	}
+
+	$: {
+		console.log('SERVICE WORKER STATUS', {
+			buildDate,
+			buildDateLocal: new Date(buildDate).toLocaleString(),
+			reloadSW,
+			offlineReady: $offlineReady,
+			needRefresh: $needRefresh
+		});
+	}
 </script>
 
-<!-- 
-{#if toast}
-	<div class="pwa-toast" role="alert">
-		<div class="message">
-			{#if $offlineReady}
-				<span>
-					App ready to work offline
-				</span>
-			{:else}
-				<span>
-					New content available, click on reload button to update.
-				</span>
-			{/if}
-		</div>
-		{#if $needRefresh}
-			<button on:click={() => updateServiceWorker(true)}>
-				Reload
-			</button>
-		{/if}
-		<button on:click={close}>
-			Close
-		</button>
-	</div>
-{/if} -->
-
-<div class="pwa-date">
+<div class="pwa-build-date">
 	{buildDate}
 </div>
-
-<style>
-	.pwa-date {
-		visibility: hidden;
-	}
-	.pwa-toast {
-		position: fixed;
-		right: 0;
-		bottom: 0;
-		margin: 16px;
-		padding: 12px;
-		border: 1px solid #8885;
-		border-radius: 4px;
-		z-index: 2;
-		text-align: left;
-		box-shadow: 3px 4px 5px 0 #8885;
-		background-color: white;
-	}
-	.pwa-toast .message {
-		margin-bottom: 8px;
-	}
-	.pwa-toast button {
-		border: 1px solid #8885;
-		outline: none;
-		margin-right: 5px;
-		border-radius: 2px;
-		padding: 3px 10px;
-	}
-</style>

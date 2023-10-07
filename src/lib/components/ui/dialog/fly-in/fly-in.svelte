@@ -3,7 +3,6 @@
 	import * as Dialog from '..';
 	import { cn } from '$lib/utils';
 	import { fly } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
 
 	type $$Props = DialogPrimitive.ContentProps & {
 		showCloseIcon?: boolean;
@@ -15,7 +14,7 @@
 		duration: 200
 	};
 	export { className as class };
-	export let showCloseIcon: boolean = true;
+	export let showCloseIcon: boolean = false;
 </script>
 
 <Dialog.Portal>

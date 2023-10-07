@@ -32,14 +32,14 @@ export default defineConfig({
 				enabled: true,
 				suppressWarnings: process.env.SUPPRESS_WARNING === 'true',
 				type: 'module',
-				navigateFallback: '/'
+				navigateFallback: '/dashboard'
 			},
 			// if you have shared info in svelte config file put in a separate module and use it also here
 			kit: {},
 			manifest: {
 				name: 'Ambos Finance',
 				short_name: 'Ambos',
-				start_url: '/dashboard-v2',
+				start_url: '/dashboard',
 				display: 'standalone',
 				description:
 					'Get cash for your crypto today, without selling, in a streamlined, secure, non-custodial application.',
