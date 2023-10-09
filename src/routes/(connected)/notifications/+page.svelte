@@ -10,7 +10,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 	import { onDestroy } from 'svelte';
-	import Update from '$lib/components/pwa/Update.svelte';
 
 	const txStore = getTxStore();
 	const web3Store = getWeb3Store();
@@ -124,7 +123,6 @@
 				{/each}
 			</Card>
 			<Logout />
-			<Update />
 		</div>
 	</div>
 </BaseScreen>
