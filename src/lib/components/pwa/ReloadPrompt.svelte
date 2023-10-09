@@ -10,7 +10,7 @@
 	// @ts-ignore
 	let reloadSW = __RELOAD_SW__;
 
-	console.log('RELOAD SW', reloadSW);
+	const reloadDurationInterval = 60 * 1000 * 1000; // 1 hour
 
 	const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
 		onRegistered(r) {
@@ -20,7 +20,7 @@
 					setInterval(() => {
 						console.log('Checking for sw update');
 						r.update();
-					}, 60 * 1000 /* 60s for testing purposes */);
+					}, reloadDurationInterval);
 			} else {
 				console.log(`SW Registered: ${r}`);
 			}
@@ -31,11 +31,9 @@
 	});
 
 	$: {
-		console.log('NEED REFRESH');
 		if ($offlineReady) {
 			toast.info('App ready to work offline');
-		} else if (true || $needRefresh) {
-			console.log('NEED REFRESH');
+		} else if ($needRefresh) {
 			toast.info('New content available, click on reload button to update.', {
 				duration: Number.POSITIVE_INFINITY,
 				action: {
@@ -54,6 +52,7 @@
 			buildDate,
 			buildDateLocal: new Date(buildDate).toLocaleString(),
 			reloadSW,
+			reloadDurationInterval,
 			offlineReady: $offlineReady,
 			needRefresh: $needRefresh
 		});
