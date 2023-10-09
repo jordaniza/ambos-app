@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { f } from '$lib/utils';
 	import { HistoryIcon } from 'lucide-svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import Logout from '$lib/components/connect/logout.svelte';
@@ -11,6 +10,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 	import { onDestroy } from 'svelte';
+	import Update from '$lib/components/pwa/Update.svelte';
 
 	const txStore = getTxStore();
 	const web3Store = getWeb3Store();
@@ -124,6 +124,7 @@
 				{/each}
 			</Card>
 			<Logout />
+			<Update />
 		</div>
 	</div>
 </BaseScreen>
