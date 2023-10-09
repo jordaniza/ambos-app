@@ -41,13 +41,8 @@
 				action: {
 					label: 'Reload',
 					onClick: () => {
-						console.log(navigator.serviceWorker);
-
 						updateServiceWorker(true);
-						// reload the page
-						// window.location.reload()
-
-						console.log(navigator.serviceWorker);
+						window.location.reload();
 					}
 				}
 			});
