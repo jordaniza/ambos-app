@@ -13,7 +13,6 @@
 	let reloadSW = __RELOAD_SW__;
 
 	let interval: NodeJS.Timeout;
-	const delayedCheckRefresh = 10 * 1000; // 10 seconds
 	const reloadDurationInterval = 60 * 60 * 1000; // 1 hour
 
 	onMount(() => {
@@ -42,11 +41,6 @@
 			if (reloadSW) {
 				console.log('[SW::RELOADING TIME]', Date.now() + reloadDurationInterval);
 				// initial update
-				r &&
-					setTimeout(() => {
-						console.log('[SW::UPDATING]');
-						r.update();
-					}, delayedCheckRefresh);
 				r &&
 					setInterval(() => {
 						console.log('[SW::UPDATING]');
@@ -85,7 +79,8 @@
 			reloadSW,
 			reloadDurationInterval,
 			offlineReady: $offlineReady,
-			needRefresh: $needRefresh
+			needRefresh: $needRefresh,
+			swVersion: 0.1
 		});
 	}
 </script>
