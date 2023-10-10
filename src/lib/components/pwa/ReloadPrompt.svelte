@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { useRegisterSW } from 'virtual:pwa-register/svelte';
 
@@ -10,14 +12,36 @@
 	// @ts-ignore
 	let reloadSW = __RELOAD_SW__;
 
-	const delayedCheckRefresh = 60 * 1000; // 1 minute
-	const reloadDurationInterval = 60 * 1000 * 1000; // 1 hour
+	let interval: NodeJS.Timeout;
+	const delayedCheckRefresh = 10 * 1000; // 10 seconds
+	const reloadDurationInterval = 60 * 60 * 1000; // 1 hour
+
+	onMount(() => {
+		interval = setInterval(() => {
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.getRegistrations().then((registrations) => {
+					for (let registration of registrations) {
+						if (registration.waiting) {
+							$needRefresh = true;
+
+							// registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+						}
+					}
+				});
+			}
+		}, 1000);
+	});
+
+	onDestroy(() => {
+		clearInterval(interval);
+	});
 
 	const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
 		onRegistered(r) {
 			console.log('[SW::Registered]', r);
 			if (reloadSW) {
 				console.log('[SW::RELOADING TIME]', Date.now() + reloadDurationInterval);
+				// initial update
 				r &&
 					setTimeout(() => {
 						console.log('[SW::UPDATING]');
