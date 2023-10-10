@@ -55,7 +55,7 @@
 	}
 
 	$: {
-		console.log('SERVICE WORKER STATUS', {
+		console.log('[SW::STATUS]', {
 			buildDate,
 			buildDateLocal: new Date(buildDate).toLocaleString(),
 			reloadSW,
