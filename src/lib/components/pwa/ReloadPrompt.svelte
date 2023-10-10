@@ -23,8 +23,8 @@
 					for (let registration of registrations) {
 						if (registration.waiting) {
 							console.log('[SW::WAITING]');
+							registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 							$needRefresh = true;
-							// registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 						}
 					}
 				});
