@@ -123,7 +123,7 @@
 				{/each}
 			</Card>
 			<Logout />
-			<p>App Version: 0.5</p>
+			<p>App Version: 0.6</p>
 		</div>
 	</div>
 </BaseScreen>
