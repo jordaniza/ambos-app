@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { useRegisterSW } from 'virtual:pwa-register/svelte';
 
 	let updateServiceWorker: (reloadPage: boolean) => void;
 
 	onMount(() => {
-		updateServiceWorker = function (reloadPage: boolean) {
+		updateServiceWorker = (reloadPage: boolean) => {
 			console.log('Updating service worker');
 		};
 	});
