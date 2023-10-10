@@ -13,16 +13,17 @@
 	let reloadSW = __RELOAD_SW__;
 
 	let interval: NodeJS.Timeout;
+	let registration: ServiceWorkerRegistration;
 	const reloadDurationInterval = 60 * 60 * 1000; // 1 hour
 
 	onMount(() => {
 		interval = setInterval(() => {
 			if ('serviceWorker' in navigator) {
 				navigator.serviceWorker.getRegistrations().then((registrations) => {
-					for (let registration of registrations) {
-						if (registration.waiting) {
+					for (let r of registrations) {
+						if (r.waiting) {
 							console.log('[SW::WAITING]');
-							registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+							registration = r;
 							$needRefresh = true;
 						}
 					}
@@ -65,7 +66,7 @@
 					label: 'Reload',
 					onClick: () => {
 						updateServiceWorker(true);
-						window.location.reload();
+						if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 					}
 				}
 			});
@@ -80,7 +81,7 @@
 			reloadDurationInterval,
 			offlineReady: $offlineReady,
 			needRefresh: $needRefresh,
-			swVersion: 0.1
+			swVersion: 0.2
 		});
 	}
 </script>
