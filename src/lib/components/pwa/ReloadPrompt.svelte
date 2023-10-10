@@ -22,8 +22,8 @@
 				navigator.serviceWorker.getRegistrations().then((registrations) => {
 					for (let registration of registrations) {
 						if (registration.waiting) {
+							console.log('[SW::WAITING]');
 							$needRefresh = true;
-
 							// registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 						}
 					}
