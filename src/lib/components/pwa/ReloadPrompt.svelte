@@ -30,7 +30,7 @@
 					}
 				});
 			}
-		}, 1000);
+		}, 5000);
 	});
 
 	onDestroy(() => {
@@ -84,7 +84,7 @@
 			reloadDurationInterval,
 			offlineReady: $offlineReady,
 			needRefresh: $needRefresh,
-			swVersion: 0.3
+			swVersion: 0.4
 		});
 	}
 </script>
