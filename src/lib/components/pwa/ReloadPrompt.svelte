@@ -81,7 +81,7 @@
 			reloadDurationInterval,
 			offlineReady: $offlineReady,
 			needRefresh: $needRefresh,
-			swVersion: 0.2
+			swVersion: 0.3
 		});
 	}
 </script>
