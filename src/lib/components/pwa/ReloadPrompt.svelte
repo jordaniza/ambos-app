@@ -14,6 +14,7 @@
 
 	let interval: NodeJS.Timeout;
 	let registration: ServiceWorkerRegistration;
+	let toastShowing = false;
 	const reloadDurationInterval = 60 * 60 * 1000; // 1 hour
 
 	onMount(() => {
@@ -60,6 +61,8 @@
 		if ($offlineReady) {
 			toast.info('App ready to work offline');
 		} else if ($needRefresh) {
+			if (toastShowing) return;
+			toastShowing = true;
 			toast.info('New content available, click on reload button to update.', {
 				duration: Number.POSITIVE_INFINITY,
 				action: {
