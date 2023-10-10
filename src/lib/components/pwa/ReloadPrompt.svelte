@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { useRegisterSW } from 'virtual:pwa-register/svelte';
@@ -60,8 +59,7 @@
 	$: {
 		if ($offlineReady) {
 			toast.info('App ready to work offline');
-		} else if ($needRefresh) {
-			if (toastShowing) return;
+		} else if ($needRefresh && !toastShowing) {
 			toastShowing = true;
 			toast.info('New content available, click on reload button to update.', {
 				duration: Number.POSITIVE_INFINITY,
@@ -84,7 +82,7 @@
 			reloadDurationInterval,
 			offlineReady: $offlineReady,
 			needRefresh: $needRefresh,
-			swVersion: 0.4
+			swVersion: 0.3
 		});
 	}
 </script>
