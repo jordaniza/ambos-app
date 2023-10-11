@@ -6,7 +6,6 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Range from '$lib/components/range/range.svelte';
-	import { InfoIcon } from 'lucide-svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
@@ -27,6 +26,8 @@
 		setIncreaseDebtBuilderStage,
 		setSupplyEth
 	} from '$stores/transactions/builders';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
@@ -135,7 +136,7 @@
 					<div class="font-bold">Liquidation Price</div>
 					<div class="flex gap-1 text-end">
 						<div>{f(liquidationPrice)} / ETH</div>
-						<InfoIcon class="h-4 text-muted-foreground" />
+						<TooltipIcon text={TOOLTIPS.LIQUIDATION_PRICE} />
 					</div>
 				</div>
 

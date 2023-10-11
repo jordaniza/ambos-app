@@ -4,7 +4,7 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Eth from '$lib/eth.svelte';
 	import { f, e, getBarColor, getLiquidationPrice } from '$lib/utils';
-	import { CreditCardIcon, DollarSign, InfoIcon, LockIcon, Receipt } from 'lucide-svelte';
+	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import Sparkline from '$lib/components/charts/sparkline.svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
@@ -12,6 +12,8 @@
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { browser } from '$app/environment';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	let web3Store = getWeb3Store();
 	let priceUp = Math.random() > 0.5;
@@ -130,7 +132,7 @@
 							<LockIcon class="text-muted-foreground h-4 w-4" />
 							<p class="font-bold tracking-widest pt-1">Supplied</p>
 						</div>
-						<InfoIcon class="text-muted-foreground h-4 w-4" />
+						<TooltipIcon text={TOOLTIPS.ETH_SUPPLIED} />
 					</div>
 					<div class="flex w-full justify-between gap-3 items-center">
 						<div class="flex items-center gap-1">
@@ -169,7 +171,7 @@
 							<CreditCardIcon class="text-muted-foreground h-4 w-4" />
 							<p class="tracking-widest font-bold pt-[1.5px]">Borrowed</p>
 						</div>
-						<InfoIcon class="text-muted-foreground h-4 w-4" />
+						<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
 					</div>
 					<div class="flex w-full justify-between">
 						<div class="flex items-center justify-center gap-2">

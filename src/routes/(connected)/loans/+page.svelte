@@ -7,7 +7,6 @@
 		DollarSign,
 		GemIcon,
 		HistoryIcon,
-		InfoIcon,
 		LockIcon,
 		ReceiptIcon
 	} from 'lucide-svelte';
@@ -16,6 +15,8 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
 	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	type HistoryItem = {
 		action: string;
@@ -118,7 +119,7 @@
 						<LockIcon class="text-muted-foreground h-4 w-4" />
 						<p class="font-bold">Supplied</p>
 					</div>
-					<InfoIcon class="text-muted-foreground h-4 w-4" />
+					<TooltipIcon text={TOOLTIPS.ETH_SUPPLIED} />
 				</div>
 				<!-- Eth -->
 				<div class="flex justify-between items-center gap-2">
@@ -152,7 +153,7 @@
 						<CreditCardIcon class="text-muted-foreground h-4 w-4" />
 						<p class="tracking-widest font-bold pt-[1.5px]">Borrowed</p>
 					</div>
-					<InfoIcon class="text-muted-foreground h-4 w-4" />
+					<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
 				</div>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex items-center gap-2">
@@ -181,7 +182,7 @@
 						<GemIcon class="text-muted-foreground h-4 w-4" />
 						<p class="tracking-widest font-bold pt-[1.5px]">Loan Health</p>
 					</div>
-					<InfoIcon class="text-muted-foreground h-4 w-4" />
+					<TooltipIcon text={TOOLTIPS.LOAN_HEALTH} />
 				</div>
 				<div class="flex items-center">
 					<div class="flex-shrink mr-2 w-full items-center justify-center">
@@ -216,7 +217,7 @@
 						<ReceiptIcon class="text-muted-foreground h-4 w-4" />
 						<p class="tracking-widest font-bold pt-[1.5px]">Repay Loan</p>
 					</div>
-					<InfoIcon class="text-muted-foreground h-4 w-4" />
+					<TooltipIcon text={TOOLTIPS.LOAN_REPAY} />
 				</div>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex justify-between items-center w-full">

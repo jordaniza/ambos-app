@@ -2,14 +2,7 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { e, f } from '$lib/utils';
-	import {
-		CopyIcon,
-		DollarSign,
-		ExternalLink,
-		HistoryIcon,
-		InfoIcon,
-		WalletIcon
-	} from 'lucide-svelte';
+	import { CopyIcon, DollarSign, ExternalLink, HistoryIcon, WalletIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
@@ -18,6 +11,8 @@
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import WalletDialogies from './wallet-dialogues.svelte';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	let priceUp = Math.random() > 0.5;
 	let accountStore = getAccountStore();
@@ -145,7 +140,7 @@
 						<WalletIcon class="text-muted-foreground h-4 w-4" />
 						<p class="font-bold">Your Wallet Holdings</p>
 					</div>
-					<InfoIcon class="text-muted-foreground h-4 w-4" />
+					<TooltipIcon text={TOOLTIPS.WALLET_HOLDINGS} />
 				</div>
 				<!-- Eth -->
 				<div class="flex justify-between items-center gap-2">
@@ -171,7 +166,7 @@
 					<p class="font-bold">Network</p>
 					<div class="flex items-center justify-end gap-2">
 						<NetworkNames />
-						<InfoIcon class="text-muted-foreground h-4 w-4" />
+						<TooltipIcon text={TOOLTIPS.NETWORK} />
 					</div>
 				</Card>
 				<Separator class="my-1 w-[95%] transform translate-x-[2.5%]" />
@@ -193,7 +188,7 @@
 					<p class="font-bold">Network</p>
 					<div class="flex items-center justify-end gap-2">
 						<NetworkNames />
-						<InfoIcon class="text-muted-foreground h-4 w-4" />
+						<TooltipIcon text={TOOLTIPS.NETWORK} />
 					</div>
 				</Card>
 				<div class="flex w-full gap-3">

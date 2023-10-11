@@ -5,8 +5,7 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
-	import { InfoIcon } from 'lucide-svelte';
-	import { BACKGROUNDS, ROUTES } from '$lib/constants';
+	import { ROUTES } from '$lib/constants';
 	import Transfer from './transfer/transfer.svelte';
 	import { onMount } from 'svelte';
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
@@ -16,6 +15,8 @@
 	import NetworkName from '$lib/components/ui/network/network-names.svelte';
 	import { setIncreaseDebtBuilderStage as setIncreaseDebtBuilderStage } from '$stores/transactions/builders';
 	import { goto } from '$app/navigation';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	// display ticker to show new ETH transferred
 	let increaseTicker = 0;
@@ -140,7 +141,7 @@
 						</div>
 						<div class="flex items-center justify-end gap-2">
 							<p>ETH</p>
-							<InfoIcon class="h-4 w-4 text-muted-foreground" />
+							<TooltipIcon text={TOOLTIPS.NETWORK} />
 						</div></Card
 					>
 				</div>

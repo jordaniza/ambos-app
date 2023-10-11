@@ -1,18 +1,18 @@
 <script lang="ts">
-	import QRCode from 'qrcode';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
+	import { getWeb3Store } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { e, f } from '$lib/utils';
 	import InputEditSlider from '../../loans/review/input-edit-slider.svelte';
 	import NetworkLogos from '$lib/components/ui/network/network-logos.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
-	import { InfoIcon, ScanLineIcon } from 'lucide-svelte';
-	import Usdc from '$lib/usdc.svelte';
+	import { ScanLineIcon } from 'lucide-svelte';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	export const trigger = () => {
 		open = true;
@@ -124,7 +124,7 @@
 				</div>
 				<div class="flex items-center justify-end gap-2">
 					<p>ETH</p>
-					<InfoIcon class="h-4 w-4 text-muted-foreground" />
+					<TooltipIcon text={TOOLTIPS.NETWORK} />
 				</div>
 			</Card>
 
@@ -140,7 +140,7 @@
 				<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
 					<div class="flex items-center justify-end gap-2">
 						<p class="font-bold">Transaction Fee</p>
-						<InfoIcon class="h-4 w-4 text-muted-foreground" />
+						<TooltipIcon text={TOOLTIPS.TRANSACTION_FEE} />
 					</div>
 					<div class="flex items-center gap-2">
 						<p>{e(0.00012)}</p>

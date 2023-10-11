@@ -7,7 +7,6 @@
 	import { ROUTES } from '$lib/constants';
 	import { BN, e, f, getLiquidationPrice, pc } from '$lib/utils';
 	import InputEditSlider from './input-edit-slider.svelte';
-	import { InfoIcon } from 'lucide-svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { getEthValue, getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
@@ -29,6 +28,8 @@
 	import { toast } from 'svelte-sonner';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import Success from './success.svelte';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -198,7 +199,7 @@
 				<p class="font-bold">Liquidation Price</p>
 				<div class="flex gap-2 justify-end items-center">
 					<p>{f(liquidationPrice)} / ETH</p>
-					<InfoIcon class="h-4 text-muted-foreground" />
+					<TooltipIcon text={TOOLTIPS.LIQUIDATION_PRICE} />
 				</div>
 			</div>
 			<!-- Fees and Charges -->
