@@ -19,7 +19,7 @@
 	{transitionConfig}
 	{sideOffset}
 	class={cn(
-		'z-50 overflow-hidden rounded-2xl border bg-popover p-4 text-xs text-popover-foreground shadow-md max-w-[50%]',
+		'z-50 overflow-hidden rounded-2xl border bg-popover p-4 text-xs text-popover-foreground shadow-md max-w-[75%]',
 		className
 	)}
 	{...$$restProps}

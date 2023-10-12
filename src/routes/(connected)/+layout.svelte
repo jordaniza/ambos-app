@@ -10,22 +10,18 @@
 	import { web3Store as _web3Store, watchW3Store, refreshW3Store } from '$stores/web3';
 	import {
 		txStore as _txStore,
-		readTransactionsFromLocalStorage,
-		writeTransactionsToLocalStorage
+		initializeTxStore,
+		updateLocalStorageWithStoreChanges
 	} from '$stores/transactions/state';
 	import { ACCOUNT_KEY, TX_KEY, WEB3_KEY } from '$lib/context/getStores';
 	import { setChainId } from '$stores/web3/actions';
 	import Footer from './footer.svelte';
 	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
-	import {
-		EXCLUDED_FOOTER_ROUTES,
-		EXCLUDED_SPLASH_ROUTES,
-		LOCAL_STORAGE_KEYS,
-		ROUTES
-	} from '$lib/constants';
+	import { EXCLUDED_FOOTER_ROUTES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { SmartAccount } from '@biconomy/account';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -40,37 +36,37 @@
 	setContext(ACCOUNT_KEY, _accountStore);
 	setContext(TX_KEY, _txStore);
 
+	// use these in your components to access the stores instead of the stores directly
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
 
 	// adjust the chain id here for the whole app
 	const chainId = ChainId.POLYGON_MUMBAI;
+	const WATCH_INTERVAL = 30; // seconds
 
 	$: provider = $accountStore?.provider;
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
-
-	// required for PWA Support
+	$: smartAccount = $accountStore?.smartAccount;
 	$: currentPage = $page.url.pathname;
+
+	// don't show the footer on certain pages
 	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(
 		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
 	);
 
-	// update localstorage with transaction updates
+	// keep the localStorage transactions in sync with the txStore
 	$: {
-		if (Object.keys($txStore.transactions).length > 0) {
-			const currentValue = readTransactionsFromLocalStorage();
-			if (JSON.stringify(currentValue) !== JSON.stringify($txStore.transactions)) {
-				writeTransactionsToLocalStorage($txStore);
-			}
+		if (Object.keys($txStore.transactions).length > 0 && address) {
+			updateLocalStorageWithStoreChanges(txStore, address);
 		}
 	}
 
+	// check if the user has seen the welcome screen
 	$: {
 		if (browser) {
 			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
-
 			if (!seen && !excludedRoute) {
 				goto(ROUTES.WELCOME);
 			}
@@ -84,25 +80,17 @@
 		}
 	}
 
-	// attempt to connect when the user loads the page and fetch web3data
 	onMount(async () => {
 		try {
+			// load globals and connect to web3
 			loadTheme();
 			setChainId(web3Store, chainId);
 			await connect(chainId);
-			const savedTransactions = readTransactionsFromLocalStorage();
-			if (savedTransactions) {
-				txStore.update((s) => {
-					s.transactions = {
-						...savedTransactions,
-						...s.transactions
-					};
-					return s;
-				});
-			}
-			if (provider && address) {
-				// watcher pools on a 30 block interval
-				watchW3Store(address, provider, web3Store, 30);
+
+			// setup data watchers and fetch initial data
+			if (provider && address && smartAccount) {
+				await initializeTxStore(txStore, address, provider, smartAccount);
+				watchW3Store(web3Store, address, provider, WATCH_INTERVAL);
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);

@@ -4,12 +4,13 @@ import type { EthereumAddress } from '$lib/utils';
 import { BigNumber, ethers } from 'ethers';
 import { handleError, type web3Store } from '.';
 import { BASE_CURRENCY_DECIMALS, LTV_DECIMALS, RAY_DECIMALS } from '$lib/constants';
+import type { AppProvider } from '$stores/account';
 
 export enum InterestRateMode {
 	VARIABLE_IR = 2,
 	STABLE_IR = 1
 }
-export async function getAavePool(provider: ethers.providers.Web3Provider) {
+export async function getAavePool(provider: AppProvider) {
 	const { chainId } = await provider.getNetwork();
 	const poolAddress = ADDRESSES[chainId]['POOL'];
 	if (!poolAddress) {
@@ -18,7 +19,7 @@ export async function getAavePool(provider: ethers.providers.Web3Provider) {
 	return poolAddress;
 }
 
-export async function getAavePoolDataProvider(provider: ethers.providers.Web3Provider) {
+export async function getAavePoolDataProvider(provider: AppProvider) {
 	const { chainId } = await provider.getNetwork();
 	const dataProviderAddress = ADDRESSES[chainId]['POOL_DATA_PROVIDER'];
 	if (!dataProviderAddress) {
@@ -27,10 +28,7 @@ export async function getAavePoolDataProvider(provider: ethers.providers.Web3Pro
 	return dataProviderAddress;
 }
 
-export async function getPoolUserAccountData(
-	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider
-) {
+export async function getPoolUserAccountData(userAddress: EthereumAddress, provider: AppProvider) {
 	const poolAddress = await getAavePool(provider);
 	const pool = AavePool__factory.connect(poolAddress, provider);
 	return await pool.getUserAccountData(userAddress);
@@ -38,7 +36,7 @@ export async function getPoolUserAccountData(
 
 export const getPoolReserveData = async (
 	reserveTokenAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider
+	provider: AppProvider
 ) => {
 	const poolAddress = await getAavePoolDataProvider(provider);
 	const dataProvider = AaveProtocolDataProvider__factory.connect(poolAddress, provider);
@@ -47,7 +45,7 @@ export const getPoolReserveData = async (
 
 export const getPoolReserveConfigData = async (
 	reserveTokenAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider
+	provider: AppProvider
 ) => {
 	const poolAddress = await getAavePoolDataProvider(provider);
 	const dataProvider = AaveProtocolDataProvider__factory.connect(poolAddress, provider);
@@ -56,7 +54,7 @@ export const getPoolReserveConfigData = async (
 
 const getPoolReserveAndConfigData = async (
 	reserveTokenAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider
+	provider: AppProvider
 ) => {
 	const [reserveData, reserveConfigData] = await Promise.all([
 		getPoolReserveData(reserveTokenAddress, provider),
@@ -146,7 +144,7 @@ function setPoolDataReserve(
 export async function getSetPoolData(
 	userAddress: EthereumAddress,
 	reserveTokenAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	blockNumber: number
 ) {
@@ -164,7 +162,7 @@ export async function getSetPoolData(
 
 export async function watchPoolData(
 	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {

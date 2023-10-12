@@ -2,8 +2,9 @@ import { type Oracle, Oracle__factory } from '$lib/abis/ts';
 import { ADDRESSES } from '$lib/contracts';
 import { type BigNumber, ethers } from 'ethers';
 import { handleError, type web3Store } from '.';
+import type { AppProvider } from '$stores/account';
 
-export async function getOracleWETHPrice(provider: ethers.providers.Web3Provider) {
+export async function getOracleWETHPrice(provider: AppProvider) {
 	const { chainId } = await provider.getNetwork();
 	const oracleAddress = ADDRESSES[chainId]['ORACLE'];
 	const oracle = Oracle__factory.connect(oracleAddress, provider);
@@ -43,7 +44,7 @@ function setEthPrice(
 }
 
 export async function getSetEthPrice(
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	blockNumber: number
 ): Promise<void> {
@@ -56,7 +57,7 @@ export async function getSetEthPrice(
 }
 
 export async function watchEthPrice(
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {

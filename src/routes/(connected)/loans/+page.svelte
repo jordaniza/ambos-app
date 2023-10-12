@@ -17,6 +17,7 @@
 	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import RepaySelect from './(repay)/repay-select.svelte';
 
 	type HistoryItem = {
 		action: string;
@@ -97,6 +98,8 @@
 		return `${month} ${day} ${year} - ${hour}:${minute}`;
 	}
 </script>
+
+<RepaySelect />
 
 <!-- <Faq /> -->
 <TopBar page="Manage Your Loan" />
@@ -221,39 +224,25 @@
 				</div>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex justify-between items-center w-full">
-						<p>Outstanding Amount</p>
-						<p class="text-secondary">{f(borrowed)} (+{f(500)} interest)</p>
+						<p>Outstanding Amount:</p>
+						<p class="text-secondary">{f(borrowed)}</p>
 					</div>
 				</div>
 				<div class="flex justify-between items-center w-full">
-					<p>Repaid</p>
+					<p>Interest:</p>
+					<p class="text-secondary">{f(400)}</p>
+				</div>
+				<div class="flex justify-between items-center w-full">
+					<p>Repaid:</p>
 					<p>{f(2000.45)}</p>
 				</div>
 				<Separator />
 				<div class="flex flex-col gap-1 pt-3">
-					<div class="flex justify-between w-full gap-2">
-						<FormatInput
-							{formatter}
-							bind:value={repayValue}
-							class="grow w-full border-secondary border-[1px] rounded-xl px-4 font-bold"
-						/>
-						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
-							<DollarSign class="text-secondary stroke-2 h-7 w-7" />
-						</div>
-					</div>
-					<div class="flex justify-between items-center gap-2">
-						<div class="flex justify-between items-center w-full text-xs text-muted-foreground">
-							<p class="pl-1">Available Balance: {f(availableBalance)}</p>
-							<Button variant="link" class="p-0 text-rightg text-xs" on:click={useMaxRepay}
-								>Use Max</Button
-							>
-						</div>
-					</div>
-					<Button variant="outline" disabled={true} class="w-full text-primary"
-						>Confirm Repayment</Button
+					<Button variant="outline" class="border-secondary text-secondary"
+						>Repayment Options</Button
 					>
-				</div></Card
-			>
+				</div>
+			</Card>
 			<!-- Loan History -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 mb-20">
 				<div class="flex justify-between items-center">

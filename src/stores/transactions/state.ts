@@ -1,6 +1,10 @@
 import { get, writable } from 'svelte/store';
 import { v4 as uuid } from 'uuid';
 import { defaultBuilders, type TxBuilders } from './builders';
+import type { EthereumAddress } from '$lib/utils';
+import { LOCAL_STORAGE_KEYS, getUserStorageKey } from '$lib/constants';
+import type { AppProvider } from '$stores/account';
+import type { SmartAccount } from '@biconomy/account';
 
 export type UUID = string;
 
@@ -75,6 +79,7 @@ export const SUPPORTED_TRANSACTIONS = [
 
 export type SupportedTransaction = SupportedSingleTransaction | SupportedBatchTransaction;
 export type TXDetail = {
+	id: UUID;
 	state: TXState;
 	error: string | null;
 	notes: string | null;
@@ -124,6 +129,7 @@ export function setNewTransaction(store: TxStore, type: string): UUID {
 	const id = uuid();
 	store.update((s) => {
 		s.transactions[id] = {
+			id,
 			notes: null,
 			error: null,
 			finalTxHash: null,
@@ -183,18 +189,18 @@ export function getLatestTransactionOfType(
 	return latestTransaction;
 }
 
-export function writeTransactionsToLocalStorage(store: TransactionStore) {
+export function writeTransactionsToLocalStorage(store: TransactionStore, address: EthereumAddress) {
 	try {
 		const serializedData = JSON.stringify(store.transactions);
-		localStorage.setItem('transactions', serializedData);
+		localStorage.setItem(getUserStorageKey(address), serializedData);
 	} catch (error) {
 		console.error('Could not write to local storage:', error);
 	}
 }
 
-export function readTransactionsFromLocalStorage() {
+export function readTransactionsFromLocalStorage(address: EthereumAddress) {
 	try {
-		const serializedData = localStorage.getItem('transactions');
+		const serializedData = localStorage.getItem(getUserStorageKey(address));
 		if (serializedData === null) {
 			return undefined;
 		}
@@ -220,4 +226,128 @@ export function increaseTxCounter(store: TxStore) {
 		s.txCounter++;
 		return s;
 	});
+}
+
+/**
+ * Sets up the TX Store for the user by checking if any transactions exist in storage
+ */
+export async function initializeTxStore(
+	store: TxStore,
+	address: EthereumAddress,
+	provider: AppProvider,
+	smartAccount: SmartAccount
+): Promise<void> {
+	migrateIfNeccessary(address);
+
+	const savedTransactions = readTransactionsFromLocalStorage(address);
+
+	if (savedTransactions) {
+		store.update((s) => {
+			s.transactions = {
+				...savedTransactions,
+				...s.transactions
+			};
+			return s;
+		});
+	}
+
+	await getPendingTransactionUpdates(store, provider, smartAccount);
+}
+
+export function updateLocalStorageWithStoreChanges(store: TxStore, address: EthereumAddress): void {
+	const currentValue = readTransactionsFromLocalStorage(address);
+	if (JSON.stringify(currentValue) !== JSON.stringify(get(store).transactions)) {
+		writeTransactionsToLocalStorage(get(store), address);
+	}
+}
+
+function findTxByReceiptHash(transactions: TXDetail[], hash: string): TXDetail | undefined {
+	return transactions.find((tx) => tx.txReceiptHash === hash || tx.userOpReceiptHash === hash);
+}
+
+function getPendingTxHashes(store: TxStore): { hash: `0x${string}`; userOp: boolean }[] {
+	// get all pending transactions
+	const pendingTransactions = Object.values(get(store).transactions).filter((tx) =>
+		TX_STATES_SUMMARY.PENDING.includes(tx.state)
+	);
+	// get all tx hashes
+	return pendingTransactions
+		.map((tx) => ({
+			hash: tx.txReceiptHash || tx.userOpReceiptHash,
+			userOp: !tx.txReceiptHash
+		}))
+		.filter((tx) => !!tx.hash) as { hash: `0x${string}`; userOp: boolean }[];
+}
+
+async function grabSmartAccountTxReceipt(smartAccount: SmartAccount, hash: string) {
+	// const { receipt } = await smartAccount.bundler.getUserOpReceipt(hash);
+	const uop = await smartAccount.bundler.getUserOpReceipt(hash);
+	if (!uop) return;
+	return uop.receipt;
+}
+
+export async function getPendingTransactionUpdates(
+	store: TxStore,
+	provider: AppProvider,
+	smartAccount: SmartAccount
+) {
+	// get all tx hashes
+	const txHashes = getPendingTxHashes(store);
+
+	// check the latest status
+	const hashReceipts = await Promise.all(
+		txHashes.map(async ({ hash, userOp }) => ({
+			hash,
+			finalReceipt: userOp
+				? await grabSmartAccountTxReceipt(smartAccount, hash)
+				: await provider.getTransactionReceipt(hash)
+		}))
+	);
+
+	store.update((s) => {
+		hashReceipts.forEach(({ hash, finalReceipt }) => {
+			if (!finalReceipt) return;
+			const tx = findTxByReceiptHash(Object.values(s.transactions), hash);
+			if (!tx) return;
+
+			if (finalReceipt.status === 1 && finalReceipt.confirmations > 0) {
+				tx.state = 'SUCCESSFUL';
+				tx.finalTxHash = finalReceipt.transactionHash as `0x${string}`;
+			} else if (finalReceipt.status === 0 && finalReceipt.confirmations > 0) {
+				tx.state = 'REJECTED';
+				tx.finalTxHash = finalReceipt.transactionHash as `0x${string}`;
+			}
+
+			// overwrite the tx in the store if there are changes
+			if (s.transactions[tx.id] !== tx) s.transactions[tx.id] = tx;
+		});
+		return s;
+	});
+}
+
+/// @dev keep these in for a bit while we migrate to new schema
+
+function migrateIfNeccessary(address: EthereumAddress) {
+	const oldStore = checkForMigration();
+	if (oldStore) {
+		migrate(address, oldStore);
+	}
+}
+
+export function checkForMigration(): TransactionStore['transactions'] | null {
+	const oldStore = localStorage.getItem(LOCAL_STORAGE_KEYS.TRANSACTIONS);
+	if (!oldStore) {
+		return null;
+	}
+	return JSON.parse(oldStore);
+}
+
+export function migrate(account: EthereumAddress, old: TransactionStore['transactions']): void {
+	// add the id inside each tx
+	Object.entries(old).forEach(([id, tx]) => {
+		tx.id = id;
+	});
+
+	localStorage.setItem(getUserStorageKey(account), JSON.stringify(old));
+	localStorage.removeItem(LOCAL_STORAGE_KEYS.TRANSACTIONS);
 }

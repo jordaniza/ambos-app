@@ -6,6 +6,7 @@ import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
 import { batchSponsoredTx } from './sponsored';
 import { setNewTransaction, updateTransaction, type TxStore } from './state';
+import type { AppProvider } from '$stores/account';
 
 export async function getCashNow(
 	store: TxStore,
@@ -13,7 +14,7 @@ export async function getCashNow(
 	amountInWeth: ethers.BigNumber,
 	amountOutUsdc: ethers.BigNumber,
 	interestRateMode: InterestRateMode,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	const transactionType = 'INCREASE_DEBT';

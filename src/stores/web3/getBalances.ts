@@ -4,16 +4,14 @@ import { ADDRESSES, type ERC20, SupportedTokens, type TSupportedTokens } from '$
 import { handleError, type Web3Store, type web3Store } from '.';
 import { get } from 'svelte/store';
 import { USDC__factory, WETH__factory } from '$lib/abis/ts';
+import type { AppProvider } from '$stores/account';
 
 export type Options = {
 	watch?: boolean;
 	interval?: number;
 };
 
-export const getTokenAddress = async (
-	provider: ethers.providers.Web3Provider,
-	token: TSupportedTokens
-) => {
+export const getTokenAddress = async (provider: AppProvider, token: TSupportedTokens) => {
 	const { chainId } = await provider.getNetwork();
 	const tokenAddress = ADDRESSES[chainId][token];
 	if (!tokenAddress) {
@@ -85,7 +83,7 @@ export async function getSetTokenBalance(
 }
 
 async function getSupportedTokenContracts(
-	provider: ethers.providers.Web3Provider
+	provider: AppProvider
 ): Promise<[ERC20, TSupportedTokens][]> {
 	const chainId = (await provider.getNetwork()).chainId;
 	const usdc = USDC__factory.connect(ADDRESSES[chainId]['USDC'], provider);
@@ -100,7 +98,7 @@ async function getSupportedTokenContracts(
 
 export async function getSetSupportedTokenBalances(
 	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store
 ): Promise<void> {
 	const tokens = await getSupportedTokenContracts(provider);
@@ -127,7 +125,7 @@ export async function watchTokenBalance(
 
 export async function watchSupportedTokenBalances(
 	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {

@@ -1,4 +1,5 @@
 import { ChainId } from '@biconomy/core-types';
+import type { EthereumAddress } from './utils';
 
 export const APP_NAME = 'Ambos Finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
@@ -63,5 +64,11 @@ export const IS_TESTNET: { [key in ChainId]?: boolean } = {
 
 export const LOCAL_STORAGE_KEYS = {
 	// whether the user has seen the welcome screen
-	WELCOME: 'seen_welcome'
+	WELCOME: 'seen_welcome',
+	// this will be combine with the user's ethereum address
+	// in the format of `${LOCAL_STORAGE_KEYS.TRANSACTIONS}_${address}`
+	TRANSACTIONS: 'transactions'
 };
+
+export const getUserStorageKey = (address: EthereumAddress) =>
+	`${LOCAL_STORAGE_KEYS.TRANSACTIONS}_${address}`;

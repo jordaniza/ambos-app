@@ -6,7 +6,6 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { getAccountStore } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 
 	export const trigger = () => {

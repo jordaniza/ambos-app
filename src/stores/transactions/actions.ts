@@ -13,6 +13,7 @@ import {
 import { sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES } from '$lib/contracts';
+import type { AppProvider } from '$stores/account';
 
 /**
  * Basic handler for sponsored transactions
@@ -25,10 +26,10 @@ import { ADDRESSES } from '$lib/contracts';
 async function handleSponsoredTransaction(
 	store: TxStore,
 	transactionType: SupportedSingleTransaction,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount,
 	transactionBuilder: (
-		provider: ethers.providers.Web3Provider,
+		provider: AppProvider,
 		id: UUID
 	) => Promise<{ contractAddress: EthereumAddress; data: any }>
 ): Promise<void> {
@@ -44,7 +45,7 @@ export function approveWethSmartAccount(
 	store: TxStore,
 	addressToApprove: EthereumAddress,
 	amount: BigNumber,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	return handleSponsoredTransaction(
@@ -65,7 +66,7 @@ export function sendWethSmartAccount(
 	store: TxStore,
 	addressTo: EthereumAddress,
 	amount: BigNumber,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	return handleSponsoredTransaction(
@@ -86,7 +87,7 @@ export function supplyWethToAavePool(
 	store: TxStore,
 	amount: ethers.BigNumber,
 	onBehalfOf: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	return handleSponsoredTransaction(
@@ -108,7 +109,7 @@ export function borrowUsdcFromAavePool(
 	store: TxStore,
 	amount: ethers.BigNumber,
 	borrower: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount,
 	interestRateMode: InterestRateMode
 ) {
@@ -136,7 +137,7 @@ export function borrowUsdcFromAavePool(
 export function requestWETHFromTestnetFaucet(
 	store: TxStore,
 	amount: ethers.BigNumber,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	recipient: EthereumAddress,
 	smartAccount: BiconomySmartAccount
 ) {
@@ -160,7 +161,7 @@ export function sendWETH(
 	store: TxStore,
 	amount: ethers.BigNumber,
 	recipient: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	return handleSponsoredTransaction(
@@ -181,7 +182,7 @@ export function sendUSDC(
 	store: TxStore,
 	amount: ethers.BigNumber,
 	recipient: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount
 ) {
 	return handleSponsoredTransaction(

@@ -27,6 +27,7 @@ export async function sponsoredTx(
 			mode: PaymasterMode.SPONSORED
 		});
 		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
+
 		const userOpResponse = await smartAccount.sendUserOp(userOp);
 
 		updateTransaction(store, id, {

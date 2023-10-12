@@ -2,7 +2,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import Eth from '$lib/eth.svelte';
 	import { f, e, getBarColor, getLiquidationPrice } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import Sparkline from '$lib/components/charts/sparkline.svelte';

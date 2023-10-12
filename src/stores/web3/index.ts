@@ -4,8 +4,8 @@ import type { ChainId } from '@biconomy/core-types';
 import { getSetPoolData, watchPoolData } from './getPoolData';
 import { getSetSupportedTokenBalances, watchSupportedTokenBalances } from './getBalances';
 import { getSetEthPrice, watchEthPrice } from './getPrices';
-import type { ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
+import type { AppProvider } from '$stores/account';
 
 type TokenBalance = {
 	big: string | null;
@@ -112,9 +112,9 @@ const DEFAULT_STORE: Web3Store = {
 export const web3Store = writable(DEFAULT_STORE);
 
 export function watchW3Store(
-	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
 	store: typeof web3Store,
+	userAddress: EthereumAddress,
+	provider: AppProvider,
 	blockInterval: number = 30
 ) {
 	watchSupportedTokenBalances(userAddress, provider, store, blockInterval);
@@ -124,7 +124,7 @@ export function watchW3Store(
 
 export async function refreshW3Store(
 	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store
 ) {
 	const chainId = (await provider.getNetwork()).chainId;
