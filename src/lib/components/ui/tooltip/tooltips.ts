@@ -1,4 +1,5 @@
 export const TOOLTIPS = {
+	GAS_FEES: 'Network fees to send your transaction, these are not controlled by Ambos',
 	ETH_SUPPLIED:
 		'The amount of ETH you supplied as a collateral to secure your loan. Once the loan + interest are repaid, this amount will be credited back into your Ambos wallet.',
 	USD_BORROWED:

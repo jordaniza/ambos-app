@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TXDetail, TXState, TxContext } from '$stores/transactions/state';
 	import { toast } from 'svelte-sonner';
-	import Success from '../modals/success.svelte';
+	import Success from '../modals/get-loan-success.svelte';
 
 	export let tx: TXDetail;
 	let showSuccessModal = false;

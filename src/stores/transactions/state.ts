@@ -36,6 +36,7 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 
 	// decrease debt
 	'APPROVE_AWETH',
+	'APPROVE_USDC',
 	'REPAY_USDC',
 	'WITHDRAW_WETH',
 
@@ -63,14 +64,18 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 ] as const;
 
 export type SupportedSingleTransaction = (typeof SUPPORTED_SINGLE_TRANSACTIONS)[number];
-export type SupportedBatchTransaction = 'INCREASE_DEBT' | 'DECREASE_DEBT';
+export type SupportedBatchTransaction =
+	| 'INCREASE_DEBT'
+	| 'DECREASE_DEBT'
+	| 'DECREASE_DEBT_AND_WITHDRAW';
 
 export const SUPPORTED_BATCH_TRANSACTIONS: Record<
 	SupportedBatchTransaction,
 	readonly SupportedSingleTransaction[]
 > = {
 	INCREASE_DEBT: ['APPROVE_WETH', 'SUPPLY_WETH', 'BORROW_USDC'],
-	DECREASE_DEBT: ['APPROVE_AWETH', 'REPAY_USDC', 'WITHDRAW_WETH']
+	DECREASE_DEBT: ['APPROVE_USDC', 'REPAY_USDC'],
+	DECREASE_DEBT_AND_WITHDRAW: ['APPROVE_USDC', 'REPAY_USDC']
 } as const;
 
 export const SUPPORTED_TRANSACTIONS = [
@@ -80,6 +85,9 @@ export const SUPPORTED_TRANSACTIONS = [
 
 export type TxContext = {
 	INCREASE_DEBT: Omit<TxBuilders['INCREASE_DEBT'], 'stage' | 'hasEth'>;
+	DECREASE_DEBT: {
+		amount: number;
+	};
 };
 
 export type SupportedTransaction = SupportedSingleTransaction | SupportedBatchTransaction;

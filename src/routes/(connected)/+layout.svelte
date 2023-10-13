@@ -21,8 +21,9 @@
 	import { EXCLUDED_FOOTER_ROUTES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
-	import { SmartAccount } from '@biconomy/account';
 	import NotificationHandler from './notifications/notificationHandler.svelte';
+	import { fade, fly, slide } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -41,6 +42,7 @@
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
+	let lastTxCount = 0;
 
 	// adjust the chain id here for the whole app
 	const chainId = ChainId.POLYGON_MUMBAI;
@@ -76,8 +78,11 @@
 
 	// watch the txStore for changes in the txCounter and refresh the web3Store
 	$: {
-		if ($txStore && address && provider && web3Store) {
-			refreshW3Store(address, provider, web3Store);
+		if ($txStore && web3Store) {
+			if ($txStore.txCounter !== lastTxCount) {
+				lastTxCount = $txStore.txCounter;
+				refreshW3Store(web3Store, address, provider);
+			}
 		}
 	}
 
@@ -104,9 +109,11 @@
 	<NotificationHandler />
 {/if}
 <Splash isLoading={!isConnected} />
-<div class="md:max-w-[1990px] h-full">
-	<slot />
-</div>
+{#key currentPage}
+	<div in:fade={{ duration: 200 }} class="md:max-w-[1990px] h-full">
+		<slot />
+	</div>
+{/key}
 <!-- Footer nav on most pages -->
 {#if !excludedRoute}
 	<Footer />

@@ -17,13 +17,10 @@
 	import { goto } from '$app/navigation';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
-
-	// display ticker to show new ETH transferred
-	let increaseTicker = 0;
+	import Counter from '$lib/components/ui/counter/counter.svelte';
 
 	// bound to the transfer component to trigger the animation
 	let transferred: number;
-
 	// flag to show the ticker
 	let showNewETH = false;
 
@@ -39,8 +36,12 @@
 
 	$: {
 		if (transferred > 0) {
-			triggerEffect();
+			showNewETH = true;
 		}
+	}
+
+	function formatter(n: number) {
+		return e(n) + ' ETH';
 	}
 
 	onMount(() => {
@@ -50,27 +51,6 @@
 	async function copyBalanceToClipboard() {
 		toast.success('Copied to clipboard');
 		await navigator.clipboard.writeText(ethBalance.toString());
-	}
-
-	function triggerEffect() {
-		showNewETH = true;
-		const duration = 2000;
-		const step = 10;
-
-		const totalSteps = duration / step;
-		const increasePerStep = transferred / totalSteps;
-
-		increaseTicker = 0; // Reset the counter before starting the animation
-
-		const interval = setInterval(() => {
-			increaseTicker += increasePerStep;
-
-			// When we've reached or exceeded our target, clear the interval
-			if (increaseTicker >= transferred) {
-				increaseTicker = transferred; // Ensure we don't overshoot the target
-				clearInterval(interval);
-			}
-		}, step);
 	}
 </script>
 
@@ -105,12 +85,13 @@
 							<div class="h-10 w-10 bg-popover p-2 rounded-full">
 								<Eth />
 							</div>
-							<p
+							<Counter
+								show={showNewETH}
 								class={'font-xl text-primary transition-opacity duration-300 ' +
 									(showNewETH ? ' opacity-100' : ' opacity-0')}
-							>
-								+ {increaseTicker.toFixed(2)} ETH
-							</p>
+								{formatter}
+								target={transferred}
+							/>
 						</div>
 					</div>
 					<div class="w-full flex justify-between items-center">

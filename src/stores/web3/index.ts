@@ -123,10 +123,11 @@ export function watchW3Store(
 }
 
 export async function refreshW3Store(
-	userAddress: EthereumAddress,
-	provider: AppProvider,
-	store: typeof web3Store
+	store: typeof web3Store,
+	userAddress?: EthereumAddress,
+	provider?: AppProvider
 ) {
+	if (!provider || !userAddress) return;
 	const chainId = (await provider.getNetwork()).chainId;
 	const reserveTokenAddress = ADDRESSES[chainId]['WETH'];
 	const currentBlock = await provider.getBlockNumber();

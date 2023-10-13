@@ -106,3 +106,7 @@ export function getBarColor(barWidth: number): string {
 			return 'bg-primary';
 	}
 }
+
+export async function delay(ms: number) {
+	return await new Promise((resolve) => setTimeout(resolve, ms));
+}

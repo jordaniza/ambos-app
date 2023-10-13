@@ -43,7 +43,7 @@
 
 	function formatter() {
 		if (currency === 'ETH') return `${e(withdrawQty)} ${currency} - ${f(withdrawETHUSDValue)}`;
-		else return f(withdrawETHUSDValue);
+		else return f(withdrawQty);
 	}
 </script>
 
@@ -91,7 +91,7 @@
 					</div>
 					<div class="flex flex-col items-end justify-between">
 						<div class="h-10 w-10 bg-popover flex items-center justify-center rounded-full">
-							<img src={`/external/${currency.toLowerCase()}.png`} alt="eth" class="h-8 w-8" />
+							<img src={`/external/${currency.toLowerCase()}.png`} alt={currency} class="h-8 w-8" />
 						</div>
 					</div>
 				</div>

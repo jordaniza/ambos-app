@@ -14,19 +14,32 @@
 		WalletIcon,
 		ZapIcon
 	} from 'lucide-svelte';
+	import WithStablecoin from './with-stablecoin.svelte';
+	import Ramp from '$lib/components/ramp/ramp.svelte';
 
-	export const trigger = () => {
-		open = true;
-	};
 	export let open = false;
 
-	let openReceive = true;
+	let openRepayWithStablecoin = false;
+	let openTransak = false;
 
 	function handleClick() {
-		openReceive = true;
+		openRepayWithStablecoin = true;
 		open = false;
 	}
+
+	function handleClickBuy() {
+		openTransak = true;
+		open = false;
+	}
+
+	const options = {
+		defaultCryptoCurrency: 'USDC',
+		cryptoCurrencyList: 'USDC',
+		exchangeScreenTitle: 'Buy USDC'
+	};
 </script>
+
+<WithStablecoin bind:open={openRepayWithStablecoin} />
 
 <Dialog.Root bind:open>
 	<Dialog.FlyInContent class="bg-popover">
@@ -39,7 +52,8 @@
 						<WalletIcon class="h-4 w-4 text-muted-foreground" />
 						<p class="font-bold">From Your Wallet</p>
 					</div>
-					<TooltipIcon text={TOOLTIPS.REPAY_FROM_WALLET} />
+					<!-- Cant work out why but this opens automatically atm -->
+					<!-- <TooltipIcon text={TOOLTIPS.REPAY_FROM_WALLET} /> -->
 				</div>
 
 				<!-- <button
@@ -95,10 +109,10 @@
 						<LogInIcon class="h-4 w-4 text-muted-foreground" />
 						<p class="font-bold">External Source</p>
 					</div>
-					<TooltipIcon text={TOOLTIPS.REPAY_FROM_TRANSFER} />
+					<!-- <TooltipIcon text={TOOLTIPS.REPAY_FROM_TRANSFER} /> -->
 				</div>
 
-				<button
+				<!-- <button
 					on:click={handleClick}
 					class="bg-background cursor-pointer rounded-2xl p-3 font-bold text-sm flex items-center justify-between shadow-none"
 				>
@@ -107,10 +121,10 @@
 						<p class="font-bold">Transfer USDC</p>
 					</div>
 					<ArrowDownRightIcon class="h-6 w-6 text-primary" />
-				</button>
+				</button> -->
 
 				<button
-					on:click={handleClick}
+					on:click={handleClickBuy}
 					class="bg-background cursor-pointer rounded-2xl p-3 font-bold text-sm flex items-center justify-between shadow-none"
 				>
 					<div class="flex items-center gap-2">
@@ -124,9 +138,11 @@
 	</Dialog.FlyInContent>
 </Dialog.Root>
 
-<!-- Repay from Wallet -->
-<Dialog.Root bind:open={openReceive}>
+<Dialog.Root bind:open={openTransak}>
 	<Dialog.FlyInContent class="bg-popover">
-		<Dialog.Title class="font-xl font-extrabold text-center">Repay With USDC</Dialog.Title>
+		<div class="flex w-full flex-col gap-5">
+			<p class="font-3xl font-extrabold text-center">Buy USDC</p>
+			<Ramp class="border-0 h-[600px] w-full" {options} direction="buy" />
+		</div>
 	</Dialog.FlyInContent>
 </Dialog.Root>

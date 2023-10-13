@@ -4,7 +4,6 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import { f, e, getBarColor, getLiquidationPrice } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
-	import Sparkline from '$lib/components/charts/sparkline.svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
 	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
@@ -13,10 +12,11 @@
 	import { browser } from '$app/environment';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import EthSparkline from './ethSparkline.svelte';
+	import { goto } from '$app/navigation';
 
 	let web3Store = getWeb3Store();
 	let priceUp = Math.random() > 0.5;
-	let resize: () => void;
 	let seen: string | null = null;
 	let showWelcome = false;
 	let openEthDialog: () => void;
@@ -29,13 +29,6 @@
 				showWelcome = true;
 				localStorage.setItem(key, 'true');
 			}
-		}
-	}
-
-	// chart needs to update with correct decimal points for ETH price
-	$: {
-		if (ethPrice && resize) {
-			resize();
 		}
 	}
 
@@ -84,20 +77,22 @@
 					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white tracking-widest"
 					style="background-image: url('backgrounds/card-dashboard-eth.png');"
 				>
-					<div class="flex w-full justify-between">
-						<div class="pb-2">
-							<p class="text-lg font-extrabold">ETH</p>
-							<p class="text-xs tracking-normal">Your Wallet</p>
+					<button class="w-full h-full tracking-widest" on:click={() => goto(ROUTES.WALLET)}>
+						<div class="flex w-full justify-between text-left">
+							<div class="pb-2">
+								<p class="text-lg font-extrabold">ETH</p>
+								<p class="text-xs tracking-normal">Your Wallet</p>
+							</div>
+							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
+								<img src="/external/eth.png" alt="ETH" class="h-5 w-5" />
+							</div>
 						</div>
-						<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
-							<img src="/external/eth.png" alt="ETH" class="h-5 w-5" />
+						<div class="text-left">
+							<p class="text-xl">
+								{e(ethBalance)}
+							</p>
 						</div>
-					</div>
-					<div>
-						<p class="text-xl">
-							{e(ethBalance)}
-						</p>
-					</div>
+					</button>
 				</Card>
 				<Card
 					variant="popover"
@@ -105,18 +100,20 @@
 					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white bg-blend-darken tracking-widest"
 					style="background-image: url('backgrounds/card-dashboard-stable.png');"
 				>
-					<div class="flex justify-between">
-						<div class="pb-2">
-							<p class="text-lg font-extrabold">USDC</p>
-							<p class="text-xs tracking-normal">Your Wallet</p>
+					<button class="w-full h-full tracking-widest" on:click={() => goto(ROUTES.WALLET)}>
+						<div class="flex justify-between text-left">
+							<div class="pb-2">
+								<p class="text-lg font-extrabold">USDC</p>
+								<p class="text-xs tracking-normal">Your Wallet</p>
+							</div>
+							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
+								<img src="/external/usdc.png" alt="USDC" class="h-7 w-7" />
+							</div>
 						</div>
-						<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
-							<img src="/external/usdc.png" alt="USDC" class="h-7 w-7" />
+						<div class="w-full text-left">
+							<p class="text-xl">{f(usdcBalance)}</p>
 						</div>
-					</div>
-					<div>
-						<p class="text-xl">{f(usdcBalance)}</p>
-					</div>
+					</button>
 				</Card>
 			</div>
 			<CardContent class="pt-10 flex flex-col gap-5">
@@ -147,7 +144,7 @@
 								</div>
 							</div>
 						</div>
-						<Sparkline bind:resize height={30} />
+						<EthSparkline />
 						<div>
 							<p class="font-bold text-end">{e(ethSupplied)} ETH</p>
 							<div class="flex text-xs items-center">

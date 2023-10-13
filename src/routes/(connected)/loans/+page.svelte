@@ -14,7 +14,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import RepaySelect from './(repay)/repay-select.svelte';
@@ -35,8 +34,7 @@
 	];
 
 	let priceUp = Math.random() > 0.5;
-	let availableBalance = 1500.733434;
-	let repayValue = 0;
+	let openRepay = false;
 	let web3Store = getWeb3Store();
 
 	$: interestRate = $web3Store.poolReserveData.variableBorrowingRate.small ?? 0;
@@ -49,10 +47,6 @@
 	$: liquidationPrice = getLiquidationPrice(borrowed, supplied, maxLTV);
 	$: barWidth = loanLQPercentage * 100;
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
-
-	function formatter(value: number): string {
-		return f(value);
-	}
 
 	function getLoanLiquidationPercentage(borrowed: number, supplied: number, maxLTV: number) {
 		// first get the borrowed out of supplied
@@ -69,10 +63,6 @@
 		} else {
 			return 'High';
 		}
-	}
-
-	function useMaxRepay(): void {
-		repayValue = Math.min(availableBalance, borrowed);
 	}
 
 	// capitalise first letter of every word and lower case the rest
@@ -99,7 +89,7 @@
 	}
 </script>
 
-<RepaySelect />
+<RepaySelect bind:open={openRepay} />
 
 <!-- <Faq /> -->
 <TopBar page="Manage Your Loan" />
@@ -238,8 +228,10 @@
 				</div>
 				<Separator />
 				<div class="flex flex-col gap-1 pt-3">
-					<Button variant="outline" class="border-secondary text-secondary"
-						>Repayment Options</Button
+					<Button
+						variant="outline"
+						class="border-secondary text-secondary"
+						on:click={() => (openRepay = true)}>Repayment Options</Button
 					>
 				</div>
 			</Card>

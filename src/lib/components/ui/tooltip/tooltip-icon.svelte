@@ -3,14 +3,12 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { cn } from '$lib/utils';
 	import { InfoIcon } from 'lucide-svelte';
-	import Button from '../button/button.svelte';
 
 	type $$Props = TooltipPrimitive.ContentProps & {
 		text: string;
 	};
 
 	let className: $$Props['class'] = undefined;
-
 	let open = false;
 
 	function onClick() {

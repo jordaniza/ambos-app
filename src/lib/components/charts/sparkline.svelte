@@ -1,15 +1,13 @@
 <script lang="ts">
 	import Base from '$lib/components/charts/base.svelte';
+	import { onMount } from 'svelte';
 	export let resize: () => void;
 	export let height: number = 50;
 
-	// random data
-	let data = Array(6)
-		.fill(0)
-		.map((_, i) => ({ x: i, y: Math.random() * 100 }));
+	export let data: { x: number; y: number }[] = [];
 
 	// Common Options
-	const sparklineOptions: ApexCharts.ApexOptions = {
+	$: sparklineOptions = {
 		chart: {
 			type: 'line',
 			sparkline: {
@@ -30,9 +28,13 @@
 				data
 			}
 		]
-	};
+	} as ApexCharts.ApexOptions;
 </script>
 
-<div class="h-10 flex-grow flex items-center justify-center">
-	<Base bind:resize options={sparklineOptions} />
-</div>
+{#if data && data.length === 0}
+	<div class="h-10 flex-grow flex items-center justify-center">Loading...</div>
+{:else if data && data.length > 0}
+	<div class="h-10 flex-grow flex items-center justify-center">
+		<Base bind:resize options={sparklineOptions} />
+	</div>
+{/if}

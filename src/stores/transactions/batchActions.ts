@@ -1,5 +1,5 @@
 import { AavePool__factory, WETH__factory } from '$lib/abis/ts';
-import { N, type EthereumAddress } from '$lib/utils';
+import { N, type EthereumAddress, delay } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
@@ -63,4 +63,21 @@ export async function getCashNow({
 
 	// create the batch
 	await batchSponsoredTx(store, id, [tx0, tx1, tx2], smartAccount);
+}
+
+type DecreaseDebtProps = {
+	store: TxStore;
+	repayAmountinUSDC: ethers.BigNumber;
+	id: string;
+};
+export async function decreaseDebt({ store, repayAmountinUSDC, id }: DecreaseDebtProps) {
+	const transactionType = 'DECREASE_DEBT';
+	setNewTransaction<TxContext['DECREASE_DEBT']>(store, transactionType, id, {
+		amount: Number(ethers.utils.formatUnits(repayAmountinUSDC, 6))
+	});
+
+	await delay(10_000);
+	updateTransaction(store, id, {
+		state: 'SUCCESSFUL'
+	});
 }
