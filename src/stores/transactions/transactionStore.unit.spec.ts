@@ -14,7 +14,7 @@ import { get } from 'svelte/store';
 const txs: TransactionStore['transactions'] = {
 	'139b8403-682d-41ba-8ffb-d7bf63cfa313': {
 		id: '139b8403-682d-41ba-8ffb-d7bf63cfa313',
-		notes: null,
+		context: null,
 		error: 'User not login',
 		finalTxHash: null,
 		seen: false,
@@ -28,7 +28,7 @@ const txs: TransactionStore['transactions'] = {
 	},
 	'f071a173-56e3-4bde-aa38-1d108ffa5658': {
 		id: 'f071a173-56e3-4bde-aa38-1d108ffa5658',
-		notes: null,
+		context: null,
 		error: null,
 		finalTxHash: '0xd1',
 		seen: false,
@@ -42,7 +42,7 @@ const txs: TransactionStore['transactions'] = {
 	},
 	'a071a173-56e3-4bde-aa38-1d108ffa5658': {
 		id: 'a071a173-56e3-4bde-aa38-1d108ffa5658',
-		notes: null,
+		context: null,
 		error: null,
 		finalTxHash: null,
 		seen: false,
@@ -56,7 +56,7 @@ const txs: TransactionStore['transactions'] = {
 	},
 	'b071a173-56e3-4bde-aa38-1d108ffa5658': {
 		id: 'b071a173-56e3-4bde-aa38-1d108ffa5658',
-		notes: null,
+		context: null,
 		error: null,
 		finalTxHash: null,
 		seen: false,
@@ -177,7 +177,7 @@ describe('getPendingTransactionUpdates', () => {
 			},
 			'b071a173-56e3-4bde-aa38-1d108ffa5658': {
 				id: 'b071a173-56e3-4bde-aa38-1d108ffa5658',
-				notes: null,
+				context: null,
 				error: null,
 				finalTxHash: '0x123',
 				seen: false,

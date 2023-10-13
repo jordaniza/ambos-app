@@ -1,12 +1,13 @@
 import { get, writable } from 'svelte/store';
-import { v4 as uuid } from 'uuid';
 import { defaultBuilders, type TxBuilders } from './builders';
 import type { EthereumAddress } from '$lib/utils';
 import { LOCAL_STORAGE_KEYS, getUserStorageKey } from '$lib/constants';
 import type { AppProvider } from '$stores/account';
 import type { SmartAccount } from '@biconomy/account';
+import { v4 } from 'uuid';
 
 export type UUID = string;
+export const makeTxId = (): UUID => v4();
 
 /// fine grained for specific components
 export const TX_STATES = [
@@ -77,30 +78,43 @@ export const SUPPORTED_TRANSACTIONS = [
 	...Object.keys(SUPPORTED_BATCH_TRANSACTIONS)
 ] as const;
 
+export type TxContext = {
+	INCREASE_DEBT: Omit<TxBuilders['INCREASE_DEBT'], 'stage' | 'hasEth'>;
+};
+
 export type SupportedTransaction = SupportedSingleTransaction | SupportedBatchTransaction;
 export type TXDetail = {
 	id: UUID;
 	state: TXState;
 	error: string | null;
-	notes: string | null;
+	context: TxContext[keyof TxContext] | null;
 	seen: boolean;
 	sponsored: boolean | null;
 	createdOn: number;
 	updatedOn: number;
 	txType: SupportedTransaction;
+	// the final tx that was sent to the blockchain and can be queried
 	finalTxHash: `0x${string}` | null;
-	// sponsored only
+	// sponsored only - this needs to be queried from the smart account
 	userOpReceiptHash: `0x${string}` | null;
-	// not sponsored only
+	// can be queried directly from the provider
 	txReceiptHash: `0x${string}` | null;
 };
 
+/**
+ * @transactions - the full list of transaction and details
+ * @txCounter - a counter to keep track of how many transactions have been created.
+ *   the web3Store uses this as a trigger to invalidate the cache
+ * @builders - cross-component transaction builders, these save user decisions across UI elements
+ * @watchedTransactionIds - a list of transaction ids that are currently being watched by global UI elements
+ */
 export type TransactionStore = {
 	transactions: {
 		[id: UUID]: TXDetail;
 	};
 	builders: TxBuilders;
 	txCounter: number;
+	watchedTransactionIds: string[];
 };
 
 export function isValidTransactionType(type: string): boolean {
@@ -108,29 +122,33 @@ export function isValidTransactionType(type: string): boolean {
 }
 
 export function exists(store: TxStore, key: string): boolean {
-	let hasKey = false;
-	store.subscribe((s) => {
-		hasKey = s.transactions.hasOwnProperty(key);
-	})();
-	return hasKey;
+	return get(store).transactions.hasOwnProperty(key);
 }
 
 export const txStore = writable<TransactionStore>({
 	transactions: {},
 	txCounter: 0,
-	builders: defaultBuilders
+	builders: defaultBuilders,
+	watchedTransactionIds: []
 });
 export type TxStore = typeof txStore;
 
-export function setNewTransaction(store: TxStore, type: string): UUID {
+export function setNewTransaction<T extends TxContext[keyof TxContext]>(
+	store: TxStore,
+	type: string,
+	id: string,
+	context?: T | undefined
+): void {
 	if (!isValidTransactionType(type)) {
 		throw new Error(`Invalid transaction type: ${type}`);
 	}
-	const id = uuid();
+	if (exists(store, id)) {
+		throw new Error(`Transaction ${id} already exists`);
+	}
 	store.update((s) => {
 		s.transactions[id] = {
 			id,
-			notes: null,
+			context: context ?? null,
 			error: null,
 			finalTxHash: null,
 			seen: false,
@@ -142,9 +160,9 @@ export function setNewTransaction(store: TxStore, type: string): UUID {
 			state: 'STARTED',
 			userOpReceiptHash: null
 		};
-		return { ...s };
+		s.watchedTransactionIds.push(id);
+		return s;
 	});
-	return id;
 }
 
 export function updateTransaction(store: TxStore, id: UUID, detail: Partial<TXDetail>): void {

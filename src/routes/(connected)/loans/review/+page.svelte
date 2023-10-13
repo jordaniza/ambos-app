@@ -20,14 +20,8 @@
 	import { getCashNow } from '$stores/transactions/batchActions';
 	import { ethers } from 'ethers';
 	import { InterestRateMode } from '$stores/web3/getPoolData';
-	import {
-		getLatestTransactionOfType,
-		TX_STATES_SUMMARY,
-		type TXState
-	} from '$stores/transactions/state';
-	import { toast } from 'svelte-sonner';
+	import { makeTxId, TX_STATES_SUMMARY } from '$stores/transactions/state';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
-	import Success from './success.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 
@@ -38,6 +32,7 @@
 	let ethSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
 	let borrowAmount = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	let isPending = false;
+	let txId: string;
 
 	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
@@ -49,31 +44,10 @@
 	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
 	$: feesAndCharges = getFeesAndCharges(depositValueUSD, borrowAmount);
 
-	$: transaction = getLatestTransactionOfType($txStore, 'INCREASE_DEBT');
+	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
-	$: seen = transaction?.seen;
-	$: showSuccessModal = state === 'SUCCESSFUL' && !seen;
 
 	$: if (state !== undefined) {
-		// update the notification
-		const [message, showToast, typeToast] = updateMessage(state, seen);
-		if (message && showToast) {
-			switch (typeToast) {
-				case 'error':
-					toast.error(message);
-					break;
-				case 'success':
-					toast.success(message);
-					break;
-				case 'pending':
-					toast.info(message);
-					break;
-				default:
-					toast(message);
-					break;
-			}
-		}
-
 		// the state should be loading while pending
 		if (TX_STATES_SUMMARY['PENDING'].includes(state)) {
 			isPending = true;
@@ -99,26 +73,6 @@
 		setIncreaseDebtBuilderStage(txStore, 'review');
 	});
 
-	function updateMessage(state: TXState, seen: boolean | undefined): [string, boolean, string] {
-		if (seen) return ['', false, ''];
-		switch (state) {
-			case 'STARTED':
-				return ['Started a new loan.', false, 'pending'];
-			case 'SIGNING':
-				return ['Awaiting Signature', true, 'pending'];
-			case 'SIGNED':
-				return ['Loan submitted, your loan is being processed', true, 'success'];
-			case 'FAILED':
-				return ['There was a problem processing your loan.', true, 'error'];
-			case 'REJECTED':
-				return ['Your loan application was rejected', true, 'error'];
-			case 'SUCCESSFUL':
-				return ['Success! Your loan has been processed successfully.', true, 'success'];
-			default:
-				return ['', false, ''];
-		}
-	}
-
 	function formatETHValue(value: number, ethPrice: number): string {
 		return `${e(value)} ETH - ${f(value * ethPrice)}`;
 	}
@@ -133,20 +87,23 @@
 			console.warn('Missing address, provider, or smartAccount');
 			return;
 		}
-		getCashNow(
-			txStore,
-			address,
-			BN(ethSupply),
+
+		txId = makeTxId();
+
+		getCashNow({
+			id: txId,
+			store: txStore,
+			borrower: address,
+			amountInWeth: BN(ethSupply),
 			// usdc
-			ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
-			InterestRateMode.VARIABLE_IR,
+			amountOutUsdc: ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
+			interestRateMode: InterestRateMode.VARIABLE_IR,
 			provider,
 			smartAccount
-		);
+		});
 	}
 </script>
 
-<Success {borrowAmount} open={showSuccessModal} finalTxHash={transaction?.finalTxHash ?? ''} />
 <BaseScreen>
 	<div
 		slot="background"

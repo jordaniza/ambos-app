@@ -1,24 +1,39 @@
 import { AavePool__factory, WETH__factory } from '$lib/abis/ts';
-import type { EthereumAddress } from '$lib/utils';
+import { N, type EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
 import { batchSponsoredTx } from './sponsored';
-import { setNewTransaction, updateTransaction, type TxStore } from './state';
+import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';
 import type { AppProvider } from '$stores/account';
 
-export async function getCashNow(
-	store: TxStore,
-	borrower: EthereumAddress,
-	amountInWeth: ethers.BigNumber,
-	amountOutUsdc: ethers.BigNumber,
-	interestRateMode: InterestRateMode,
-	provider: AppProvider,
-	smartAccount: BiconomySmartAccount
-) {
+type GetCashNowProps = {
+	store: TxStore;
+	borrower: EthereumAddress;
+	amountInWeth: ethers.BigNumber;
+	amountOutUsdc: ethers.BigNumber;
+	interestRateMode: InterestRateMode;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+
+export async function getCashNow({
+	borrower,
+	amountInWeth,
+	amountOutUsdc,
+	interestRateMode,
+	provider,
+	smartAccount,
+	id,
+	store
+}: GetCashNowProps) {
 	const transactionType = 'INCREASE_DEBT';
-	const id = setNewTransaction(store, transactionType);
+	setNewTransaction<TxContext['INCREASE_DEBT']>(store, transactionType, id, {
+		ethToSupply: Number(N(amountInWeth)),
+		usdToBorrow: Number(ethers.utils.formatUnits(amountOutUsdc, 6))
+	});
 
 	const promiseWeth = getTokenAddress(provider, 'WETH');
 	const promisePool = getAavePool(provider);

@@ -7,7 +7,7 @@
 	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
 	import { f } from '$lib/utils';
 
-	export let borrowAmount = 0;
+	export let borrowAmount: number | undefined;
 	export let open: boolean;
 	export let finalTxHash: string;
 
@@ -26,9 +26,13 @@
 			<img src="/illustrations/coin.png" alt="coin" class="h-32 w-32" />
 		</div>
 		<h2 class="font-extrabold text-xl">Loan Request Successful</h2>
-		<p class="pb-2">
-			You successfully borrowed {f(borrowAmount)} without selling your ETH.
-		</p>
+		{#if borrowAmount}
+			<p class="pb-2">
+				You successfully borrowed {f(borrowAmount)} without selling your ETH.
+			</p>
+		{:else}
+			<p class="pb-2">You successfully borrowed without selling your ETH.</p>
+		{/if}
 		<Button class="rounded-lg bg-popover" variant="outline" on:click={() => goto(ROUTES.LOANS_V2)}
 			>Go to Loans</Button
 		>

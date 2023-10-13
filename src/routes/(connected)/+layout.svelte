@@ -22,6 +22,7 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { SmartAccount } from '@biconomy/account';
+	import NotificationHandler from './notifications/notificationHandler.svelte';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -100,6 +101,7 @@
 
 {#if browser}
 	<Toast />
+	<NotificationHandler />
 {/if}
 <Splash isLoading={!isConnected} />
 <div class="md:max-w-[1990px] h-full">
