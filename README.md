@@ -30,6 +30,17 @@ In our root +layout we initialize the app with some data fetches, and setup some
 
 The transaction store in particular has a simple counter that can be incremented when a new transaction is sent. This is used to trigger an immediate re-fetch of the data.
 
+## Transaction Workflow
+
+Main async transactions live in the store. There is a dedicated txStore that handles the tx lifecycle. Your individual transactions should hook into the templates and helper functions in the store directory.
+
+We try and separate the tx data flow from the UI:
+
+- Creating a new transaction creates a new 'watched' transactionID in the txStore
+- the relevant watched transaction are fetched in a global notification manager
+- this, in turn, conditionally renders the relevant notification component, including toasts and modals
+- Most txData is generic over the txType, however you can add data to the context property to fetch it in the notification component
+
 ## PWA
 
 PWA is enabled by VitePWA for Sveltekit using the injectManifest method. The relevant files:
