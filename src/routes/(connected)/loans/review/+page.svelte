@@ -17,13 +17,14 @@
 		setIncreaseDebtBuilderStage,
 		setSupplyEth
 	} from '$stores/transactions/builders';
-	import { getCashNow } from '$stores/transactions/batchActions';
+	import { increaseDebt } from '$stores/transactions/batchActions';
 	import { ethers } from 'ethers';
 	import { InterestRateMode } from '$stores/web3/getPoolData';
 	import { makeTxId, TX_STATES_SUMMARY } from '$stores/transactions/state';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import { getBorrowFeeQuote } from '$stores/transactions/fees';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -33,19 +34,22 @@
 	let borrowAmount = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	let isPending = false;
 	let txId: string;
+	let estimatedNetworkFee = 0.01;
 
 	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 
-	$: depositValueUSD = getEthValue(ethSupply, ethPrice);
 	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
 
 	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
-	$: feesAndCharges = getFeesAndCharges(depositValueUSD, borrowAmount);
+	$: feesAndCharges = getFeesAndCharges(borrowAmount);
 
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
+
+	$: smartAccount = $accountStore.smartAccount;
+	$: provider = $accountStore.provider;
 
 	$: if (state !== undefined) {
 		// the state should be loading while pending
@@ -69,6 +73,18 @@
 		setBorrowUsd(txStore, borrowAmount);
 	}
 
+	$: {
+		if (smartAccount && provider) {
+			getBorrowFeeQuote({ smartAccount, provider })
+				.then((quote) => {
+					estimatedNetworkFee = quote.small;
+				})
+				.catch((err) => {
+					console.log('Error estimating fees', err);
+				});
+		}
+	}
+
 	onMount(() => {
 		setIncreaseDebtBuilderStage(txStore, 'review');
 	});
@@ -90,7 +106,7 @@
 
 		txId = makeTxId();
 
-		getCashNow({
+		increaseDebt({
 			id: txId,
 			store: txStore,
 			borrower: address,
@@ -186,7 +202,7 @@
 							<div class="flex w-full justify-between">
 								<p>Est. Network Fees</p>
 								<div>
-									<p>{f(feesAndCharges.networkFee)}</p>
+									<p>{f(estimatedNetworkFee ?? feesAndCharges.networkFee)}</p>
 								</div>
 							</div>
 						</div>

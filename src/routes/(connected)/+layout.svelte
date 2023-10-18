@@ -22,8 +22,8 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import NotificationHandler from './notifications/notificationHandler.svelte';
-	import { fade, fly, slide } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
+	import LoginReminder from './login-reminder.svelte';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -42,7 +42,10 @@
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
+
 	let lastTxCount = 0;
+	// has the application loaded for the first time
+	let firstLoad = true;
 
 	// adjust the chain id here for the whole app
 	const chainId = ChainId.POLYGON_MUMBAI;
@@ -92,7 +95,7 @@
 			loadTheme();
 			setChainId(web3Store, chainId);
 			await connect(chainId);
-
+			firstLoad = false;
 			// setup data watchers and fetch initial data
 			if (provider && address && smartAccount) {
 				await initializeTxStore(txStore, address, provider, smartAccount);
@@ -106,6 +109,7 @@
 
 {#if browser}
 	<Toast />
+	<LoginReminder bind:firstLoad />
 	<NotificationHandler />
 {/if}
 <Splash isLoading={!isConnected} />

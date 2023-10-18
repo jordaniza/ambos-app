@@ -17,7 +17,7 @@ const { format } = new Intl.NumberFormat('en-US', {
 });
 
 // apply default usd formatting
-export const f = (n: number) => format(n);
+export const f = (n: number) => (n > 0 && n < 0.01 ? '<$0.01' : format(n));
 
 // eth formatting
 export const e = (n: number) => (n > 1 ? n.toFixed(2) : n.toFixed(4));

@@ -1,19 +1,24 @@
 /// A set of functions for the calculator component
 
+import { AMBOS_BORROW_FEE_PERCENT, MAX_BORROW_PERCENTAGE } from '$lib/constants';
 import { getLiquidationPrice as _getLiquidationPrice } from '$lib/utils';
-
-export const MAX_BORROW_PERCENTAGE = 0.5;
 
 export function getEthValue(value: number, ethPrice: number): number {
 	return value * ethPrice;
 }
 
+/**
+ * @param suppliedETH in ETH, not wei
+ * @param ethPrice in USD
+ * @param maxBorrowPercentage in whole numbers
+ * @returns
+ */
 export function getMaxBorrow(
 	suppliedETH: number,
 	ethPrice: number,
 	maxBorrowPercentage = MAX_BORROW_PERCENTAGE
 ): number {
-	return getEthValue(suppliedETH, ethPrice) * maxBorrowPercentage;
+	return getEthValue(suppliedETH, ethPrice) * (maxBorrowPercentage / 100);
 }
 
 export function getLiquidationPrice(
@@ -27,30 +32,25 @@ export function getLiquidationPrice(
 export type FeesAndCharges = {
 	ambosFee: number;
 	networkFee: number;
-	exchangeFee: number;
 	total: number;
+	exchangeFee: number;
 	percentOfBorrowed: number;
 };
-export function getFeesAndCharges(
-	suppliedETHUSDValue: number,
-	borrowedUSD: number
-): FeesAndCharges {
-	// ambos fee is 1% of supplied value
-	const ambosFee = suppliedETHUSDValue * 0.01;
+export function getFeesAndCharges(borrowedUSD: number): FeesAndCharges {
+	const ambosFee = (borrowedUSD * AMBOS_BORROW_FEE_PERCENT) / 100;
 
-	// network fees are ~ $20
 	const networkFee = 20;
 
-	// exchange and off ramps are ~ 3-4% on the borrowed value
-	const exchangeFee = borrowedUSD * 0.03;
+	// a best guess assuming 3%
+	const exchangeFee = borrowedUSD * (3 / 100);
 
 	const total = ambosFee + networkFee + exchangeFee;
 	const percentOfBorrowed = total / borrowedUSD;
 
 	return {
+		exchangeFee,
 		ambosFee,
 		networkFee,
-		exchangeFee,
 		total,
 		percentOfBorrowed
 	};
@@ -100,7 +100,7 @@ export function getReturnsAfterInterestAndFees(
 	interestRate: number,
 	borrowedUSD: number
 ): number {
-	const fees = getFeesAndCharges(getEthValue(suppliedETH, ethPriceOriginal), borrowedUSD).total;
+	const fees = getFeesAndCharges(borrowedUSD).total;
 	const absoluteReturn = getAbsoluteReturnInOneYear(
 		suppliedETH,
 		ethPriceOriginal,

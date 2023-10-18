@@ -20,7 +20,7 @@
 		getPercentageEthPriceChange,
 		getReturnsAfterInterestAndFees
 	} from './calculator';
-	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import {
 		setBorrowUsd,
 		setIncreaseDebtBuilderStage,
@@ -28,15 +28,18 @@
 	} from '$stores/transactions/builders';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import { getBorrowFeeQuote } from '$stores/transactions/fees';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
-	let borrowAmount = 0;
+	let borrowAmount = 1000;
 	let ethPriceChangeWholePc = 20; // Initial value
 	let newEthPrice = 0;
 	let interestRate = 0.05; // 5%
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
+	let accountStore = getAccountStore();
+	let estimatedNetworkFee = 0.01;
 
 	// Computed values
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
@@ -45,7 +48,7 @@
 	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmount, maxLTV);
 	$: minDepositValue = getMinimumDepositValue(liquidationPrice, ethSupplyQty);
 	$: depositUSDValue = getEthValue(ethSupplyQty, ethPrice);
-	$: feesAndCharges = getFeesAndCharges(depositUSDValue, borrowAmount);
+	$: feesAndCharges = getFeesAndCharges(depositUSDValue);
 	$: percentageChangeInEthPrice = getPercentageEthPriceChange(ethPrice, newEthPrice);
 	$: newEthPrice = ethPrice * (1 + ethPriceChangeWholePc / 100);
 	$: newEthValue = ethSupplyQty * newEthPrice;
@@ -67,10 +70,24 @@
 		? returnsAfterInterestAndFees - newEthValue
 		: returnsAfterInterestAndFees;
 	$: borrowAmountEthEquivalent = borrowAmount / ethPrice;
+	$: smartAccount = $accountStore.smartAccount;
+	$: provider = $accountStore.provider;
 
 	$: {
 		if (borrowAmount > maxBorrow) {
 			borrowAmount = maxBorrow;
+		}
+	}
+
+	$: {
+		if (smartAccount && provider) {
+			getBorrowFeeQuote({ smartAccount, provider })
+				.then((quote) => {
+					estimatedNetworkFee = quote.small;
+				})
+				.catch((err) => {
+					console.log('Error estimating fees', err);
+				});
 		}
 	}
 
@@ -169,7 +186,7 @@
 								<div class="flex w-full justify-between">
 									<p>Est. Network Fees</p>
 									<div>
-										<p>{f(feesAndCharges.networkFee)}</p>
+										<p>{f(estimatedNetworkFee)}</p>
 									</div>
 								</div>
 							</div>

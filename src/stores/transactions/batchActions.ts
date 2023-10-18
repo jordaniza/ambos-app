@@ -1,4 +1,4 @@
-import { AavePool__factory, WETH__factory } from '$lib/abis/ts';
+import { AavePool__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import { N, type EthereumAddress, delay } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
@@ -7,8 +7,11 @@ import { ethers } from 'ethers';
 import { batchSponsoredTx } from './sponsored';
 import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';
 import type { AppProvider } from '$stores/account';
+import * as process from '$env/static/public';
+import { AMBOS_BORROW_FEE_PERCENT } from '$lib/constants';
+import { getBorrowFeeQuote } from './fees';
 
-type GetCashNowProps = {
+type IncreaseDebtProps = {
 	store: TxStore;
 	borrower: EthereumAddress;
 	amountInWeth: ethers.BigNumber;
@@ -19,7 +22,15 @@ type GetCashNowProps = {
 	id: string;
 };
 
-export async function getCashNow({
+export function getFeeCollector() {
+	const feeCollector = process.PUBLIC_AMBOS_FEE_COLLECTOR;
+	if (!feeCollector) {
+		throw new Error('Missing environment variable: PUBLIC_AMBOS_FEE_COLLECTOR');
+	}
+	return feeCollector;
+}
+
+export async function increaseDebt({
 	borrower,
 	amountInWeth,
 	amountOutUsdc,
@@ -28,41 +39,69 @@ export async function getCashNow({
 	smartAccount,
 	id,
 	store
-}: GetCashNowProps) {
+}: IncreaseDebtProps) {
+	const feeCollector = getFeeCollector();
+
+	// create the tx in the store
 	const transactionType = 'INCREASE_DEBT';
 	setNewTransaction<TxContext['INCREASE_DEBT']>(store, transactionType, id, {
 		ethToSupply: Number(N(amountInWeth)),
 		usdToBorrow: Number(ethers.utils.formatUnits(amountOutUsdc, 6))
 	});
 
+	// add the fee
+	const fee = amountOutUsdc.mul(AMBOS_BORROW_FEE_PERCENT).div(100);
+	const totalPlusBorrowFee = amountOutUsdc.add(fee);
+
+	// fetch the addresses
 	const promiseWeth = getTokenAddress(provider, 'WETH');
 	const promisePool = getAavePool(provider);
-	const promisUsdc = getTokenAddress(provider, 'USDC');
-	const [wethAddr, poolAddr, usdcAddr] = await Promise.all([promiseWeth, promisePool, promisUsdc]);
+	const promiseUsdc = getTokenAddress(provider, 'USDC');
+	const [wethAddr, poolAddr, usdcAddr] = await Promise.all([promiseWeth, promisePool, promiseUsdc]);
+
+	// connect to the contracts
 	const weth = WETH__factory.connect(wethAddr, provider);
 	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
 
-	// create the txs - might need to be sequential or nonce will be off
+	const estimatedNetworkFee = await getBorrowFeeQuote({
+		smartAccount,
+		provider,
+		amountInWeth,
+		totalBorrow: totalPlusBorrowFee,
+		borrower
+	});
+
+	console.warn('estimated network fees will return 0 if undefined');
+	const total = totalPlusBorrowFee.add(estimatedNetworkFee.big);
+	const totalFees = fee.add(estimatedNetworkFee.big);
+
+	// populate the transactions ready for signing
 	const data0 = await weth.populateTransaction.approve(poolAddr, ethers.constants.MaxUint256);
 	const data1 = await pool.populateTransaction.supply(wethAddr, amountInWeth, borrower, 0);
 	const data2 = await pool.populateTransaction.borrow(
 		usdcAddr,
-		amountOutUsdc,
+		total,
 		interestRateMode,
 		0,
 		borrower
 	);
-
-	updateTransaction(store, id, {
-		state: 'SIGNING'
-	});
+	const data3 = await usdc.populateTransaction.transfer(feeCollector, estimatedNetworkFee.big);
+	const data4 = await usdc.populateTransaction.transfer(feeCollector, fee);
 
 	const tx0 = { to: wethAddr, data: data0.data };
 	const tx1 = { to: poolAddr, data: data1.data };
 	const tx2 = { to: poolAddr, data: data2.data };
+	const tx3 = { to: usdcAddr, data: data3.data };
+	const tx4 = { to: usdcAddr, data: data4.data };
 
-	// create the batch
-	await batchSponsoredTx(store, id, [tx0, tx1, tx2], smartAccount);
+	const transactions = [tx0, tx1, tx2, tx3, tx4];
+
+	// update the tx state and hand off to the sponsored tx function
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+	await batchSponsoredTx(store, id, transactions, smartAccount);
 }
 
 type DecreaseDebtProps = {

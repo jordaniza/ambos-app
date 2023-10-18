@@ -6,7 +6,7 @@
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { browser } from '$app/environment';
@@ -224,8 +224,10 @@
 							alt="How Ambos Works"
 							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
 						/>
-						<p class="text-center pt-6">How Ambos works?</p>
-						<Button disabled={true} variant="outline" class="w-full">Discover</Button>
+						<p class="text-center pt-6">How Ambos works</p>
+						<Button variant="outline" class="w-full">
+							<a class="w-full" href={DISCOVER_AMBOS} target="_blank">Discover</a>
+						</Button>
 					</Card>
 					<Card class="w-1/2 flex flex-col gap-2 items-center justify-between p-3 relative">
 						<img
