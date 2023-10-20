@@ -1,16 +1,18 @@
 <script lang="ts">
+	import type { TSupportedTokens } from '$lib/contracts';
+	import { e, f } from '$lib/utils';
 	import type { TXDetail, TXState, TxContext } from '$stores/transactions/state';
 	import { toast } from 'svelte-sonner';
-	import Success from '../modals/get-loan-success.svelte';
 
 	export let tx: TXDetail;
+	export let currency: TSupportedTokens;
+
 	let showSuccessModal = false;
 
 	$: state = tx?.state;
 	$: seen = tx?.seen;
-	$: context = tx?.context as TxContext['INCREASE_DEBT'] | undefined;
-	$: borrowAmount = context?.usdToBorrow;
-	$: ethSupplied = context?.ethToSupply;
+	$: context = tx?.context as TxContext['TRANSFER'] | undefined;
+	$: amount = context?.amount ?? 0;
 
 	$: if (state !== undefined) {
 		// update the notification
@@ -37,22 +39,20 @@
 		if (seen) return ['', false, ''];
 		switch (state) {
 			case 'STARTED':
-				return ['Started a new loan.', false, 'pending'];
+				return ['Initiating transfer', false, 'pending'];
 			case 'SIGNING':
 				return ['Awaiting Signature', true, 'pending'];
 			case 'SIGNED':
-				return ['Loan submitted, your loan is being processed', true, 'success'];
+				return ['Transfer submitted, your transfer is being processed', true, 'success'];
 			case 'FAILED':
-				return ['There was a problem processing your loan.', true, 'error'];
+				return ['There was a problem processing your transfer.', true, 'error'];
 			case 'REJECTED':
-				return ['Your loan application was rejected', true, 'error'];
+				return ['Your transfer failed', true, 'error'];
 			case 'SUCCESSFUL':
 				showSuccessModal = true;
-				return ['Success! Your loan has been processed successfully.', true, 'success'];
+				return [`Success! You transferred ${e(amount)} ${currency} successfully.`, true, 'success'];
 			default:
 				return ['', false, ''];
 		}
 	}
 </script>
-
-<Success {borrowAmount} open={showSuccessModal} {ethSupplied} />

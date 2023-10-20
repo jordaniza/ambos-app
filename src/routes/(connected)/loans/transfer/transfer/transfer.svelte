@@ -7,13 +7,15 @@
 	import Success from './success.svelte';
 	import Verification from './verification.svelte';
 	import Wallet from './wallet.svelte';
+	import { getTxStore } from '$lib/context/getStores';
 
 	export let transferred: number;
 
 	let manualWalletExchange = ['Manual', 'Wallet', 'Exchange'];
 	let manualWalletExchangeIndex = 0;
-	let transferBuy = ['Transfer Ethereum', 'Buy Ethereum'];
+	let transferBuy = ['Transfer ETH', 'Buy ETH'];
 	let transferBuyIndex = 0;
+	let txStore = getTxStore();
 
 	/**
 	 * We start isVerifying as true so that the verification component shows up
@@ -22,8 +24,17 @@
 	let showVerifying = false;
 	let isVerifying = true;
 
-	$: useTransfer = transferBuy[transferBuyIndex] === 'Transfer Ethereum';
-	$: useBuy = transferBuy[transferBuyIndex] === 'Buy Ethereum';
+	$: useTransfer = transferBuy[transferBuyIndex] === 'Transfer ETH';
+	$: useBuy = transferBuy[transferBuyIndex] === 'Buy ETH';
+	$: hasEth = $txStore.builders.INCREASE_DEBT.hasEth;
+
+	// default to buy if the user doesn't have eth
+	$: {
+		if (!hasEth) {
+			transferBuy = ['Buy ETH', 'Transfer ETH'];
+			useBuy = true;
+		}
+	}
 
 	$: {
 		// reset the manualWalletExchangeIndex when we switch between transfer and buy

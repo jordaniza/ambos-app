@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { CheckCircle2Icon, CheckIcon } from 'lucide-svelte';
 	import type { Step } from '.';
 
 	export let steps: Step[];
@@ -11,6 +12,16 @@
 	}
 
 	$: selectedIndex = getSelectedIndex();
+
+	function getColor(i: number) {
+		if (selectedIndex === i) {
+			return ' bg-secondary';
+		} else if (selectedIndex > i) {
+			return ' bg-primary';
+		} else {
+			return ' bg-gray-400';
+		}
+	}
 </script>
 
 {#if steps}
@@ -38,15 +49,16 @@
 					>
 						<div
 							class={'z-20 flex justify-center items-center w-8 h-8 rounded-full text-white' +
-								(selectedIndex === i ? ' bg-secondary' : ' bg-gray-400')}
+								getColor(i)}
 						>
-							{i + 1}
+							{#if selectedIndex > i}
+								<CheckIcon class="w-5 h-5" />
+							{:else}
+								{i + 1}
+							{/if}
 						</div>
 					</div>
-					<div
-						class={'absolute top-1/2 transform h-0.5 w-10/12 left-1/6 z-0' +
-							(selectedIndex === i ? ' bg-secondary' : ' bg-gray-400')}
-					/>
+					<div class={'absolute top-1/2 transform h-0.5 w-10/12 left-1/6 z-0' + getColor(i)} />
 				</div>
 				<div class="flex justify-center items-center mt-3">
 					<p

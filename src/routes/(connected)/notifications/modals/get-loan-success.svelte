@@ -3,19 +3,22 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ROUTES } from '$lib/constants';
-	import { getWeb3Store } from '$lib/context/getStores';
-	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
 	import { f } from '$lib/utils';
 
 	export let borrowAmount: number | undefined;
+	export let ethSupplied: number | undefined;
 	export let open: boolean;
-	export let finalTxHash: string;
 
-	let web3Store = getWeb3Store();
-	$: chainId = $web3Store.chainId ?? 1;
-	$: blockExplorer = BLOCK_EXPLORER_URLS[chainId];
+	function handleGoToWallet() {
+		open = false;
+		goto(ROUTES.WALLET);
+	}
 
-	const close = () => (open = false);
+	function handleBankTransfer() {
+		open = false;
+		const url = `${ROUTES.LOANS_V2_BANK_TRANSFER}?deltaEth=${ethSupplied}&deltaUSDC=${borrowAmount}`;
+		goto(url);
+	}
 </script>
 
 <Dialog.Root bind:open>
@@ -33,13 +36,14 @@
 		{:else}
 			<p class="pb-2">You successfully borrowed without selling your ETH.</p>
 		{/if}
-		<Button class="rounded-lg bg-popover" variant="outline" on:click={() => goto(ROUTES.LOANS_V2)}
-			>Go to Loans</Button
-		>
-		<Button class="rounded-lg">
+		<!-- <Button class="rounded-lg">
 			<a class="w-full h-full" href={`${blockExplorer}/tx/${finalTxHash}`} target="_blank"
 				>Details</a
 			>
-		</Button>
+		</Button> -->
+		<Button class="rounded-lg" on:click={handleBankTransfer}>Transfer to your bank</Button>
+		<Button class="rounded-lg bg-popover" variant="outline" on:click={handleGoToWallet}
+			>Go to Wallet</Button
+		>
 	</Dialog.Content>
 </Dialog.Root>

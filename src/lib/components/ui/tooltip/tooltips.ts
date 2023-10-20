@@ -13,7 +13,7 @@ export const TOOLTIPS = {
 	NETWORK: 'The blockchain network you are currently connected to',
 	WALLET_HOLDINGS:
 		'The tokens you currently hold in your wallet. Please note that your wallet holdings do not include the tokens you supplied as collateral for your loan.',
-	TRANSACTION_FEE: 'The fee you will pay to transfer ETH',
+	TRANSACTION_FEE: 'The fee you will pay to make the transaction. This is not controlled by Ambos.',
 	REPAY_WITH_COLLATERAL:
 		'Repay your loan using part of the value of ETH that you have supplied. Part of your ETH will be sold at the current market price and the proceeds will be used to repay your loan. You keep the rest.',
 	REPAY_FROM_WALLET: 'Use USDC or ETH in your Ambos wallet to repay your loan.',

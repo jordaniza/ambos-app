@@ -25,6 +25,7 @@
 		return /^[0-9]*\.?[0-9]*$/.test(value);
 	}
 
+	// when the user inputs a value, we validate it and revert to the last valid value if it is not valid
 	function onInput(): void {
 		if (!isNumeric(tempValue)) {
 			tempValue = lastValidValue;
@@ -33,12 +34,14 @@
 		}
 	}
 
+	// when the user clicks on the input, we want to show the raw value
 	function onFocus(): void {
 		tempValue = data.raw === 0 ? '' : data.raw.toString();
 		lastValidValue = tempValue;
 		isFocused = true;
 	}
 
+	// when the user clicks away from the input, we want to show the formatted value
 	function onBlur(): void {
 		data.raw = parseFloat(tempValue) || 0; // Convert the string value back to a float
 		value = data.raw; // Update the depositValue based on input

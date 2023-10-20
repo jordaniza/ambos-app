@@ -7,6 +7,11 @@ export const AMBOS_BORROW_FEE_PERCENT = 2;
 export const APP_NAME = 'Ambos Finance';
 export const DISCOVER_AMBOS = 'https://docs.ambos.finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
+export const AMBOS_FAQ = 'https://docs.ambos.finance/faqs/frequently-asked-questions';
+export const AFFILIATE_LINK = 'https://docs.ambos.finance/affiliates';
+
+export const DEFAULT_BLOCK_CONFIRMATIONS = 3;
+
 export const ROUTES = {
 	ROOT: '',
 	DASHBOARD_V2: '/dashboard',
@@ -23,6 +28,7 @@ export const ROUTES = {
 	LOANS_V2_TRANSFER: '/loans/transfer',
 	LOANS_V2_REVIEW: '/loans/review',
 	LOANS_V2_CALCULATE: '/loans/calculator',
+	LOANS_V2_BANK_TRANSFER: '/loans/bank-transfer',
 	DOWNLOAD: '/download'
 } as const;
 
@@ -71,7 +77,12 @@ export const LOCAL_STORAGE_KEYS = {
 	WELCOME: 'seen_welcome',
 	// this will be combine with the user's ethereum address
 	// in the format of `${LOCAL_STORAGE_KEYS.TRANSACTIONS}_${address}`
-	TRANSACTIONS: 'transactions'
+	TRANSACTIONS: 'transactions',
+	// eth price data
+	CACHED_CHART_DATA: 'cachedChartData',
+	// fee estimations
+	CACHED_FEE_DATA_GET_LOAN: 'cachedFeeDataGetLoan',
+	CACHED_FEE_DATA_TRANSFER: 'cachedFeeDataTransfer'
 };
 
 export const getUserStorageKey = (address: EthereumAddress) =>

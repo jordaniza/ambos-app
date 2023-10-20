@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { e, f, pc } from '$lib/utils';
+	import { cacheFetch, e, f, pc } from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
@@ -8,7 +8,7 @@
 	import Range from '$lib/components/range/range.svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
 	import { goto } from '$app/navigation';
-	import { ROUTES } from '$lib/constants';
+	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import InputEditSlider from '../loans/review/input-edit-slider.svelte';
 	import {
 		getEthValue,
@@ -29,6 +29,8 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
+	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { AppProvider } from '$stores/account';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
@@ -81,28 +83,33 @@
 
 	$: {
 		if (smartAccount && provider) {
-			getBorrowFeeQuote({ smartAccount, provider })
-				.then((quote) => {
-					estimatedNetworkFee = quote.small;
-				})
-				.catch((err) => {
-					console.log('Error estimating fees', err);
-				});
+			tryQuoteFromCache(smartAccount, provider);
 		}
 	}
 
-	onMount(() => {
-		setIncreaseDebtBuilderStage(txStore, 'calculate');
-	});
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
+		const expiry = 5 * 60 * 1000; // 5 minutes
+		try {
+			estimatedNetworkFee = await cacheFetch(key, expiry, async () => {
+				const quote = await getBorrowFeeQuote({ smartAccount, provider });
+				return quote.small;
+			});
+		} catch (e) {
+			console.error('Error estimating fees', e);
+		}
+	}
 
 	function handleStartBorrowing() {
 		setSupplyEth(txStore, ethSupplyQty);
 		setBorrowUsd(txStore, borrowAmount);
 		goto(ROUTES.LOANS_V2_TRANSFER);
 	}
-</script>
 
-<!-- <Faq /> -->
+	onMount(() => {
+		setIncreaseDebtBuilderStage(txStore, 'calculate');
+	});
+</script>
 
 <div class="p-4 flex flex-col gap-5 pb-20">
 	<Card class=" text-center bg-popover">

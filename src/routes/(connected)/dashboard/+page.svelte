@@ -6,7 +6,7 @@
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import { DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { AFFILIATE_LINK, DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { browser } from '$app/environment';
@@ -241,19 +241,25 @@
 				</section>
 
 				<!-- Referral -->
-				<Card class="bg-secondary p-4 text-white flex justify-between items-center gap-3">
-					<div>
-						<p class="text-sm font-light">Refer Rewards</p>
-						<p class="text-lg">Earn $5 Rewards for every successful referral.</p>
-					</div>
-					<div>
-						<img
-							src="/illustrations/refer-a-friend.png"
-							alt="Refer a Friend"
-							class="rounded-full h-20 w-28 overflow-visible"
-						/>
-					</div>
-				</Card>
+				<button class="bg-secondary p-4 rounded-2xl text-start text-white">
+					<a
+						class="w-full flex justify-between items-center gap-3"
+						href={AFFILIATE_LINK}
+						target="_blank"
+					>
+						<div>
+							<p class="text-sm font-light">Refer Rewards</p>
+							<p class="text-lg">Join the Ambos Referral Programme and Earn Rewards</p>
+						</div>
+						<div>
+							<img
+								src="/illustrations/refer-a-friend.png"
+								alt="Refer a Friend"
+								class="rounded-full h-20 w-28 overflow-visible"
+							/>
+						</div>
+					</a>
+				</button>
 			</CardContent>
 			<div class="h-72" />
 		</span>

@@ -13,8 +13,9 @@
 	const iconHeight = 5;
 	const iconHeightClass = 'h-' + iconHeight;
 	$: currentRoute = $page.url.pathname;
+	$: walletBgColor = currentRoute === ROUTES.WALLET ? ' bg-secondary' : ' bg-primary ';
 	$: walletTextColor = currentRoute === ROUTES.WALLET ? ' text-secondary ' : '';
-	$: walletIconColor = currentRoute === ROUTES.WALLET ? ' text-secondary ' : ' text-white ';
+	$: walletIconColor = currentRoute === ROUTES.WALLET ? ' text-white ' : ' text-white ';
 </script>
 
 <footer
@@ -33,7 +34,7 @@
 	<div class="relative -mb-6 w-1/5">
 		<div class="semicircle absolute -z-1 bg-popover" />
 		<button
-			class="
+			class={`
         p-3
         absolute
         -top-7
@@ -45,8 +46,9 @@
         rounded-full
         flex
         justify-center
-        items-center
-        bg-primary"
+        items-center 
+        ${walletBgColor}
+        `}
 			><a href={ROUTES.WALLET} class="w-full h-full pt-[1px]">
 				<Wallet class={walletIconColor + ' ' + iconHeightClass} />
 			</a>

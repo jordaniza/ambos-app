@@ -5,6 +5,7 @@ import { LOCAL_STORAGE_KEYS, getUserStorageKey } from '$lib/constants';
 import type { AppProvider } from '$stores/account';
 import type { SmartAccount } from '@biconomy/account';
 import { v4 } from 'uuid';
+import type { TSupportedTokens } from '$lib/contracts';
 
 export type UUID = string;
 export const makeTxId = (): UUID => v4();
@@ -87,6 +88,11 @@ export type TxContext = {
 	INCREASE_DEBT: Omit<TxBuilders['INCREASE_DEBT'], 'stage' | 'hasEth'>;
 	DECREASE_DEBT: {
 		amount: number;
+	};
+	TRANSFER: {
+		amount: number;
+		recipient: EthereumAddress;
+		token: TSupportedTokens;
 	};
 };
 

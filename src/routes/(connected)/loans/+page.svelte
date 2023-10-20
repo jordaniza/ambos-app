@@ -96,7 +96,7 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
 		<h1 class="tracking-widest">Current Amount Borrowed</h1>

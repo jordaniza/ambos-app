@@ -2,7 +2,6 @@
 	import { getTransakURLOff, getTransakURLOn } from '$lib/components/ramp/transak';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import type { EthereumAddress } from '$lib/utils';
-	import { onMount } from 'svelte';
 	import type { ITransakDto } from './Interface';
 
 	export let options: Partial<ITransakDto> = {};
@@ -10,11 +9,25 @@
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
-	let src = getSrc();
+	let src: string | undefined = undefined;
+	let mounted = false;
+
+	$: address = $accountStore.address;
+	$: chainId = $web3Store.chainId;
+
+	$: {
+		if (address && chainId) {
+			src = getSrc();
+		}
+	}
+
+	$: {
+		if (!mounted && src) {
+			mountTransak(src);
+		}
+	}
 
 	function getSrc() {
-		const { address } = $accountStore;
-		const { chainId } = $web3Store;
 		if (!address || !chainId) {
 			console.error('No address or chainId found');
 			return;
@@ -28,9 +41,13 @@
 		}
 	}
 
-	onMount(() => {
-		src = getSrc();
-		const iframe = document.getElementById('transak-iframe')! as HTMLIFrameElement;
+	function mountTransak(source: string) {
+		if (mounted || !source) return;
+
+		const iframe = document.getElementById('transak-iframe') as HTMLIFrameElement;
+
+		if (!iframe) return;
+
 		const transakIframe = iframe.contentWindow;
 
 		window.addEventListener('message', (message) => {
@@ -40,7 +57,8 @@
 				console.log('Order Data: ', message?.data?.data);
 			}
 		});
-	});
+		mounted = true;
+	}
 </script>
 
 {#if src}

@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { type BigNumberish, ethers } from 'ethers';
+import type { LOCAL_STORAGE_KEYS } from './constants';
 
 export type EthereumAddress = `0x${string}`;
 export const BN = (n: BigNumberish) => ethers.utils.parseEther(n.toString());
@@ -109,4 +110,35 @@ export function getBarColor(barWidth: number): string {
 
 export async function delay(ms: number) {
 	return await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type LocalStorageKey = (typeof LOCAL_STORAGE_KEYS)[keyof typeof LOCAL_STORAGE_KEYS];
+/**
+ * Save data to local storage with an expiry
+ * Data is encoded as a stringified JSON object with a timestamp
+ * But then decoded and returned as the original type
+ * Must implement error handling at the component level
+ * @param key registered key in constants.ts
+ * @param expiry in milliseconds
+ * @param networkRequest callback to fetch data from the network
+ * @returns T the data
+ */
+export async function cacheFetch<T>(
+	key: LocalStorageKey,
+	expiry: number,
+	networkRequest: () => Promise<T>
+): Promise<T> {
+	const cachedData = localStorage.getItem(key);
+	if (cachedData) {
+		const parsedData = JSON.parse(cachedData);
+		const isDataFresh = Date.now() - parsedData.timestamp < expiry;
+
+		if (isDataFresh) {
+			return parsedData.data;
+		}
+	}
+
+	const data = await networkRequest();
+	localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+	return data;
 }

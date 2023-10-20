@@ -12,3 +12,4 @@ vite.config.ts.timestamp-*
 yarn-error.log
 TODO.md
 _feeQuotes.json
+static/prompt-sw.js

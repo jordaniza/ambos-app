@@ -9,7 +9,7 @@
 	import InputEditSlider from './input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import { getEthValue, getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
+	import { getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import {
@@ -123,7 +123,7 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />

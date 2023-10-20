@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Sparkline from '$lib/components/charts/sparkline.svelte';
+	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 	import { onMount } from 'svelte';
 
 	type APIResponse = {
@@ -13,7 +14,7 @@
 
 	onMount(async () => {
 		// Try to load cached data
-		const cachedData = localStorage.getItem('cachedChartData');
+		const cachedData = localStorage.getItem(LOCAL_STORAGE_KEYS.CACHED_CHART_DATA);
 		if (cachedData) {
 			const parsedData = JSON.parse(cachedData);
 			const isDataFresh = Date.now() - parsedData.timestamp < 3600000; // Data is fresh for 1 hour
@@ -31,7 +32,10 @@
 			data = json.prices.map(([_, y], i) => ({ x: i, y }));
 
 			// Cache the data along with the current timestamp
-			localStorage.setItem('cachedChartData', JSON.stringify({ data, timestamp: Date.now() }));
+			localStorage.setItem(
+				LOCAL_STORAGE_KEYS.CACHED_CHART_DATA,
+				JSON.stringify({ data, timestamp: Date.now() })
+			);
 		} catch (e) {
 			console.error(e);
 		}

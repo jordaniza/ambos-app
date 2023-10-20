@@ -6,6 +6,7 @@
 	export const trigger = () => {
 		open = true;
 	};
+
 	export let open = false;
 	export let title: string;
 	export let direction: 'buy' | 'sell' = 'buy';

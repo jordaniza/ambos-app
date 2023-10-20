@@ -11,13 +11,12 @@
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { e } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
-	import NetworkLogo from '$lib/components/ui/network/network-logos.svelte';
-	import NetworkName from '$lib/components/ui/network/network-names.svelte';
 	import { setIncreaseDebtBuilderStage as setIncreaseDebtBuilderStage } from '$stores/transactions/builders';
 	import { goto } from '$app/navigation';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import Counter from '$lib/components/ui/counter/counter.svelte';
+	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
 
 	// bound to the transfer component to trigger the animation
 	let transferred: number;
@@ -29,9 +28,7 @@
 
 	$: ethBuilderSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
 	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
-
 	$: toBeTransferred = Math.max(0, ethBuilderSupply - ethBalance);
-
 	$: hasEnough = ethBalance >= ethBuilderSupply;
 
 	$: {
@@ -57,7 +54,7 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
@@ -114,12 +111,7 @@
 						<Button variant="secondary" class="px-5" on:click={copyBalanceToClipboard}>Copy</Button>
 					</div>
 					<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
-						<div class="flex items-center">
-							<div class="h-8 w-8 bg-popover flex items-center justify-center rounded-full">
-								<NetworkLogo class="h-5 w-5" />
-							</div>
-							<NetworkName class="pl-2 font-bold" />
-						</div>
+						<NetworkNameLogo />
 						<div class="flex items-center justify-end gap-2">
 							<p>ETH</p>
 							<TooltipIcon text={TOOLTIPS.NETWORK} />

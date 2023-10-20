@@ -26,7 +26,7 @@
 <BaseScreen>
 	<div
 		slot="background"
-		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
+		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />

@@ -7,6 +7,7 @@
 	import { getAccountStore } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
+	import { AMBOS_FAQ, WHAT_IS_AAVE } from '$lib/constants';
 
 	export let verifying: boolean;
 
@@ -78,5 +79,9 @@
 	<Button disabled={!checked} class="w-11/12 rounded-lg" on:click={setVerifying}
 		>Verify Sent ETH</Button
 	>
-	<Button variant="link" class="-mt-3">For doubts or issues, see our Help Section</Button>
+	<Button variant="link" class="-mt-3">
+		<a class="w-full" href={AMBOS_FAQ} target="_blank">
+			For doubts or issues, see our Help Section</a
+		></Button
+	>
 </div>
