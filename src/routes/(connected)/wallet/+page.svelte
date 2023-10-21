@@ -13,8 +13,8 @@
 	import WalletDialogies from './wallet-dialogues.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 
-	let priceUp = Math.random() > 0.5;
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 
@@ -27,14 +27,6 @@
 	$: chainId = $web3Store.chainId ?? 1;
 	$: explorerURL = BLOCK_EXPLORER_URLS[chainId] + '/address/' + address;
 
-	// capitalise first letter of every word and lower case the rest
-	function toProperCase(str: string): string {
-		return str.replace(
-			/\w\S*/g,
-			(txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-		);
-	}
-
 	function handleCopy() {
 		if (address) {
 			toast.success('Copied to clipboard');
@@ -44,30 +36,6 @@
 		}
 	}
 
-	function formatTimestamp(timestamp: number): string {
-		const date = new Date(timestamp);
-
-		// Extracting the month, day, and year
-		const month = date.toLocaleDateString('en-US', { month: 'long' });
-		const day = date.toLocaleDateString('en-US', { day: '2-digit' });
-		const year = date.getFullYear();
-
-		// Extracting the hour and minute with padding for single digits
-		const hour = String(date.getHours()).padStart(2, '0');
-		const minute = String(date.getMinutes()).padStart(2, '0');
-
-		return `${month} ${day} ${year} - ${hour}:${minute}`;
-	}
-
-	type HistoryItem = {
-		action: string;
-		currency: string;
-		usdValue: number;
-		timestamp: number;
-	};
-
-	const now = new Date().getTime();
-
 	let triggers = {
 		buy: () => {},
 		sell: () => {},
@@ -75,12 +43,6 @@
 		transfer: () => {},
 		withdraw: () => {}
 	};
-
-	const historyItems: HistoryItem[] = [
-		{ action: 'receive', currency: 'ETH', usdValue: 2543.34, timestamp: now - 1_000_000 },
-		{ action: 'send', currency: 'USDC', usdValue: 4250, timestamp: now - 3_000_000_100 },
-		{ action: 'buy', currency: 'USDC', usdValue: 2000.45, timestamp: now - 10_020_100_000 }
-	];
 </script>
 
 <!-- <Faq /> -->
@@ -151,9 +113,7 @@
 						<div>
 							<p class="font-bold">Ether</p>
 							<div class="flex text-xs items-center">
-								<p class={priceUp ? 'text-green-500' : 'text-red-500'}>
-									{priceUp ? '↑+' : '↓-'}25.45%
-								</p>
+								<EthPriceTicker />
 							</div>
 						</div>
 					</div>
@@ -201,7 +161,7 @@
 				</div>
 			</Card>
 			<!-- Wallet History -->
-			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 w-full">
+			<!-- <Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 w-full">
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
@@ -220,7 +180,7 @@
 						</div>
 					</Card>
 				{/each}
-			</Card>
+			</Card> -->
 		</div>
 	</div>
 	<div class="h-32" />

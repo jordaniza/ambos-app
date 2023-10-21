@@ -4,9 +4,8 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { e, f, type EthereumAddress, cacheFetch } from '$lib/utils';
+	import { e, f, type EthereumAddress } from '$lib/utils';
 	import InputEditSlider from '../../loans/review/input-edit-slider.svelte';
 	import NetworkLogos from '$lib/components/ui/network/network-logos.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
@@ -24,6 +23,8 @@
 	import type { BiconomySmartAccount } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { getTransferFeeQuote } from '$stores/transactions/fees';
+	import { cacheFetch, getChangeInEthPrice } from '$lib/cache';
+	import { onMount } from 'svelte';
 
 	export const trigger = () => {
 		open = true;

@@ -17,7 +17,7 @@ export const ROUTES = {
 	DASHBOARD_V2: '/dashboard',
 	WALLET: '/wallet',
 	WELCOME: '/welcome',
-	PROFILE: '/notifications',
+	PROFILE: '/profile',
 	NOTIFICATIONS: '/notifications',
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',

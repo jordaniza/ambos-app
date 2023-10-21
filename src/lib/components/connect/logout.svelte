@@ -19,4 +19,4 @@
 	}
 </script>
 
-<Button on:click={logout}>Logout</Button>
+<Button on:click={logout} {...$$restProps}>Logout</Button>

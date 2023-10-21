@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import { f, e, getBarColor, getLiquidationPrice } from '$lib/utils';
+	import { f, e, getBarColor, getLiquidationPrice, pc } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
@@ -14,9 +14,11 @@
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import EthSparkline from './ethSparkline.svelte';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { getChangeInEthPrice } from '$lib/cache';
+	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 
 	let web3Store = getWeb3Store();
-	let priceUp = Math.random() > 0.5;
 	let seen: string | null = null;
 	let showWelcome = false;
 	let openEthDialog: () => void;
@@ -130,7 +132,7 @@
 						</div>
 						<TooltipIcon text={TOOLTIPS.ETH_SUPPLIED} />
 					</div>
-					<div class="flex w-full justify-between gap-3 items-center">
+					<div class="flex w-full justify-between gap-3 items-center max-w-full">
 						<div class="flex items-center gap-1">
 							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
 								<img src="/external/eth.png" alt="ETH" class="h-7 w-7" />
@@ -145,13 +147,14 @@
 							</div>
 						</div>
 						<EthSparkline />
-						<div>
-							<p class="font-bold text-end">{e(ethSupplied)} ETH</p>
-							<div class="flex text-xs items-center">
-								<p class=" pr-1">{f(ethPrice)}</p>
-								<p class={priceUp ? 'text-green-500' : 'text-red-500'}>
-									{priceUp ? '↑+' : '↓-'}25.45%
-								</p>
+						<div class="flex flex-col text-end">
+							<div class="flex gap-1 font-bold">
+								<p>{e(ethSupplied)}</p>
+								<p>ETH</p>
+							</div>
+							<div class="flex flex-col text-xs items-end justify-end">
+								<p>{f(ethPrice)}</p>
+								<EthPriceTicker />
 							</div>
 						</div>
 					</div>

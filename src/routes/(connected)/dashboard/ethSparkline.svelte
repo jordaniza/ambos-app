@@ -1,45 +1,20 @@
 <script lang="ts">
+	import { getChangeInEthPrice, getEthPriceData } from '$lib/cache';
 	import Sparkline from '$lib/components/charts/sparkline.svelte';
-	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 	import { onMount } from 'svelte';
 
-	type APIResponse = {
-		prices: [number, number][];
-	};
-
-	const API_ENDPOINT =
-		'https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=14&interval=daily&precision=2';
 	let data: { x: number; y: number }[] = [];
 	let resize: () => void;
 
-	onMount(async () => {
-		// Try to load cached data
-		const cachedData = localStorage.getItem(LOCAL_STORAGE_KEYS.CACHED_CHART_DATA);
-		if (cachedData) {
-			const parsedData = JSON.parse(cachedData);
-			const isDataFresh = Date.now() - parsedData.timestamp < 3600000; // Data is fresh for 1 hour
-
-			if (isDataFresh) {
-				data = parsedData.data;
-				return; // Use cached data and do not fetch new data
-			}
-		}
-
+	async function tryQuoteFromCache() {
 		try {
-			// Fetch the data from the API
-			const res = await fetch(API_ENDPOINT);
-			const json = (await res.json()) as APIResponse;
-			data = json.prices.map(([_, y], i) => ({ x: i, y }));
-
-			// Cache the data along with the current timestamp
-			localStorage.setItem(
-				LOCAL_STORAGE_KEYS.CACHED_CHART_DATA,
-				JSON.stringify({ data, timestamp: Date.now() })
-			);
+			data = await getEthPriceData();
 		} catch (e) {
-			console.error(e);
+			console.error('Error fetching chart data', e);
 		}
-	});
+	}
+
+	onMount(tryQuoteFromCache);
 </script>
 
 <Sparkline bind:resize height={30} {data} />

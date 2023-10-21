@@ -2,14 +2,7 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { e, f, getBarColor, getLiquidationPrice, pc } from '$lib/utils';
-	import {
-		CreditCardIcon,
-		DollarSign,
-		GemIcon,
-		HistoryIcon,
-		LockIcon,
-		ReceiptIcon
-	} from 'lucide-svelte';
+	import { CreditCardIcon, DollarSign, GemIcon, LockIcon, ReceiptIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -27,12 +20,6 @@
 
 	const now = new Date().getTime();
 
-	const historyItems: HistoryItem[] = [
-		{ action: 'supplied', currency: 'ETH', usdValue: 2.34, timestamp: now - 1_000_000 },
-		{ action: 'borrowed', currency: 'USDC', usdValue: 4250, timestamp: now - 3_000_000_100 },
-		{ action: 'repaid', currency: 'USDC', usdValue: 2000.45, timestamp: now - 10_020_100_000 }
-	];
-
 	let priceUp = Math.random() > 0.5;
 	let openRepay = false;
 	let web3Store = getWeb3Store();
@@ -47,6 +34,8 @@
 	$: liquidationPrice = getLiquidationPrice(borrowed, supplied, maxLTV);
 	$: barWidth = loanLQPercentage * 100;
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
+	$: borrowText = borrowed > 0 ? 'Borrow More' : 'Start Borrowing';
+	$: liquidationRiskTextColor = getLiquidationColor(barWidth);
 
 	function getLoanLiquidationPercentage(borrowed: number, supplied: number, maxLTV: number) {
 		// first get the borrowed out of supplied
@@ -55,7 +44,22 @@
 		return borrowedOutOfSupplied / maxLTV;
 	}
 
-	function getLiquidationStatus(liquidationPercentage: number) {
+	function getLiquidationColor(barWidth: number): string {
+		switch (true) {
+			case barWidth > 75:
+				return 'text-destructive';
+			case barWidth > 60:
+				return 'text-orange-500';
+			case barWidth > 50:
+				return 'text-yellow-600';
+			case barWidth > 25:
+				return 'text-green-300';
+			default:
+				return 'text-primary';
+		}
+	}
+
+	function getLiquidationStatus(liquidationPercentage: number): string {
 		if (liquidationPercentage < 0.5) {
 			return 'Low';
 		} else if (liquidationPercentage < 0.7) {
@@ -167,6 +171,7 @@
 					<p>Interest Rate</p>
 					<p>{pc(interestRate)}</p>
 				</div>
+				<Button>{borrowText}</Button>
 			</Card>
 			<!-- Loan Health -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-2 py-4">
@@ -188,7 +193,7 @@
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex justify-between items-center w-full">
 						<p>Risk of Liquidation</p>
-						<p>{getLiquidationStatus(loanLQPercentage)}</p>
+						<p class={liquidationRiskTextColor}>{getLiquidationStatus(loanLQPercentage)}</p>
 					</div>
 				</div>
 				<div class="flex justify-between items-center w-full">
@@ -236,7 +241,7 @@
 				</div>
 			</Card>
 			<!-- Loan History -->
-			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 mb-20">
+			<!-- <Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 mb-20">
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
@@ -255,7 +260,7 @@
 						</div>
 					</Card>
 				{/each}
-			</Card>
+			</Card> -->
 		</div>
 	</div>
 </BaseScreen>

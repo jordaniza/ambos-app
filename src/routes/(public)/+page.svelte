@@ -4,6 +4,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import Android from './android.svelte';
+	import AppleSucks from './apple-sucks.svelte';
 
 	interface BeforeInstallPromptEvent extends Event {
 		readonly platforms: Array<string>;
@@ -57,23 +59,8 @@
 			installationState = 'manual';
 		}
 	}
-	const steps = {
-		ios: [
-			'Make sure this page is open in the Safari web browser',
-			'Tap the “Share” icon in Safari.',
-			'Select “Add to Home Screen” from the options.',
-			'Confirm the installation by tapping the “Add” button.'
-		],
-		android: [
-			'Tap the 3 vertical dots icon in your browser, next to the search bar',
-			'Select “Add to Home Screen” from the options.',
-			'Confirm the installation by tapping the “Add” button.'
-		]
-	};
-
 	let selectedDevice: 'ios' | 'android' | null = null;
 	$: showSelected = !!selectedDevice;
-	$: selectedSteps = selectedDevice ? steps[selectedDevice] : [];
 
 	function toggleIos() {
 		if (selectedDevice === 'ios') {
@@ -170,10 +157,14 @@
 		/>
 	</svg>
 </div>
-<Dialog.Root bind:open={showSelected} {onOpenChange}>
-	<Dialog.Content showCloseIcon={false}>
-		{#each selectedSteps as step}
-			<p>{step}</p>
-		{/each}
-	</Dialog.Content>
-</Dialog.Root>
+<div class="p-4 m-4 max-w-[screen/10]">
+	<Dialog.Root bind:open={showSelected} {onOpenChange}>
+		<Dialog.Content showCloseIcon={false} class="max-w-[90%]" overlayClass="bg-black/70">
+			{#if selectedDevice === 'ios'}
+				<AppleSucks />
+			{:else if selectedDevice === 'android'}
+				<Android />
+			{/if}
+		</Dialog.Content>
+	</Dialog.Root>
+</div>

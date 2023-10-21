@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cacheFetch, e, f, pc } from '$lib/utils';
+	import { e, f, pc } from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
@@ -31,6 +31,7 @@
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
 	import type { BiconomySmartAccount } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
+	import { cacheFetch } from '$lib/cache';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
