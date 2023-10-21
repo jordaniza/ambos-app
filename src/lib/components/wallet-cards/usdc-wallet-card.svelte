@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import { f } from '$lib/utils';
+	import { e, f } from '$lib/utils';
 
 	let web3Store = getWeb3Store();
 
@@ -13,7 +13,7 @@
 		<div class=" rounded-xl">
 			<p class="font-extrabold text-lg">USDC</p>
 			<p class="text-sm font-extralight">Your Ambos Wallet</p>
-			<p class="text-2xl">{f(usdcBalance)} USDC</p>
+			<p class="text-2xl">{e(usdcBalance)} USDC</p>
 		</div>
 		<div class="flex flex-col items-end justify-between">
 			<div class="h-10 w-10 bg-popover flex items-center justify-center rounded-full">

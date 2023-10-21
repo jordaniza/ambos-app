@@ -3,7 +3,7 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import { ROUTES } from '$lib/constants';
-	import { e } from '$lib/utils';
+	import { e, f } from '$lib/utils';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import EthWalletCard from '$lib/components/wallet-cards/eth-wallet-card.svelte';
@@ -20,7 +20,7 @@
 	$: usdc = Number.isNaN(deltaUSDC) ? undefined : Number(deltaUSDC);
 
 	function formatUSDCTicker(n: number) {
-		return `+ ${e(n)} USDC`;
+		return `+ ${f(n)}`;
 	}
 
 	function formatETHTicker(n: number) {
