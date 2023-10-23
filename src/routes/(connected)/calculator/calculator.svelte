@@ -186,12 +186,6 @@
 									</div>
 								</div>
 								<div class="flex w-full justify-between">
-									<p>Est. Exchange Fees</p>
-									<div>
-										<p>{f(feesAndCharges.exchangeFee)}</p>
-									</div>
-								</div>
-								<div class="flex w-full justify-between">
 									<p>Est. Network Fees</p>
 									<div>
 										<p>{f(estimatedNetworkFee)}</p>
@@ -205,7 +199,11 @@
 				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
 					>Start Borrowing Now!</Button
 				>
-				<Button variant="link" class="pb-0">Check out the loan terms</Button>
+				<!-- <Button variant="link" class="pb-0">
+          <a href=""
+          Check out the loan terms
+        
+        </Button> -->
 			</section>
 		</CardContent>
 	</Card>

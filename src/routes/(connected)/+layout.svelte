@@ -94,7 +94,7 @@
 			// load globals and connect to web3
 			loadTheme();
 			setChainId(web3Store, chainId);
-			await connect(chainId);
+			// await connect(chainId);
 			firstLoad = false;
 			// setup data watchers and fetch initial data
 			if (provider && address && smartAccount) {
@@ -109,10 +109,10 @@
 
 {#if browser}
 	<Toast />
-	<LoginReminder bind:firstLoad />
+	<!-- <LoginReminder bind:firstLoad /> -->
 	<NotificationHandler />
 {/if}
-<Splash isLoading={!isConnected} />
+<!-- <Splash isLoading={!isConnected} /> -->
 {#key currentPage}
 	<div in:fade={{ duration: 200 }} class="md:max-w-[1990px] h-full">
 		<slot />

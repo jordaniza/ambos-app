@@ -4,7 +4,7 @@ import type { IBundler } from '@biconomy/bundler';
 import type { IPaymaster } from '@biconomy/paymaster';
 import type { providers } from 'ethers';
 import * as _0x from '@0xsequence/multicall';
-import { type Writable, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
 
 // standardize the typing for use across the application
@@ -34,13 +34,14 @@ const defaults: SmartAccountStore = {
 	isConnected: false
 };
 
+export const accountStore = writable<SmartAccountStore>(defaults);
+
 function initMulticallProvider(
 	provider: providers.Web3Provider | undefined
 ): MulticallProvider | undefined {
 	return provider && new _0x.providers.MulticallProvider(provider);
 }
 
-export const accountStore = writable<SmartAccountStore>(defaults);
 export async function connect(chainId: number) {
 	const accountAbstractor = new BiconomyAccountAbstractor(chainId);
 	try {
@@ -73,7 +74,6 @@ export async function connect(chainId: number) {
 	}
 }
 
-// Function to handle disconnection
 export async function disconnect(chainId: number) {
 	const accountAbstractor = new BiconomyAccountAbstractor(chainId);
 	await accountAbstractor.signOut();
@@ -90,9 +90,4 @@ export async function disconnect(chainId: number) {
 		address: undefined,
 		isConnected: false
 	});
-}
-
-// we ported this from react so this is a compatability wrapper
-export function useBiconomyAccountAbstraction(): Writable<SmartAccountStore> {
-	return accountStore;
 }

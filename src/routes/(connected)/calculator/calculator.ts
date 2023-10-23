@@ -37,6 +37,15 @@ export type FeesAndCharges = {
 	percentOfBorrowed: number;
 };
 export function getFeesAndCharges(borrowedUSD: number): FeesAndCharges {
+	if (borrowedUSD === 0) {
+		return {
+			ambosFee: 0,
+			networkFee: 0,
+			total: 0,
+			exchangeFee: 0,
+			percentOfBorrowed: 0
+		};
+	}
 	const ambosFee = (borrowedUSD * AMBOS_BORROW_FEE_PERCENT) / 100;
 
 	const networkFee = 20;

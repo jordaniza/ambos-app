@@ -29,7 +29,8 @@ export const ROUTES = {
 	LOANS_V2_REVIEW: '/loans/review',
 	LOANS_V2_CALCULATE: '/loans/calculator',
 	LOANS_V2_BANK_TRANSFER: '/loans/bank-transfer',
-	DOWNLOAD: '/download'
+	DOWNLOAD: '/download',
+	LOGIN: '/login'
 } as const;
 
 // dont show footer on these routes
@@ -38,7 +39,8 @@ export const EXCLUDED_FOOTER_ROUTES = [
 	ROUTES.LOANS_V2_TRANSFER,
 	ROUTES.LOANS_V2_REVIEW,
 	ROUTES.LOANS_V2_CALCULATE,
-	ROUTES.DOWNLOAD
+	ROUTES.DOWNLOAD,
+	ROUTES.LOGIN
 ];
 
 export const EXCLUDED_SPLASH_ROUTES = [ROUTES.WELCOME, ROUTES.DOWNLOAD, ROUTES.ROOT];
