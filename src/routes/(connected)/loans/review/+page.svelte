@@ -13,7 +13,6 @@
 		getAmbosFee as getFeesAndCharges,
 		getMaxBorrow
 	} from '$lib/components/calculator/calculator';
-	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import {
 		setBorrowUsd,
@@ -28,6 +27,7 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
+	import FeesAndCharges from '$lib/components/calculator/fees-and-charges.svelte';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -178,40 +178,9 @@
 					<TooltipIcon text={TOOLTIPS.LIQUIDATION_PRICE} />
 				</div>
 			</div>
-			<!-- Fees and Charges -->
-			<Accordion.Root class="flex w-full text-xs justify-between bg-background rounded-2xl px-3">
-				<Accordion.Item value="item-1" class="w-full">
-					<Accordion.Trigger class="w-full py-2">
-						<div class="font-bold">Est. Fees & Charges</div>
-						<div slot="trigger-right">
-							{f(feesAndCharges.total)}
-							<span class="pl-1 text-muted-foreground">{pc(feesAndCharges.percentOfBorrowed)}</span>
-						</div>
-					</Accordion.Trigger>
-					<Accordion.Content>
-						<div class="pt-1 text-xs">
-							<div class="flex w-full justify-between">
-								<p>Ambos Fee</p>
-								<div>
-									<p>{f(feesAndCharges.ambosFee)}</p>
-								</div>
-							</div>
-							<div class="flex w-full justify-between">
-								<p>Est. Exchange Fees</p>
-								<div>
-									<p>{f(feesAndCharges.exchangeFee)}</p>
-								</div>
-							</div>
-							<div class="flex w-full justify-between">
-								<p>Est. Network Fees</p>
-								<div>
-									<p>{f(estimatedNetworkFee ?? feesAndCharges.networkFee)}</p>
-								</div>
-							</div>
-						</div>
-					</Accordion.Content>
-				</Accordion.Item>
-			</Accordion.Root>
+
+			<FeesAndCharges />
+
 			<!-- {#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if} -->
 			<Button on:click={handleSubmit} class="w-full py-5">
 				{#if isPending}
@@ -220,7 +189,7 @@
 					Confirm & Get Loan
 				{/if}
 			</Button>
-			<Button variant="link">Repayment Terms</Button>
+			<!-- <Button variant="link">Repayment Terms</Button> -->
 		</Card>
 	</div>
 </BaseScreen>

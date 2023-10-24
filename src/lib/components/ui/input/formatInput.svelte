@@ -20,6 +20,7 @@
 		formatted: ''
 	};
 	let lastValidValue: string = '';
+	let el: HTMLInputElement;
 
 	function isNumeric(value: string): boolean {
 		return /^[0-9]*\.?[0-9]*$/.test(value);
@@ -34,6 +35,13 @@
 		}
 	}
 
+	function handleEnterKey(event: KeyboardEvent): void {
+		if (event.key === 'Enter') {
+			event.preventDefault(); // to prevent any default behavior
+			el.blur();
+		}
+	}
+
 	// when the user clicks on the input, we want to show the raw value
 	function onFocus(): void {
 		tempValue = data.raw === 0 ? '' : data.raw.toString();
@@ -43,6 +51,7 @@
 
 	// when the user clicks away from the input, we want to show the formatted value
 	function onBlur(): void {
+		console.log('onBlur', { tempValue, parsed: parseFloat(tempValue) });
 		data.raw = parseFloat(tempValue) || 0; // Convert the string value back to a float
 		value = data.raw; // Update the depositValue based on input
 		data.formatted = formatter(data.raw);
@@ -60,9 +69,11 @@
 </script>
 
 <input
+	bind:this={el}
 	bind:value={tempValue}
 	on:focus={onFocus}
 	on:blur={onBlur}
 	on:input={onInput}
+	on:keydown={handleEnterKey}
 	{...$$restProps}
 />

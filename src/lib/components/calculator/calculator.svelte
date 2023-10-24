@@ -18,8 +18,6 @@
 		getMaxBorrow,
 		getMinimumDepositValue,
 		getPercentageEthPriceChange,
-		getReturnsAfterInterestAndFees,
-		getEthValueInOneYear,
 		getInterestOnLoanInOneYear,
 		getNewEthPrice
 	} from '$lib/components/calculator/calculator';
@@ -36,6 +34,7 @@
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import FeesAndCharges from './fees-and-charges.svelte';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
@@ -73,7 +72,6 @@
 	$: afterRepayment = newEthValue - repay;
 	$: loanVsSell = afterRepayment - ethRemainingIfUserHadSold;
 	$: totalFees = ambosFee + estimatedNetworkFee;
-	$: feePercent = (totalFees / borrowAmountUSD) * 100;
 	$: liquidated = liquidationPrice >= newEthPrice;
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
@@ -179,34 +177,7 @@
 					</div>
 				</div>
 
-				<!-- Fees and Charges -->
-				<Accordion.Root class="flex w-full justify-between bg-background rounded-2xl px-3 py-2">
-					<Accordion.Item value="item-1" class="w-full">
-						<Accordion.Trigger class="w-full">
-							<div class="font-bold">Est. Fees & Charges</div>
-							<div slot="trigger-right">
-								{f(ambosFee + estimatedNetworkFee)}
-								<span class="pl-1 text-muted-foreground">{pc(feePercent)}</span>
-							</div>
-						</Accordion.Trigger>
-						<Accordion.Content>
-							<div class="pt-2 text-xs">
-								<div class="flex w-full justify-between">
-									<p>Ambos Fee</p>
-									<div>
-										<p>{f(ambosFee)}</p>
-									</div>
-								</div>
-								<div class="flex w-full justify-between">
-									<p>Est. Network Fees</p>
-									<div>
-										<p>{f(estimatedNetworkFee)}</p>
-									</div>
-								</div>
-							</div>
-						</Accordion.Content>
-					</Accordion.Item>
-				</Accordion.Root>
+				<FeesAndCharges />
 
 				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
 					>Start Borrowing Now!</Button

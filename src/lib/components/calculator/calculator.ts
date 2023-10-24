@@ -29,38 +29,15 @@ export function getLiquidationPrice(
 	return _getLiquidationPrice(borrowedUSD, suppliedETH, maxLTV);
 }
 
-export type FeesAndCharges = {
-	ambosFee: number;
-	networkFee: number;
-	total: number;
-	exchangeFee: number;
-	percentOfBorrowed: number;
-};
-export function getFeesAndCharges(borrowedUSD: number): FeesAndCharges {
-	const ambosFee = (borrowedUSD * AMBOS_BORROW_FEE_PERCENT) / 100;
-
-	const networkFee = 20;
-
-	// a best guess assuming 3%
-	const exchangeFee = borrowedUSD * (3 / 100);
-
-	const total = ambosFee + networkFee + exchangeFee;
-	const percentOfBorrowed = total / borrowedUSD;
-
-	return {
-		exchangeFee,
-		ambosFee,
-		networkFee,
-		total,
-		percentOfBorrowed
-	};
-}
-
 /**
  * @returns the minimum value that your total supplied ETH must be to not be liquidated
  */
 export function getMinimumDepositValue(liquidationPrice: number, suppliedETH: number): number {
 	return liquidationPrice * suppliedETH;
+}
+
+export function getAmbosFee(borrowUSD: number): number {
+	return (borrowUSD * AMBOS_BORROW_FEE_PERCENT) / 100;
 }
 
 /// -------- SIMULATION FUNCTIONS --------
@@ -69,28 +46,37 @@ export function getPercentageEthPriceChange(ethPriceOriginal: number, ethPriceNe
 	return (ethPriceNew - ethPriceOriginal) / ethPriceOriginal;
 }
 
+export function getNewEthPrice(ethPriceOriginal: number, ethPriceChangePercent: number): number {
+	return ethPriceOriginal * (1 + ethPriceChangePercent / 100);
+}
+
 export function getEthValueInOneYear(
 	suppliedETH: number,
 	ethPriceOriginal: number,
 	ethPriceChangePercent: number
 ): number {
-	const newEthPrice = ethPriceOriginal * (1 + ethPriceChangePercent);
+	const newEthPrice = getNewEthPrice(ethPriceOriginal, ethPriceChangePercent);
 	return suppliedETH * newEthPrice;
 }
 
-export function getAbsoluteReturnInOneYear(
+export function getAbsoluteReturnInOneYearVsSelling(
 	suppliedETH: number,
 	ethPriceOriginal: number,
-	ethPriceChangePercent: number
+	ethPriceChangePercent: number,
+	borrowedUSD: number
 ): number {
-	return (
-		getEthValueInOneYear(suppliedETH, ethPriceOriginal, ethPriceChangePercent) -
-		getEthValue(suppliedETH, ethPriceOriginal)
+	const ethIn1yrNoSell = getEthValueInOneYear(suppliedETH, ethPriceOriginal, ethPriceChangePercent);
+	const ethIn1yrSell = getEthValueRemainingIfUserHadSold(
+		suppliedETH,
+		ethPriceOriginal,
+		ethPriceChangePercent,
+		borrowedUSD
 	);
+	return ethIn1yrNoSell - ethIn1yrSell;
 }
 
 export function getInterestOnLoanInOneYear(interestRate: number, borrowedUSD: number): number {
-	return borrowedUSD * interestRate;
+	return getAmbosFee(borrowedUSD) * interestRate;
 }
 
 export function getReturnsAfterInterestAndFees(
@@ -100,14 +86,15 @@ export function getReturnsAfterInterestAndFees(
 	interestRate: number,
 	borrowedUSD: number
 ): number {
-	const fees = getFeesAndCharges(borrowedUSD).total;
-	const absoluteReturn = getAbsoluteReturnInOneYear(
+	const absoluteReturn = getAbsoluteReturnInOneYearVsSelling(
 		suppliedETH,
 		ethPriceOriginal,
-		ethPriceChangePercent
+		ethPriceChangePercent,
+		borrowedUSD
 	);
+	const fees = getAmbosFee(borrowedUSD);
 	const interest = getInterestOnLoanInOneYear(interestRate, borrowedUSD);
-	return absoluteReturn - interest - fees;
+	return absoluteReturn - (interest + fees);
 }
 
 export function getEthValueRemainingIfUserHadSold(
@@ -124,5 +111,6 @@ export function getEthValueRemainingIfUserHadSold(
 		ethPriceOriginal,
 		ethPriceChangePercent
 	);
+
 	return ethValueInOneYear;
 }

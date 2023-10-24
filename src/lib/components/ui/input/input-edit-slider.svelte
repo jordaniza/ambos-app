@@ -10,9 +10,15 @@
 	export let formatter: (...args: number[]) => string;
 	export let formatterArgs: number[] = [value];
 	export let showRange = false;
+	export let showMax = false;
+	export let maxFormatter: (max: number) => string = (max) => max.toString();
 
 	function setShowRange() {
 		showRange = true;
+	}
+
+	function setMax() {
+		value = max;
 	}
 </script>
 
@@ -38,4 +44,13 @@
             border-[1px] rounded-xl border-secondary text-center py-2
             bg-popover shadow-md font-bold w-full text-sm"
 	/>
+	<div class="flex justify-between items-center py-2 w-full">
+		<slot name="below-input-left"><div /></slot>
+		{#if showMax}
+			<button on:click={setMax} class="flex gap-1 text-xs">
+				<p class="font-bold">Max:</p>
+				<p>{maxFormatter(max)}</p>
+			</button>
+		{/if}
+	</div>
 </div>
