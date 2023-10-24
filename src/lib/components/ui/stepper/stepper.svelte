@@ -13,6 +13,16 @@
 
 	$: selectedIndex = getSelectedIndex();
 
+	function getTextColor(i: number) {
+		if (selectedIndex === i) {
+			return ' text-black';
+		} else if (selectedIndex > i) {
+			return ' text-primary';
+		} else {
+			return ' text-muted-foreground';
+		}
+	}
+
 	function getColor(i: number) {
 		if (selectedIndex === i) {
 			return ' bg-secondary';
@@ -62,8 +72,8 @@
 				</div>
 				<div class="flex justify-center items-center mt-3">
 					<p
-						class={'text-muted-foreground text-sm text-center ' +
-							(selectedIndex === i ? 'font-bold text-accent-foreground ' : '')}
+						class={`${getTextColor(i)} text-sm text-center ` +
+							(selectedIndex === i ? 'font-bold  ' : '')}
 					>
 						{step.name}
 					</p>

@@ -9,6 +9,8 @@ export const DISCOVER_AMBOS = 'https://docs.ambos.finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const AMBOS_FAQ = 'https://docs.ambos.finance/faqs/frequently-asked-questions';
 export const AFFILIATE_LINK = 'https://docs.ambos.finance/affiliates';
+export const EXCHANGE_GUIDE = 'https://docs.ambos.finance/exchanges';
+export const NETWORKS_AND_BRIDGING = 'https://docs.ambos.finance/networks';
 
 export const DEFAULT_BLOCK_CONFIRMATIONS = 3;
 

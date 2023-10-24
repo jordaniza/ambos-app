@@ -9,17 +9,12 @@
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
 
-	let borrowAmountUSD = 1000;
-	let ethPriceChangeWholePc = 20; // Initial value
-	let newEthPrice = 0;
-	let web3Store = getWeb3Store();
+	export let borrowAmountUSD: number;
 	let accountStore = getAccountStore();
 	let estimatedNetworkFee = 0.01;
 
 	// Computed values
-	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 	$: ambosFee = getAmbosFee(borrowAmountUSD);
-	$: newEthPrice = getNewEthPrice(ethPrice, ethPriceChangeWholePc);
 	$: totalFees = ambosFee + estimatedNetworkFee;
 	$: feePercent = (totalFees / borrowAmountUSD) * 100;
 	$: smartAccount = $accountStore.smartAccount;

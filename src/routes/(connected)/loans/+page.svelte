@@ -225,14 +225,14 @@
 						<p class="text-secondary">{f(borrowed)}</p>
 					</div>
 				</div>
-				<div class="flex justify-between items-center w-full">
+				<!-- <div class="flex justify-between items-center w-full">
 					<p>Interest:</p>
 					<p class="text-secondary">{f(400)}</p>
 				</div>
 				<div class="flex justify-between items-center w-full">
 					<p>Repaid:</p>
 					<p>{f(2000.45)}</p>
-				</div>
+				</div> -->
 				<Separator />
 				<div class="flex flex-col gap-1 pt-3">
 					<Button

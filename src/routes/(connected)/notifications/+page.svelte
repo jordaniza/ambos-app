@@ -111,13 +111,16 @@
 						</div>
 						<div class="flex justify-between items-center w-full">
 							<p>{item.state}</p>
-							<Button variant="link">
-								<a
-									class="w-full h-full"
-									href={`${blockExplorer}/tx/${item.finalTxHash}`}
-									target="_blank">Details</a
-								>
-							</Button>
+
+							{#if item.finalTxHash}
+								<Button variant="link">
+									<a
+										class="w-full h-full"
+										href={`${blockExplorer}/tx/${item.finalTxHash}`}
+										target="_blank">Details</a
+									>
+								</Button>
+							{/if}
 						</div>
 					</Card>
 				{/each}

@@ -33,7 +33,6 @@
 	import type { BiconomySmartAccount } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import FeesAndCharges from './fees-and-charges.svelte';
 
 	let ethMaxValue = 10;
@@ -76,6 +75,8 @@
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
 	$: showDepositWarning = borrowAmountUSD === maxBorrow && ethSupplyQty < ethMaxValue;
+	$: savedEthToSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
+	$: savedUSDToBorrow = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 
 	$: {
 		if (borrowAmountUSD > maxBorrow) {
@@ -109,6 +110,13 @@
 	}
 
 	onMount(() => {
+		if (savedEthToSupply > 0) {
+			ethSupplyQty = savedEthToSupply;
+		}
+		if (savedUSDToBorrow > 0) {
+			borrowAmountUSD = savedUSDToBorrow;
+		}
+
 		setIncreaseDebtBuilderStage(txStore, 'calculate');
 	});
 </script>
@@ -126,7 +134,7 @@
 					showRange={true}
 					step={0.01}
 					bind:value={ethSupplyQty}
-					formatter={() => `${e(ethSupplyQty)} - ${e(ethMaxValue)} ETH`}
+					formatter={() => `${e(ethSupplyQty)} ETH`}
 				>
 					<div slot="below-input-left" class="text-xs flex justify-between">
 						<div class="flex gap-1">
@@ -147,7 +155,7 @@
 					maxFormatter={f}
 					step={0.01}
 					bind:value={borrowAmountUSD}
-					formatter={() => `${f(borrowAmountUSD)} - ${f(maxBorrow)}`}
+					formatter={() => f(borrowAmountUSD)}
 				/>
 
 				{#if showDepositWarning}
@@ -177,7 +185,7 @@
 					</div>
 				</div>
 
-				<FeesAndCharges />
+				<FeesAndCharges bind:borrowAmountUSD />
 
 				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
 					>Start Borrowing Now!</Button
@@ -212,10 +220,10 @@
 				</Button>
 			</div>
 			<!-- Sim stats -->
-			<div class="flex flex-col gap-5">
+			<div class="flex flex-col gap-5 text-start">
 				<!-- If you Borrowed -->
 				<div class="flex flex-col gap-1">
-					<p>If You Borrowed:</p>
+					<p class="pl-2">If You Borrowed:</p>
 					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
 						<div class="flex justify-between">
 							<p class="font-bold">You deposited</p>
@@ -223,9 +231,8 @@
 						</div>
 						<div class="flex justify-between">
 							<p class="font-bold">You borrowed</p>
-							<p class="text-destructive">{f(borrowAmountUSD)}</p>
+							<p>{f(borrowAmountUSD)}</p>
 						</div>
-						<Separator />
 						<div class="flex justify-between">
 							<p class="font-bold">Supplied ETH is Worth</p>
 							<p>{f(newEthValue)}</p>
@@ -234,7 +241,6 @@
 							<p class="font-bold">Fees + Interest</p>
 							<p class="text-destructive">{f(feesPlusInterest)}</p>
 						</div>
-						<Separator />
 						<div class="flex justify-between">
 							<p class="font-bold">ETH value after repay</p>
 							<p class={afterRepayment > 0 ? 'text-primary' : 'text-destructive'}>
@@ -246,7 +252,7 @@
 
 				<!-- if You Sold -->
 				<div class="flex flex-col gap-1">
-					<p>If You Sold:</p>
+					<p class="pl-2">If You Sold:</p>
 					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
 						<div class="flex justify-between">
 							<p class="font-bold">You Sold</p>
@@ -265,7 +271,7 @@
 
 				<!-- Comparison -->
 				<div class="flex flex-col gap-1">
-					<p>Comparison:</p>
+					<p class="pl-2">Comparison:</p>
 					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
 						<div class="flex justify-between">
 							<p class="font-bold">Borrow vs. Sell</p>

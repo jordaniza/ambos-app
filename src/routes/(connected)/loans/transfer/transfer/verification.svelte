@@ -35,8 +35,6 @@
 	/**
 	 * 5 second polling to check if the user has received any new ETH
 	 * If they have, we stop the polling and trigger the verification component
-	 * TODO: we need to attach a global listener here so the user can be notified
-	 * outside of the component flow
 	 */
 	function watchForNewEth() {
 		const initialETH = ethBalance;

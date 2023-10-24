@@ -4,7 +4,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import { getTxStore } from '$lib/context/getStores';
-	import { setHasEth } from '$stores/transactions/builders';
+	import { resetBuilders, setHasEth } from '$stores/transactions/builders';
 	import { onMount } from 'svelte';
 
 	export let openEthDialog = () => {
@@ -38,11 +38,13 @@
 	}
 
 	function handleYesOwnsEth() {
+		resetBuilders(txStore);
 		setHasEth(txStore, true);
 		goto(ROUTES.LOANS_V2_CALCULATE);
 	}
 
 	function handleNoDoesNotOwnEth() {
+		resetBuilders(txStore);
 		setHasEth(txStore, false);
 		goto(ROUTES.LOANS_V2_CALCULATE);
 	}

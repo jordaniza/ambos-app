@@ -49,7 +49,7 @@
 		{#if showMax}
 			<button on:click={setMax} class="flex gap-1 text-xs">
 				<p class="font-bold">Max:</p>
-				<p>{maxFormatter(max)}</p>
+				<p class="underline underline-offset-1.5">{maxFormatter(max)}</p>
 			</button>
 		{/if}
 	</div>

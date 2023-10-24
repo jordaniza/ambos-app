@@ -86,7 +86,3 @@
 		});
 	}
 </script>
-
-<div class="pwa-build-date">
-	{buildDate}
-</div>

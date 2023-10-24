@@ -17,11 +17,14 @@
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import Counter from '$lib/components/ui/counter/counter.svelte';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
+	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 
 	// bound to the transfer component to trigger the animation
 	let transferred: number;
 	// flag to show the ticker
 	let showNewETH = false;
+	let editModeEnabled = false;
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -45,6 +48,10 @@
 		setIncreaseDebtBuilderStage(txStore, 'transfer');
 	});
 
+	function handleEditDeposit() {
+		editModeEnabled = !editModeEnabled;
+	}
+
 	async function copyBalanceToClipboard() {
 		toast.success('Copied to clipboard');
 		await navigator.clipboard.writeText(ethBalance.toString());
@@ -57,7 +64,7 @@
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="pb-5">
-		<BackButton backTo={ROUTES.DASHBOARD_V2} />
+		<BackButton backTo={ROUTES.LOANS_V2_CALCULATE} />
 		<div class="pt-5 px-4">
 			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Transfer Your ETH Securely</h1>
 			<p>Transfer your ETH securely to proceed with your loan application</p>
@@ -93,30 +100,43 @@
 					</div>
 					<div class="w-full flex justify-between items-center">
 						<p class="text-2xl">{e(ethBalance)} ETH</p>
-						{#if hasEnough}
-							<Button on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}>Use Wallet</Button>
-						{/if}
 					</div>
 				</Card>
 				<!-- Transfer Widget -->
 				<div class="flex flex-col gap-3">
-					<div class="w-full flex justify-between font-bold tracking-wide">
-						<p>Amount to deposit</p>
-						<p class="text-secondary">Edit</p>
-					</div>
-					<div class="border border-secondary p-1 rounded-xl flex">
-						<p class="w-full px-4 py-2 font-bold flex items-center justify-between mr-2 text-sm">
-							{e(toBeTransferred)} ETH
-						</p>
-						<Button variant="secondary" class="px-5" on:click={copyBalanceToClipboard}>Copy</Button>
-					</div>
-					<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
-						<NetworkNameLogo />
-						<div class="flex items-center justify-end gap-2">
-							<p>ETH</p>
-							<TooltipIcon text={TOOLTIPS.NETWORK} />
-						</div></Card
-					>
+					{#if editModeEnabled}
+						<InputEditSlider
+							showRange={true}
+							title="Amount to deposit"
+							max={10}
+							bind:value={toBeTransferred}
+							step={0.01}
+							formatter={() => formatter(toBeTransferred)}
+						/>
+					{:else if hasEnough}
+						<div class="flex flex-col max-w-2/3 gap-3 text-center px-10 pb-3 pt-1 items-center">
+							<p class="text-primary text-sm">
+								You have enough ETH in your wallet to proceed with your loan
+							</p>
+							<Button class="w-1/2" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}
+								>Use Wallet Amount</Button
+							>
+						</div>
+					{:else}
+						<div class="w-full flex justify-between font-bold tracking-wide">
+							<p>Amount to deposit</p>
+							<button on:click={handleEditDeposit} class="text-secondary">Edit</button>
+						</div>
+						<div class="border border-secondary p-1 rounded-xl flex">
+							<p class="w-full px-4 py-2 font-bold flex items-center justify-between mr-2 text-sm">
+								{e(toBeTransferred)} ETH
+							</p>
+							<Button variant="secondary" class="px-5" on:click={copyBalanceToClipboard}
+								>Copy</Button
+							>
+						</div>
+					{/if}
+					<NetworkNameLogo />
 				</div>
 			</Card>
 		</Card>

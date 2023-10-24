@@ -62,7 +62,7 @@
 
 				<!-- Carousel Slides -->
 				{#each welcomeSteps as step}
-					<div class="flex flex-col justify-center items-center">
+					<div class="flex flex-col justify-center items-center px-10">
 						<!-- image -->
 						<div class=" flex flex-col pb-10 justify-end items-center">
 							{#if step.img}
