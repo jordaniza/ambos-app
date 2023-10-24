@@ -6,7 +6,7 @@
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { e, f, type EthereumAddress } from '$lib/utils';
-	import InputEditSlider from '../../loans/review/input-edit-slider.svelte';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import NetworkLogos from '$lib/components/ui/network/network-logos.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 	import { ScanLineIcon } from 'lucide-svelte';

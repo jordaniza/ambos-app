@@ -6,10 +6,13 @@
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import { ROUTES } from '$lib/constants';
 	import { BN, e, f, getLiquidationPrice, pc } from '$lib/utils';
-	import InputEditSlider from './input-edit-slider.svelte';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import { getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
+	import {
+		getAmbosFee as getFeesAndCharges,
+		getMaxBorrow
+	} from '$lib/components/calculator/calculator';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import {
