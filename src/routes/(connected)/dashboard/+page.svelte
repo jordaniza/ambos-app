@@ -9,14 +9,30 @@
 	import { AFFILIATE_LINK, DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
+	import { browser } from '$app/environment';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import EthSparkline from './ethSparkline.svelte';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { getChangeInEthPrice } from '$lib/cache';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 
 	let web3Store = getWeb3Store();
+	let seen: string | null = null;
+	let showWelcome = false;
 	let openEthDialog: () => void;
+
+	$: {
+		if (browser) {
+			const key = LOCAL_STORAGE_KEYS.WELCOME;
+			seen = localStorage.getItem(key);
+			if (!seen) {
+				showWelcome = true;
+				localStorage.setItem(key, 'true');
+			}
+		}
+	}
 
 	$: aWethBalance = $web3Store.balances['aWETH'].small ?? 0;
 	$: liquidationThreshold = $web3Store.userPoolData?.currentLiquidationThreshold.small ?? 0;
@@ -41,7 +57,7 @@
 <section class="h-full w-full">
 	<!-- Top Bar -->
 	<TopBar />
-	<WelcomeDialog bind:openEthDialog />
+	<WelcomeDialog startOpen={showWelcome} bind:openEthDialog />
 	<!-- Total Balance -->
 	<BaseScreen>
 		<div

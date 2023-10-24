@@ -1,16 +1,14 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { ROUTES } from '$lib/constants';
 	import { slide } from 'svelte/transition';
 	import { welcomeSteps } from './steps';
 	import { browser } from '$app/environment';
-	import Carousel from './carousel/src/main';
+	import Carousel from 'svelte-carousel';
 	import { goto } from '$app/navigation';
 	let currentPageIndex = 0;
 
-	function goToDashboard() {
-		localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME_DIALOG);
-		localStorage.setItem(LOCAL_STORAGE_KEYS.WELCOME, 'true');
+	function handleSkip() {
 		goto(ROUTES.DASHBOARD_V2);
 	}
 </script>
@@ -30,16 +28,15 @@
 	<!-- title bar -->
 	<div class="flex justify-between p-4">
 		<h1>{welcomeSteps[currentPageIndex ?? 0].title}</h1>
-		<button class="text-primary" on:click={goToDashboard}>Skip →</button>
+		<button class="text-primary" on:click={handleSkip}>Skip →</button>
 	</div>
 
 	<div class="h-[90%] w-full pb-5">
 		<!-- carousel -->
 		{#if browser}
 			<Carousel
+				timingFunction="linear"
 				infinite={false}
-				timingFunction="cubic-bezier"
-				duration={300}
 				arrows={false}
 				let:currentPageIndex
 				on:pageChange={(e) => {
@@ -87,7 +84,9 @@
 					? `w-full max-w-lg mx-auto opacity-100 px-10 -my-10 transition-opacity duration-300 delay-300`
 					: `w-full max-w-lg mx-auto opacity-0   px-10 -my-10 transition-opacity duration-300 delay-0`}
 			>
-				<Button class="w-full" on:click={goToDashboard}>Get Started</Button>
+				<Button class="w-full ">
+					<a class="w-full" href={ROUTES.DASHBOARD_V2}>Get Started</a>
+				</Button>
 			</div>
 		{/if}
 	</div>

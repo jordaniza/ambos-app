@@ -56,7 +56,7 @@
 		{
 			data: [
 				{ x: 'Borrowed', y: borrowed },
-				{ x: 'ETH if borrowed', y: ethRemaining },
+				{ x: 'ETH Remaining', y: ethRemaining },
 				{ x: 'ETH if sold', y: ethIfYouSold }
 			]
 		}
