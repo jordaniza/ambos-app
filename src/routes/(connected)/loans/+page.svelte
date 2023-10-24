@@ -10,6 +10,8 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import RepaySelect from './(repay)/repay-select.svelte';
+	import { goto } from '$app/navigation';
+	import { ROUTES } from '$lib/constants';
 
 	type HistoryItem = {
 		action: string;
@@ -171,7 +173,7 @@
 					<p>Interest Rate</p>
 					<p>{pc(interestRate)}</p>
 				</div>
-				<Button>{borrowText}</Button>
+				<Button on:click={() => goto(ROUTES.LOANS_V2_CALCULATE)}>{borrowText}</Button>
 			</Card>
 			<!-- Loan Health -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-2 py-4">

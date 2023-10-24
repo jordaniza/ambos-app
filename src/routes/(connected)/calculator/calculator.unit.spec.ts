@@ -2,7 +2,7 @@ import { describe, expect } from 'vitest';
 import { test, fc } from '@fast-check/vitest';
 import {
 	getLiquidationPrice,
-	getAbsoluteReturnInOneYear,
+	getAbsoluteReturnInOneYearVsSelling,
 	getEthValueRemainingIfUserHadSold,
 	getFeesAndCharges,
 	getMaxBorrow,
@@ -87,14 +87,11 @@ describe('Testing the calculator functions', () => {
 
 	describe('Fees and Charges', () => {
 		test.prop({
-			suppliedETHUSDValue: bFloat(),
 			borrowedUSD: bFloat()
-		})('Fees and charges are calculated correctly', ({ suppliedETHUSDValue, borrowedUSD }) => {
-			const feesAndCharges = getFeesAndCharges(suppliedETHUSDValue, borrowedUSD);
-			expect(feesAndCharges.ambosFee).toBe(suppliedETHUSDValue * 0.01);
-			expect(feesAndCharges.networkFee).toBe(20);
-			expect(feesAndCharges.exchangeFee).toBe(borrowedUSD * 0.03);
-			expect(feesAndCharges.total).toBe(suppliedETHUSDValue * 0.01 + 20 + borrowedUSD * 0.03);
+		})('Fees and charges are calculated correctly', ({ borrowedUSD }) => {
+			const feesAndCharges = getFeesAndCharges(borrowedUSD);
+			expect(feesAndCharges.ambosFee).toBe(borrowedUSD * 0.01);
+			expect(feesAndCharges.total).toBe(borrowedUSD * 0.01);
 		});
 	});
 
@@ -106,7 +103,11 @@ describe('Testing the calculator functions', () => {
 			const initialETHValue = 20_000;
 			const ethValueInOneYear = 30_000;
 			const expectedReturnOneYr = ethValueInOneYear - initialETHValue;
-			const returnOneYr = getAbsoluteReturnInOneYear(suppliedETH, ethPrice, ethPriceChange);
+			const returnOneYr = getAbsoluteReturnInOneYearVsSelling(
+				suppliedETH,
+				ethPrice,
+				ethPriceChange
+			);
 			return returnOneYr === expectedReturnOneYr;
 		});
 

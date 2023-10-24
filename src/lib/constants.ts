@@ -75,6 +75,7 @@ export const IS_TESTNET: { [key in ChainId]?: boolean } = {
 export const LOCAL_STORAGE_KEYS = {
 	// whether the user has seen the welcome screen
 	WELCOME: 'seen_welcome',
+	WELCOME_DIALOG: 'seen_welcome_dialog',
 	// this will be combine with the user's ethereum address
 	// in the format of `${LOCAL_STORAGE_KEYS.TRANSACTIONS}_${address}`
 	TRANSACTIONS: 'transactions',
