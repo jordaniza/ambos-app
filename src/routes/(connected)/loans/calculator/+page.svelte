@@ -2,7 +2,7 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
-	import Calculator from '../../calculator/calculator.svelte';
+	import Calculator from '$lib/components/calculator/calculator.svelte';
 	import { ROUTES } from '$lib/constants';
 
 	let ethSupply = 10; // Initial value

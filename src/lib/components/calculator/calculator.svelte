@@ -1,298 +1,327 @@
 <script lang="ts">
-	import Eth from '$lib/eth.svelte';
-	import { f } from '$lib/utils';
+	import { e, f, pc } from '$lib/utils';
+	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
-	import Card from '../ui/card/card.svelte';
-	import Button from '../ui/button/button.svelte';
-	import CardHeader from '../ui/card/card-header.svelte';
-	import CardTitle from '../ui/card/card-title.svelte';
-	import Separator from '../ui/separator/separator.svelte';
-	import { Accordion } from 'bits-ui';
-	import CardContent from '../ui/card/card-content.svelte';
-	import ResultsChart from './results-chart.svelte';
+	import Card from '$lib/components/ui/card/card.svelte';
+	import CardContent from '$lib/components/ui/card/card-content.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Range from '$lib/components/range/range.svelte';
+	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
+	import { goto } from '$app/navigation';
+	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
+	import {
+		getEthValue,
+		getEthValueRemainingIfUserHadSold,
+		getAmbosFee,
+		getLiquidationPrice,
+		getMaxBorrow,
+		getMinimumDepositValue,
+		getPercentageEthPriceChange,
+		getReturnsAfterInterestAndFees,
+		getEthValueInOneYear,
+		getInterestOnLoanInOneYear,
+		getNewEthPrice
+	} from '$lib/components/calculator/calculator';
+	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import {
+		setBorrowUsd,
+		setIncreaseDebtBuilderStage,
+		setSupplyEth
+	} from '$stores/transactions/builders';
+	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
+	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
+	import { getBorrowFeeQuote } from '$stores/transactions/fees';
+	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { AppProvider } from '$stores/account';
+	import { cacheFetch } from '$lib/cache';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
-	let ethSupply = 10; // Initial value
-	let borrowAmount = 0; // Initial value
-	let ethPrice = 0; // Initial or fetched value
-	let fetchedAt: Date;
-	let ethPriceChange = 20; // Initial value
-
-	let ambosFee = 0.01; // 1%
-	let ambosFeeWhole = ambosFee * 100;
-	let networkFees = 20;
-	let exchangeFees = 0.03; // 3%
-	let exchangeFeesWhole = exchangeFees * 100;
-	let liquidationThreshold = 0.85; // 85%
+	let ethMaxValue = 10;
+	let ethSupplyQty = 5;
+	let borrowAmountUSD = 1000;
+	let ethPriceChangeWholePc = 20; // Initial value
+	let newEthPrice = 0;
 	let interestRate = 0.05; // 5%
+	let web3Store = getWeb3Store();
+	let txStore = getTxStore();
+	let accountStore = getAccountStore();
+	let estimatedNetworkFee = 0.01;
 
 	// Computed values
-	$: interest = borrowAmount * interestRate;
-	$: minDepositValue = (borrowAmount + interest) / liquidationThreshold;
-	$: liquidationPrice = ethSupply > 0 ? minDepositValue / ethSupply : 0;
-
-	$: ethSupplyValue = ethSupply * ethPrice;
-	$: ambosFeeValue = ethSupplyValue * ambosFee;
-	$: exchangeFeeValue = ethSupplyValue * exchangeFees;
-	$: totalFees = ambosFeeValue + networkFees + exchangeFeeValue;
-	$: depositValue = Math.max(ethSupplyValue - totalFees, 0);
-	$: depositQtyAfterFees = ethPrice > 0 ? depositValue / ethPrice : 0;
-	$: totalFeePercentage = ethSupplyValue > 0 ? (totalFees / ethSupplyValue) * 100 : 0;
-	$: maxBorrow = depositValue / 2;
-	$: newEthPrice = ethPrice * (1 + ethPriceChange / 100);
-	$: liquidated = liquidationPrice > newEthPrice;
-	$: newDepositValue = liquidated ? 0 : depositQtyAfterFees * newEthPrice;
-	$: ethRemainingIfUserHadSold = ethSupplyValue - borrowAmount;
-	$: ethValueIfUserHadSold = (ethRemainingIfUserHadSold / ethPrice) * newEthPrice;
-	$: changeVsSell = newDepositValue - ethSupplyValue - interest;
-	$: changeVsSellPercentage = newDepositValue > 0 ? (changeVsSell / ethSupplyValue) * 100 : 0;
+	$: ethPrice = $web3Store.ethPrice.small ?? 0;
+	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
+	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmountUSD, maxLTV);
+	$: minDepositValue = getMinimumDepositValue(liquidationPrice, ethSupplyQty);
+	$: depositUSDValue = getEthValue(ethSupplyQty, ethPrice);
+	$: ambosFee = getAmbosFee(borrowAmountUSD);
+	$: percentageChangeInEthPrice = getPercentageEthPriceChange(ethPrice, newEthPrice);
+	$: newEthPrice = getNewEthPrice(ethPrice, ethPriceChangeWholePc);
+	$: newEthValue = liquidated ? 0 : ethSupplyQty * newEthPrice;
+	$: interest = getInterestOnLoanInOneYear(borrowAmountUSD, interestRate);
+	$: feesPlusInterest = liquidated ? 0 : interest + ambosFee;
+	$: ethRemainingIfUserHadSold = getEthValueRemainingIfUserHadSold(
+		ethSupplyQty,
+		ethPrice,
+		percentageChangeInEthPrice * 100,
+		borrowAmountUSD
+	);
+	$: sellEthEquivalent = borrowAmountUSD / ethPrice;
+	$: ethHeldAfterSell = ethSupplyQty - sellEthEquivalent;
+	$: repay = liquidated ? 0 : borrowAmountUSD + totalFees + interest;
+	$: afterRepayment = newEthValue - repay;
+	$: loanVsSell = afterRepayment - ethRemainingIfUserHadSold;
+	$: totalFees = ambosFee + estimatedNetworkFee;
+	$: feePercent = (totalFees / borrowAmountUSD) * 100;
+	$: liquidated = liquidationPrice >= newEthPrice;
+	$: smartAccount = $accountStore.smartAccount;
+	$: provider = $accountStore.provider;
+	$: showDepositWarning = borrowAmountUSD === maxBorrow && ethSupplyQty < ethMaxValue;
 
 	$: {
-		if (borrowAmount > maxBorrow) {
-			borrowAmount = maxBorrow;
+		if (borrowAmountUSD > maxBorrow) {
+			borrowAmountUSD = maxBorrow;
 		}
 	}
 
-	// More logic here...
-	async function fetchEthPrice() {
-		try {
-			const response = await fetch(
-				'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
-			);
-			const data = await response.json();
-			ethPrice = data.ethereum.usd;
-			fetchedAt = new Date();
-			setTimeout(() => (borrowAmount = maxBorrow * 0.5), 0);
-		} catch (error) {
-			console.error(error);
+	$: {
+		if (smartAccount && provider) {
+			tryQuoteFromCache(smartAccount, provider);
 		}
 	}
-	onMount(fetchEthPrice);
+
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
+		const expiry = 5 * 60 * 1000; // 5 minutes
+		try {
+			estimatedNetworkFee = await cacheFetch(key, expiry, async () => {
+				const quote = await getBorrowFeeQuote({ smartAccount, provider });
+				return quote.small;
+			});
+		} catch (e) {
+			console.error('Error estimating fees', e);
+		}
+	}
+
+	function handleStartBorrowing() {
+		setSupplyEth(txStore, ethSupplyQty);
+		setBorrowUsd(txStore, borrowAmountUSD);
+		goto(ROUTES.LOANS_V2_TRANSFER);
+	}
+
+	onMount(() => {
+		setIncreaseDebtBuilderStage(txStore, 'calculate');
+	});
 </script>
 
-<div class="calculator-container p-4 grid grid-cols-1 md:grid-cols-1 gap-3 max-w-6xl mx-auto">
-	<Card class="p-4">
-		<CardHeader>
-			<CardTitle>Ambos Loans Calculator</CardTitle>
-		</CardHeader>
-		<CardContent>
-			<div class="flex items-center gap-2">
-				<Eth height="60" width="50" />
-				<div class="text-lg">
-					<p>ETH Price</p>
-					<p class="font-bold">{f(ethPrice)}</p>
-					<p class="italic text-base">Fetched: {fetchedAt?.toLocaleTimeString()}</p>
-				</div>
+<div class="p-4 flex flex-col gap-5 pb-20">
+	<Card class=" text-center bg-popover">
+		<CardContent class="flex flex-col gap-5">
+			<!-- Eth Supply -->
+			<div class="py-4">
+				<InputEditSlider
+					title="How much ETH do you want to deposit?"
+					max={ethMaxValue}
+					showMax={true}
+					maxFormatter={(m) => `${e(m)} ETH`}
+					showRange={true}
+					step={0.01}
+					bind:value={ethSupplyQty}
+					formatter={() => `${e(ethSupplyQty)} - ${e(ethMaxValue)} ETH`}
+				>
+					<div slot="below-input-left" class="text-xs flex justify-between">
+						<div class="flex gap-1">
+							<p class="font-bold">Value:</p>
+							<p>{f(depositUSDValue)}</p>
+						</div>
+					</div>
+				</InputEditSlider>
 			</div>
+
+			<!-- USD Borrow -->
+			<div>
+				<InputEditSlider
+					title="How much USD do you want to borrow?"
+					showRange={true}
+					max={maxBorrow}
+					showMax={true}
+					maxFormatter={f}
+					step={0.01}
+					bind:value={borrowAmountUSD}
+					formatter={() => `${f(borrowAmountUSD)} - ${f(maxBorrow)}`}
+				/>
+
+				{#if showDepositWarning}
+					<p class="text-xs text-destructive">Increase the ETH deposit to borrow more</p>
+				{/if}
+			</div>
+			<!-- Stats -->
+			<section class="text-xs flex flex-col gap-3">
+				<!-- Min Deposit value && interet rate -->
+				<div class="flex w-full gap-2">
+					<div class="bg-background w-1/2 rounded-2xl px-3 py-2 text-left">
+						<p class="font-bold">Min Deposit Value</p>
+						<p>{f(minDepositValue)}</p>
+					</div>
+					<div class="bg-background w-1/2 rounded-2xl px-3 py-2 text-left">
+						<p class="font-bold">Interest Rate</p>
+						<p>{pc(interestRate ?? 0)}</p>
+					</div>
+				</div>
+
+				<!-- Liquidation info -->
+				<div class="flex w-full justify-between bg-background rounded-2xl px-3 py-2">
+					<div class="font-bold">Liquidation Price</div>
+					<div class="flex gap-1 text-end">
+						<div>{f(liquidationPrice)} / ETH</div>
+						<TooltipIcon text={TOOLTIPS.LIQUIDATION_PRICE} />
+					</div>
+				</div>
+
+				<!-- Fees and Charges -->
+				<Accordion.Root class="flex w-full justify-between bg-background rounded-2xl px-3 py-2">
+					<Accordion.Item value="item-1" class="w-full">
+						<Accordion.Trigger class="w-full">
+							<div class="font-bold">Est. Fees & Charges</div>
+							<div slot="trigger-right">
+								{f(ambosFee + estimatedNetworkFee)}
+								<span class="pl-1 text-muted-foreground">{pc(feePercent)}</span>
+							</div>
+						</Accordion.Trigger>
+						<Accordion.Content>
+							<div class="pt-2 text-xs">
+								<div class="flex w-full justify-between">
+									<p>Ambos Fee</p>
+									<div>
+										<p>{f(ambosFee)}</p>
+									</div>
+								</div>
+								<div class="flex w-full justify-between">
+									<p>Est. Network Fees</p>
+									<div>
+										<p>{f(estimatedNetworkFee)}</p>
+									</div>
+								</div>
+							</div>
+						</Accordion.Content>
+					</Accordion.Item>
+				</Accordion.Root>
+
+				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
+					>Start Borrowing Now!</Button
+				>
+				<!-- <Button variant="link" class="pb-0">Check out the loan terms</Button> -->
+			</section>
 		</CardContent>
 	</Card>
 
-	<section class="flex w-full flex-grow gap-1">
-		<Card class="p-4 w-full">
-			<div class="w-full px-4 py-6">
-				<h2 class="font-bold">Deposit ETH:</h2>
-				<div class="text-center mt-4">
-					<span id="demo">{ethSupply} ETH ({f(ethPrice * ethSupply)})</span>
-				</div>
-				<input
-					type="range"
-					min="0"
-					max="30"
-					step="0.01"
-					bind:value={ethSupply}
-					class="slider w-full"
-				/>
-				<div class="flex justify-center gap-1 my-3">
-					{#each [0.1, 1, 5, 10, 100] as depositPreset}
-						<Button
-							class="w-12 h-7"
-							variant="secondary"
-							on:click={() => (ethSupply = depositPreset)}>{depositPreset}</Button
-						>
-					{/each}
-				</div>
-			</div>
-			<Card class="p-4 text-md">
-				<Accordion.Root class="w-full items-center text-left">
-					{#each [0] as idx}
-						<Accordion.Item class="text-left" value={idx.toString()}>
-							<Accordion.Trigger class="font-bold text-left w-full">
-								<div class="flex justify-between items-center">
-									<div>
-										<p>Est. Fees & Charges:</p>
-										<p class="italic font-normal">(click to expand)</p>
-									</div>
-									<p>{f(totalFees)} ({totalFeePercentage.toFixed(2)}%)</p>
-								</div>
-							</Accordion.Trigger>
-							<Accordion.Content class=" italic">
-								<Separator class="w-full my-2" />
-								<div class="flex justify-between mb-2">
-									<p class="font-bold">Ambos Fee:</p>
-									<p>{f(ambosFeeValue)} ({ambosFeeWhole}%)</p>
-								</div>
-								<div class="flex justify-between mb-2">
-									<p class="font-bold">Est. Network Fees:</p>
-									<p>{f(networkFees)}</p>
-								</div>
-								<div class="flex justify-between mb-2">
-									<p class="font-bold">Est. Exchange Fees:</p>
-									<p>{f(exchangeFeeValue)} ({exchangeFeesWhole}%)</p>
-								</div>
-								<p class="italic">Fees are indicative and for illustrative purposes only</p>
-							</Accordion.Content>
-						</Accordion.Item>
-					{/each}
-				</Accordion.Root>
-				<Separator class="w-full my-3" />
-				<div class="flex justify-between">
-					<p class="font-bold">After Fees & Charges:</p>
-					<p>{f(depositValue)} ({depositQtyAfterFees.toFixed(2)} ETH)</p>
-				</div>
-			</Card>
-			<div class="w-full px-4 py-6 mt-10">
-				<h2 class="font-bold">Borrow USD:</h2>
-				<div class="text-center mt-4">
-					<span id="demo">{f(borrowAmount)} / {f(maxBorrow)}</span>
-				</div>
-				<input
-					type="range"
-					min="0"
-					max={maxBorrow}
-					bind:value={borrowAmount}
-					class="slider w-full"
-				/>
+	<!-- Simulate results -->
+	<Card class=" text-center bg-popover mb-10">
+		<CardContent class="flex flex-col gap-5">
+			<div class="py-4 flex flex-col gap-2">
+				<p class="font-extrabold text-md tracking-widest">Simulate Results</p>
+				<p class="tracking widest">ETH price in 1 year</p>
 
-				<div class="flex justify-center gap-1 my-3">
-					{#each [10, 20, 30, 40, 50] as borrowPreset}
-						<Button
-							class="w-12 h-7"
-							variant="secondary"
-							on:click={() => (borrowAmount = maxBorrow * (borrowPreset / 100) * 2)}
-							>{borrowPreset}%</Button
-						>
-					{/each}
+				<div class="py-3">
+					<Range bind:value={newEthPrice} max={3 * ethPrice} step={1} />
 				</div>
-			</div>
-			<div class="w-full px-4 py-6 mt-5">
-				<h2 class="font-bold">ETH Price In 1 Year:</h2>
-				<div class="text-center mt-4">
-					<span class={ethPriceChange > 0 ? 'text-green-500' : 'text-red-500'}
-						>{f(newEthPrice)} ({ethPriceChange}%)
+				<Button
+					variant="outline"
+					class="border-secondary bg-popover shadow-md py-6 w-full font-bold"
+					>{f(newEthPrice)}
+					<span
+						class={(newEthPrice >= ethPrice ? 'text-primary' : 'text-destructive') +
+							' font-thin pl-2'}
+					>
+						{#if percentageChangeInEthPrice > 0}+{/if}{(percentageChangeInEthPrice * 100).toFixed(
+							2
+						)}%
 					</span>
+				</Button>
+			</div>
+			<!-- Sim stats -->
+			<div class="flex flex-col gap-5">
+				<!-- If you Borrowed -->
+				<div class="flex flex-col gap-1">
+					<p>If You Borrowed:</p>
+					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
+						<div class="flex justify-between">
+							<p class="font-bold">You deposited</p>
+							<p>{f(depositUSDValue)} / {e(ethSupplyQty)} ETH</p>
+						</div>
+						<div class="flex justify-between">
+							<p class="font-bold">You borrowed</p>
+							<p class="text-destructive">{f(borrowAmountUSD)}</p>
+						</div>
+						<Separator />
+						<div class="flex justify-between">
+							<p class="font-bold">Supplied ETH is Worth</p>
+							<p>{f(newEthValue)}</p>
+						</div>
+						<div class="flex justify-between">
+							<p class="font-bold">Fees + Interest</p>
+							<p class="text-destructive">{f(feesPlusInterest)}</p>
+						</div>
+						<Separator />
+						<div class="flex justify-between">
+							<p class="font-bold">ETH value after repay</p>
+							<p class={afterRepayment > 0 ? 'text-primary' : 'text-destructive'}>
+								{f(afterRepayment)}
+							</p>
+						</div>
+					</div>
 				</div>
-				<input
-					type="range"
-					min={-100}
-					max="200"
-					bind:value={ethPriceChange}
-					class="slider w-full"
-				/>
-				<div class="flex justify-center gap-1 my-3">
-					{#each [-25, 25] as change}
-						<Button class="w-12 h-7" variant="secondary" on:click={() => (ethPriceChange += change)}
-							>{change > 0 ? '+' + change : change}%</Button
-						>
-					{/each}
-				</div>
-			</div>
-		</Card>
-	</section>
-	<Card class="p-4">
-		<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-			<div class="border-secondary border-2 rounded-md p-4">
-				<p class="text-sm italic mb-1">Interest</p>
-				<p class="text-xl">{interestRate * 100}% ({f(borrowAmount * interestRate)})</p>
-			</div>
-			<div class="border-secondary border-2 rounded-md p-4">
-				<p class="text-sm italic mb-1">Min Deposit Value</p>
-				<p class="text-xl">{f(minDepositValue)}</p>
-			</div>
-			<div>
-				<div class="border-secondary border-2 rounded-md p-4">
-					<p class="text-sm italic mb-1">Liquidation Price</p>
-					<p class="text-xl">{f(liquidationPrice ?? 0)} / ETH</p>
-				</div>
-				<div />
-			</div>
-		</div></Card
-	>
 
-	<Card class="p-4">
-		<CardTitle class="text-xl ml-6 my-5">Results</CardTitle>
-		<CardContent>
-			<section class="flex flex-col gap-2">
-				{#if liquidated}
-					<p>
-						You <span class="font-bold">borrowed {f(borrowAmount)}</span> in USD, but
-						<span class="text-red-500">your ETH was liquidated</span>
-						to cover lenders
-					</p>
-					<p>You no longer have to repay your loan, but you cannot claim your deposit back.</p>
-				{:else}
-					<p>
-						You <span class="font-bold">borrowed {f(borrowAmount)}</span> in USD and
-						<span class="text-green-500"> you have {f(newDepositValue)}</span> in ETH deposits
-					</p>
-
-					<p>
-						Including fees and interest, you're
-						{changeVsSell < 0 ? 'down' : 'up'}
-						<span class={changeVsSell < 0 ? 'text-red-500' : 'text-green-500'}>
-							{f(changeVsSell)} ({changeVsSellPercentage.toFixed(2)}%)</span
-						>
-					</p>
-				{/if}
-
-				<div>
-					<p>
-						For comparison, if you'd have sold {f(borrowAmount)} of ETH initially you would {changeVsSell <
-						0
-							? ''
-							: 'only'} have {f(ethValueIfUserHadSold)}
-						in ETH remaining
-					</p>
+				<!-- if You Sold -->
+				<div class="flex flex-col gap-1">
+					<p>If You Sold:</p>
+					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
+						<div class="flex justify-between">
+							<p class="font-bold">You Sold</p>
+							<p>{f(borrowAmountUSD)} / {e(sellEthEquivalent)} ETH</p>
+						</div>
+						<div class="flex justify-between">
+							<p class="font-bold">You Held</p>
+							<p>{e(ethHeldAfterSell)} ETH</p>
+						</div>
+						<div class="flex justify-between">
+							<p class="font-bold">Held ETH is Worth</p>
+							<p>{f(ethRemainingIfUserHadSold)}</p>
+						</div>
+					</div>
 				</div>
-			</section>
-			<ResultsChart
-				borrowed={borrowAmount}
-				ethRemaining={newDepositValue}
-				ethIfYouSold={ethValueIfUserHadSold}
-			/>
+
+				<!-- Comparison -->
+				<div class="flex flex-col gap-1">
+					<p>Comparison:</p>
+					<div class="bg-background rounded-xl px-2 py-3 text-xs flex flex-col gap-2">
+						<div class="flex justify-between">
+							<p class="font-bold">Borrow vs. Sell</p>
+							<p class={loanVsSell > 0 ? 'text-primary' : 'text-destructive'}>
+								{f(loanVsSell)}
+							</p>
+						</div>
+						{#if liquidated}
+							<p class="text-xs">
+								<span class="font-bold text-destructive"> You were liquidated. </span>
+								<br />You cannot reclaim your deposited ETH, but you also no longer need to repay
+								your loan
+							</p>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Bars -->
+				<div class="h-72">
+					<CalculatorBars
+						{liquidated}
+						borrowed={borrowAmountUSD}
+						ethRemaining={newEthValue}
+						ethIfYouSold={ethRemainingIfUserHadSold}
+					/>
+				</div>
+			</div>
 		</CardContent>
 	</Card>
 </div>
-
-<style>
-	/* Tailwind base reset styles */
-	.slider {
-		appearance: none;
-		width: 100%;
-		height: 8px;
-		border-radius: 5px;
-		background: hsl(217, 91%, 60%);
-		outline: none;
-		opacity: 0.7;
-		transition: opacity 0.2s;
-	}
-
-	.slider:hover {
-		opacity: 1;
-	}
-
-	.slider::-webkit-slider-thumb {
-		appearance: none;
-		width: 20px;
-		height: 20px;
-		border-radius: 50%;
-		background: hsl(210, 40%, 98%);
-		cursor: pointer;
-	}
-
-	.slider::-moz-range-thumb {
-		width: 20px;
-		height: 20px;
-		border-radius: 50%;
-		background: hsl(222.2, 84%, 4.9%);
-		cursor: pointer;
-	}
-</style>

@@ -4,7 +4,7 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { USDC, e, f } from '$lib/utils';
-	import InputEditSlider from '../review/input-edit-slider.svelte';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import { decreaseDebt } from '$stores/transactions/batchActions';
