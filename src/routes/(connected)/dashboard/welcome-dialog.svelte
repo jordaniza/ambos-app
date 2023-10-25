@@ -29,7 +29,7 @@
 				welcomeDialog = true;
 			}, 300);
 			// delete this timeout at your own risk
-			setTimeout(() => localStorage.setItem(key, 'true'), 600);
+			setTimeout(() => localStorage.setItem(key, 'true'), 0);
 		}
 	}
 

@@ -12,17 +12,8 @@
 	import RepaySelect from './(repay)/repay-select.svelte';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
+	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 
-	type HistoryItem = {
-		action: string;
-		currency: string;
-		usdValue: number;
-		timestamp: number;
-	};
-
-	const now = new Date().getTime();
-
-	let priceUp = Math.random() > 0.5;
 	let openRepay = false;
 	let web3Store = getWeb3Store();
 
@@ -40,6 +31,7 @@
 	$: liquidationRiskTextColor = getLiquidationColor(barWidth);
 
 	function getLoanLiquidationPercentage(borrowed: number, supplied: number, maxLTV: number) {
+		if (borrowed === 0 || maxLTV === 0) return 0;
 		// first get the borrowed out of supplied
 		const borrowedOutOfSupplied = borrowed / supplied;
 		// now we need that as a percentage of the maxLTV
@@ -78,21 +70,6 @@
 			(txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
 		);
 	}
-
-	function formatTimestamp(timestamp: number): string {
-		const date = new Date(timestamp);
-
-		// Extracting the month, day, and year
-		const month = date.toLocaleDateString('en-US', { month: 'long' });
-		const day = date.toLocaleDateString('en-US', { day: '2-digit' });
-		const year = date.getFullYear();
-
-		// Extracting the hour and minute with padding for single digits
-		const hour = String(date.getHours()).padStart(2, '0');
-		const minute = String(date.getMinutes()).padStart(2, '0');
-
-		return `${month} ${day} ${year} - ${hour}:${minute}`;
-	}
 </script>
 
 <RepaySelect bind:open={openRepay} />
@@ -129,9 +106,7 @@
 						<div>
 							<p class="font-bold">Ether</p>
 							<div class="flex text-xs items-center">
-								<p class={priceUp ? 'text-green-500' : 'text-red-500'}>
-									{priceUp ? '↑+' : '↓-'}25.45%
-								</p>
+								<EthPriceTicker />
 							</div>
 						</div>
 					</div>
