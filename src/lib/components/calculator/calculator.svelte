@@ -77,6 +77,7 @@
 	$: showDepositWarning = borrowAmountUSD === maxBorrow && ethSupplyQty < ethMaxValue;
 	$: savedEthToSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
 	$: savedUSDToBorrow = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
+	$: isDisabled = ethSupplyQty === 0 || borrowAmountUSD === 0;
 
 	$: {
 		if (borrowAmountUSD > maxBorrow) {
@@ -136,6 +137,9 @@
 					bind:value={ethSupplyQty}
 					formatter={() => `${ethSupplyQty} ETH`}
 				>
+					<div slot="tooltip">
+						<TooltipIcon text={TOOLTIPS.ETH_DEPOSIT} />
+					</div>
 					<div slot="below-input-left" class="text-xs flex justify-between">
 						<div class="flex gap-1">
 							<p class="font-bold">Value:</p>
@@ -156,7 +160,11 @@
 					step={0.01}
 					bind:value={borrowAmountUSD}
 					formatter={() => f(borrowAmountUSD)}
-				/>
+				>
+					<div slot="tooltip">
+						<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
+					</div>
+				</InputEditSlider>
 
 				{#if showDepositWarning}
 					<p class="text-xs text-destructive">Increase the ETH deposit to borrow more</p>
@@ -187,8 +195,10 @@
 
 				<FeesAndCharges bind:borrowAmountUSD />
 
-				<Button class="w-full rounded-xl mt-2 py-6 text-base" on:click={handleStartBorrowing}
-					>Start Borrowing Now!</Button
+				<Button
+					class="w-full rounded-xl mt-2 py-6 text-base"
+					disabled={isDisabled}
+					on:click={handleStartBorrowing}>Start Borrowing Now!</Button
 				>
 				<!-- <Button variant="link" class="pb-0">Check out the loan terms</Button> -->
 			</section>

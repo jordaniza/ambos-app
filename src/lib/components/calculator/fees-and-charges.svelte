@@ -16,7 +16,7 @@
 	// Computed values
 	$: ambosFee = getAmbosFee(borrowAmountUSD);
 	$: totalFees = ambosFee + estimatedNetworkFee;
-	$: feePercent = (totalFees / borrowAmountUSD) * 100;
+	$: feePercent = borrowAmountUSD === 0 ? 0 : (totalFees / borrowAmountUSD) * 100;
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
 
@@ -46,7 +46,7 @@
 		<Accordion.Trigger class="w-full">
 			<div class="font-bold">Est. Fees & Charges</div>
 			<div slot="trigger-right">
-				{f(ambosFee + estimatedNetworkFee)}
+				{f(totalFees ?? 0)}
 				<span class="pl-1 text-muted-foreground">{pc(feePercent)}</span>
 			</div>
 		</Accordion.Trigger>

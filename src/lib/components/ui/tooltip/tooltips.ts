@@ -1,11 +1,14 @@
+import { MAX_BORROW_PERCENTAGE } from '$lib/constants';
+
 export const TOOLTIPS = {
+	ETH_DEPOSIT: `When you take out a loan, your ETH is held as collateral until you repay the loan. With Ambos you can borrow up to ${MAX_BORROW_PERCENTAGE}% of the USD value of your ETH.`,
 	TOTAL_BORROW:
 		'The total USD value that you will be borrowing, this includes the Ambos fee and any network fees, which will be added to the total amount you need to repay.',
 	GAS_FEES: 'Network fees to send your transaction, these are not controlled by Ambos',
 	ETH_SUPPLIED:
-		'The amount of ETH you supplied as a collateral to secure your loan. Once the loan + interest are repaid, this amount will be credited back into your Ambos wallet.',
+		'The amount of ETH you supplied as a collateral to secure your loan. Once the loan + interest are repaid, this amount will be sent back into your Ambos wallet.',
 	USD_BORROWED:
-		'The amount of stablecoins that you received as a loan. The max amount you can borrow depends on the amount of principal you supplied.',
+		'The amount of stablecoins that you received as a loan - these can later be converted to fiat. The max amount you can borrow depends on the amount of principal you supplied.',
 	LIQUIDATION_PRICE:
 		'The threshold price of the token at which the amount of collateral you supplied to secure your loan will be sold or liquidated in order to repay the borrowed amount and any outstanding fees.',
 	LOAN_HEALTH:
