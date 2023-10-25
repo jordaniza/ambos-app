@@ -169,6 +169,7 @@
 				bind:value={ethSupply}
 				max={ethBalance}
 				showMax={true}
+				allowEdit={false}
 				maxFormatter={formatETHValue}
 				step={0.01}
 				formatter={() => `${ethSupply} ETH`}
@@ -185,6 +186,7 @@
 				bind:value={borrowAmount}
 				max={maxBorrow}
 				showMax={true}
+				allowEdit={false}
 				maxFormatter={f}
 				step={1}
 				formatter={() => formatBorrowValue(borrowAmount)}

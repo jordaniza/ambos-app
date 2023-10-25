@@ -11,6 +11,7 @@
 	export let formatterArgs: number[] = [value];
 	export let showRange = false;
 	export let showMax = false;
+	export let allowEdit = true;
 	export let maxFormatter: (max: number) => string = (max) => max.toString();
 
 	function edit() {
@@ -24,9 +25,9 @@
 
 <div>
 	<div class="flex w-full justify-between items-center font-extrabold">
-		<p class="text-sm font-extrabold">{title}</p>
+		<p class="text-sm font-extrabold pb-2">{title}</p>
 		<div class="flex items-center justify-end">
-			{#if !showRange}<Button
+			{#if allowEdit && !showRange}<Button
 					variant="link"
 					class="no-underline text-sm font-bold -mx-2 "
 					on:click={edit}>Edit</Button
