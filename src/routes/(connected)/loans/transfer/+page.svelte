@@ -78,8 +78,8 @@
 							<p class="text-sm font-extralight text-muted-foreground">Your Ambos Wallet</p>
 						</div>
 						<div class="flex flex-col items-end h-full justify-between">
-							<div class="h-10 w-10 bg-popover p-2 rounded-full">
-								<Eth />
+							<div class="h-10 w-10 bg-popover p-2 rounded-full flex items-center justify-center">
+								<img src="/external/eth.png" alt="ETH" class="h-6 w-6" />
 							</div>
 						</div>
 					</div>
