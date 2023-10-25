@@ -14,8 +14,8 @@
 	<h2 class="font-bold text-lg pt-3">Transaction Successful</h2>
 	<Check class="h-20 w-20 text-primary stroke-1 " />
 	<p>
-		Congratulations! You have successfully transferred {e(transferred)} ETH to your Ethereum to your
-		wallet. You are ready to proceed with your loan.
+		Congratulations! You have successfully transferred {e(transferred)} ETH to your Ambos wallet. You
+		are ready to proceed with your loan.
 	</p>
 	<div class="flex gap-3 items-center w-full pb-3">
 		<Button class="w-1/2" variant="outline" on:click={() => goto(ROUTES.DASHBOARD_V2)}

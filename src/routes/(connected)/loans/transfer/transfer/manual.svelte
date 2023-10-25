@@ -22,6 +22,7 @@
 	let hasReadNetworkPrimer = false;
 
 	$: address = $accountStore.address ?? '0x...';
+	$: blurClass = checked ? ' blur-none ' : ' blur-sm ';
 
 	const setVerifying = () => {
 		checked = false;
@@ -77,7 +78,8 @@
 		<p class="font-bold">Your Ambos Wallet Address</p>
 		<p class="text-sm">Send ETH to your Ambos Wallet</p>
 		<p
-			class="border-secondary rounded-xl border p-2 w-full text-xs font-mono truncate whitespace-nowrap max-w-md"
+			class={blurClass +
+				' border-secondary rounded-xl border p-2 w-full text-xs font-mono truncate whitespace-nowrap max-w-md'}
 		>
 			{address}
 		</p>
@@ -93,7 +95,7 @@
 				or
 			</p>
 		</div>
-		<canvas id="canvas" class="h-32 w-32">Scan QR Code</canvas>
+		<canvas id="canvas" class={blurClass + ' h-32 w-32 blur-sm'}>Scan QR Code</canvas>
 		<Button disabled={!checked} class="w-11/12 rounded-lg" on:click={setVerifying}
 			>Verify Sent ETH</Button
 		>

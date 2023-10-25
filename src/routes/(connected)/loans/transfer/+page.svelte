@@ -102,8 +102,8 @@
 							<p class="text-primary text-sm">
 								You have enough ETH in your wallet to proceed with your loan
 							</p>
-							<Button class="w-36" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}
-								>Use Wallet Amount</Button
+							<Button class="w-40" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}
+								>Review Loan Details</Button
 							>
 						{:else}
 							<p class="text-secondary text-sm">
