@@ -199,7 +199,7 @@
 	<Card class=" text-center bg-popover mb-10">
 		<CardContent class="flex flex-col gap-5">
 			<div class="py-4 flex flex-col gap-2">
-				<p class="font-extrabold text-md tracking-widest">Simulate Results</p>
+				<p class="font-extrabold text-md">Simulate Results</p>
 				<p class="tracking widest">ETH price in 1 year</p>
 
 				<div class="py-3">

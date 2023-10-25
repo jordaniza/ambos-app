@@ -65,13 +65,13 @@
 	<div slot="card">
 		<div class="transform -translate-y-44 flex w-full items-center flex-col gap-4 p-4">
 			<!-- Debit Card -->
-			<div class="flex w-[350px] items-center justify-center text-popover tracking-wider">
+			<div class="flex w-[350px] items-center justify-center text-popover">
 				<div
 					class="bg-cover w-full bg-center bg-no-repeat rounded-3xl shadow-xl shadow-popover p-4 pr-2"
 					style="background-image: url('backgrounds/card.png');"
 				>
 					<div class="flex w-full justify-between items-center gap-2">
-						<p class="text-3xl tracking-widest">{f(totalUSDValue)}</p>
+						<p class="text-3xl">{f(totalUSDValue)}</p>
 						<img src="/Logo-light-transparent.png" alt="Ambos Finance" class="h-16 w-16" />
 					</div>
 					<p>Your Balance</p>
@@ -97,7 +97,7 @@
 			</div>
 			<Card variant="popover" padding="base" class="flex flex-col w-full gap-4 py-4 text-sm">
 				<!-- header -->
-				<div class="flex w-full justify-between tracking-widest">
+				<div class="flex w-full justify-between">
 					<div class="flex items-center gap-3">
 						<WalletIcon class="text-muted-foreground h-4 w-4" />
 						<p class="font-bold">Your Wallet Holdings</p>
@@ -165,7 +165,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Wallet History</p>
+						<p class=" font-bold pt-[1.5px]">Wallet History</p>
 					</div>
 				</div>
 				{#each historyItems as item}

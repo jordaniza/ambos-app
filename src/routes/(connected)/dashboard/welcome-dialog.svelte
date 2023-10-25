@@ -25,9 +25,11 @@
 		const seen = localStorage.getItem(key);
 		if (seen) return;
 		else {
-			welcomeDialog = true;
+			setTimeout(() => {
+				welcomeDialog = true;
+			}, 300);
 			// delete this timeout at your own risk
-			setTimeout(() => localStorage.setItem(key, 'true'), 300);
+			setTimeout(() => localStorage.setItem(key, 'true'), 600);
 		}
 	}
 
@@ -60,9 +62,9 @@
 		</div>
 		<h2 class="font-extrabold text-xl">Welcome to Ambos Finance!</h2>
 		<p class="pb-2">
-			Discover the easiest way to unlock the value of your Ethereum without selling. Choose the
-			guided experience for a seamless loan process or jump straight into the app. Your financial
-			superpower awaits!
+			Discover the easiest way to unlock the value of your Ethereum without selling. 'Get your Loan'
+			will start a guided experience to help you get started taking out a loan against your crypto.
+			Alternatively, you can go straight to the app.
 		</p>
 		<Button on:click={handleEthDialog} class="rounded-lg">Get your loan</Button>
 		<Button class="rounded-lg bg-popover" variant="outline" on:click={closeWelcomeDialog}

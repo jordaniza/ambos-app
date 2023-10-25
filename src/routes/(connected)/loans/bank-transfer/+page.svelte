@@ -41,7 +41,7 @@
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Transfer to your bank</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Transfer to your bank</h1>
 			<p>Transfer ETH or Stablecoins to your bank in just one click</p>
 		</div>
 	</div>

@@ -21,7 +21,6 @@
 	let transferred: number;
 	// flag to show the ticker
 	let showNewETH = false;
-	let editModeEnabled = false;
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -45,10 +44,6 @@
 		setIncreaseDebtBuilderStage(txStore, 'transfer');
 	});
 
-	function handleEditDeposit() {
-		editModeEnabled = !editModeEnabled;
-	}
-
 	async function copyBalanceToClipboard() {
 		toast.success('Copied to clipboard');
 		await navigator.clipboard.writeText(toBeTransferred.toString());
@@ -63,7 +58,7 @@
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.LOANS_V2_CALCULATE} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Transfer Your ETH Securely</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Transfer Your ETH Securely</h1>
 			<p>Transfer your ETH securely to proceed with your loan application</p>
 		</div>
 	</div>
@@ -117,19 +112,9 @@
 						{/if}
 					</div>
 
-					{#if editModeEnabled}
-						<InputEditSlider
-							showRange={true}
-							title="Amount to deposit"
-							max={10}
-							bind:value={toBeTransferred}
-							step={0.01}
-							formatter={() => formatter(toBeTransferred)}
-						/>
-					{:else if !hasEnough && toBeTransferred > 0 && !editModeEnabled}
+					{#if !hasEnough && toBeTransferred > 0}
 						<div class="w-full flex justify-between font-bold tracking-wide">
 							<p>Amount to deposit</p>
-							<button on:click={handleEditDeposit} class="text-secondary">Edit</button>
 						</div>
 						<div class="border border-secondary p-1 rounded-xl flex">
 							<p class="w-full px-4 py-2 font-bold flex items-center justify-between mr-2 text-sm">

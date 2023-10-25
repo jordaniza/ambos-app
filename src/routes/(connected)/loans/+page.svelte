@@ -105,15 +105,15 @@
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
-		<h1 class="tracking-widest">Current Amount Borrowed</h1>
-		<h2 class="text-4xl tracking-widest">{f(borrowed)}</h2>
+		<h1 class="">Current Amount Borrowed</h1>
+		<h2 class="text-4xl">{f(borrowed)}</h2>
 	</div>
 
 	<div slot="card">
 		<div class="transform -translate-y-16 flex flex-col gap-4 p-4">
 			<Card variant="popover" padding="base" class="flex flex-col gap-3 py-4 text-sm">
 				<!-- header -->
-				<div class="flex w-full justify-between tracking-widest">
+				<div class="flex w-full justify-between">
 					<div class="flex items-center gap-3">
 						<LockIcon class="text-muted-foreground h-4 w-4" />
 						<p class="font-bold">Supplied</p>
@@ -150,7 +150,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<CreditCardIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Borrowed</p>
+						<p class=" font-bold pt-[1.5px]">Borrowed</p>
 					</div>
 					<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
 				</div>
@@ -180,7 +180,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<GemIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Loan Health</p>
+						<p class=" font-bold pt-[1.5px]">Loan Health</p>
 					</div>
 					<TooltipIcon text={TOOLTIPS.LOAN_HEALTH} />
 				</div>
@@ -215,7 +215,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<ReceiptIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Repay Loan</p>
+						<p class=" font-bold pt-[1.5px]">Repay Loan</p>
 					</div>
 					<TooltipIcon text={TOOLTIPS.LOAN_REPAY} />
 				</div>
@@ -247,7 +247,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Loan History</p>
+						<p class=" font-bold pt-[1.5px]">Loan History</p>
 					</div>
 				</div>
 				{#each historyItems as item}

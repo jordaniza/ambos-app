@@ -137,7 +137,7 @@
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.LOANS_V2_TRANSFER} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Review Your Loan Details</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Review Your Loan Details</h1>
 			<p>Check all the details and get your loan now</p>
 		</div>
 	</div>

@@ -12,7 +12,7 @@
 
 <Button
 	variant="link"
-	class="text-popover no-underline flex items-center gap-1 tracking-widest text-md"
+	class="text-popover no-underline flex items-center gap-1  text-md"
 	on:click={goBack}
 >
 	<span>←</span> Back</Button

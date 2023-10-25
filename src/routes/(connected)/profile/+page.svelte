@@ -24,7 +24,7 @@
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans.png')]"
 	/>
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
-		<h1 class="tracking-widest">{shortAddress}</h1>
+		<h1 class="">{shortAddress}</h1>
 		<button class="rounded-2xl bg-card-foreground opacity-80 text-sm px-3 py-1">
 			<a href={explorerURL} class="w-full flex items-center gap-1" target="_blank">
 				<p>View on Explorer</p>

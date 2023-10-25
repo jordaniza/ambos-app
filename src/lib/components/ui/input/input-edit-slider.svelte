@@ -23,12 +23,10 @@
 </script>
 
 <div>
-	<div class="flex w-full justify-between items-center font-extrabold tracking-widest">
+	<div class="flex w-full justify-between items-center font-extrabold">
 		<p class="text-sm font-extrabold">{title}</p>
-		{#if !showRange}<Button
-				variant="link"
-				class="no-underline text-sm font-bold tracking-widest"
-				on:click={edit}>Edit</Button
+		{#if !showRange}<Button variant="link" class="no-underline text-sm font-bold " on:click={edit}
+				>Edit</Button
 			>
 		{/if}
 	</div>

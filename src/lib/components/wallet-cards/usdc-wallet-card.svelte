@@ -8,7 +8,7 @@
 	$: usdcBalance = $web3Store.balances.USDC.small ?? 0;
 </script>
 
-<Card class="darken-usdc-card-bg text-popover rounded-3xl p-6 flex flex-col gap-2">
+<Card class="card-stablecoin-image-darken text-popover rounded-3xl p-6 flex flex-col gap-2">
 	<div class="w-full flex justify-between items-center">
 		<div class=" rounded-xl">
 			<p class="font-extrabold text-lg">USDC</p>
@@ -23,11 +23,3 @@
 		</div>
 	</div>
 </Card>
-
-<style>
-	:global(.darken-usdc-card-bg) {
-		background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-			url('/backgrounds/card-dashboard-stable.png');
-		background-size: cover;
-	}
-</style>

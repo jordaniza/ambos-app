@@ -31,7 +31,7 @@
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Ambos Loans Calculator</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Ambos Loans Calculator</h1>
 			<p>Start discovering how much you can borrow against your Ethereum.</p>
 		</div>
 	</div>

@@ -74,8 +74,8 @@
 
 						<!-- content -->
 						<div class="flex pt-5 flex-col justify-between">
-							<div class="text-center tracking-widest px-2">
-								<h2 class="font-extrabold text-2xl">{step.heading}</h2>
+							<div class="text-center px-2">
+								<h2 class="font-extrabold text-2xl py-5">{step.heading}</h2>
 								<p>{step.text}</p>
 							</div>
 						</div>

@@ -15,7 +15,6 @@
 	function goToCTA() {
 		scroll?.scrollIntoView({ behavior: 'smooth' });
 	}
-
 </script>
 
 <svelte:head>
@@ -47,10 +46,7 @@
 	></script>
 </svelte:head>
 
-<div
-	class="leading-normal tracking-normal text-white gradient"
-	style="font-family: 'Source Sans Pro', sans-serif;"
->
+<div class="leading-normal text-white gradient" style="font-family: 'Source Sans Pro', sans-serif;">
 	<Nav {goToCTA} />
 	<Hero {goToCTA} />
 

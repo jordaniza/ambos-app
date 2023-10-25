@@ -18,8 +18,7 @@
 			<Button
 				on:click={setEscape}
 				variant="link"
-				class="text-popover-foreground no-underline text-left tracking-wider text-lg "
-				>← Back</Button
+				class="text-popover-foreground no-underline text-left  text-lg ">← Back</Button
 			>
 		</div>
 		<Separator />

@@ -80,10 +80,8 @@
 		slot="background"
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/notifications.png')]"
 	/>
-	<div slot="header" class="w-full tracking-widest pb-20">
-		<nav
-			class="w-full pt-4 px-4 pb-4 tracking-widest items-center justify-between text-popover flex gap-5"
-		>
+	<div slot="header" class="w-full pb-20">
+		<nav class="w-full pt-4 px-4 pb-4 items-center justify-between text-popover flex gap-5">
 			<BackButton />
 		</nav>
 		<p class="text-xl">Notifications</p>
@@ -96,7 +94,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Loan History</p>
+						<p class=" font-bold pt-[1.5px]">Loan History</p>
 					</div>
 				</div>
 				{#each transactions as [id, item]}

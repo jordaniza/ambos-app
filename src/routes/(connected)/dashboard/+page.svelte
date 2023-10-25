@@ -50,8 +50,8 @@
 		/>
 
 		<span slot="header" class="-mt-4">
-			<h1 class="tracking-widest pb-1">Total Available Balance</h1>
-			<h2 class="text-4xl tracking-widest">{f(totalBalance)}</h2>
+			<h1 class=" pb-1">Total Available Balance</h1>
+			<h2 class="text-3xl">{f(totalBalance)}</h2>
 		</span>
 
 		<span slot="card">
@@ -60,17 +60,19 @@
 				<Card
 					variant="popover"
 					padding="base"
-					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white tracking-widest"
+					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white"
 					style="background-image: url('backgrounds/card-dashboard-eth.png');"
 				>
-					<button class="w-full h-full tracking-widest" on:click={() => goto(ROUTES.WALLET)}>
+					<button class="w-full h-full" on:click={() => goto(ROUTES.WALLET)}>
 						<div class="flex w-full justify-between text-left">
 							<div class="pb-2">
 								<p class="text-lg font-extrabold">ETH</p>
-								<p class="text-xs tracking-normal">Your Wallet</p>
+								<p class="text-xs whitespace-nowrap text-gray-400">Your Ambos Wallet</p>
 							</div>
-							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
-								<img src="/external/eth.png" alt="ETH" class="h-5 w-5" />
+							<div
+								class="rounded-full bg-background h-6 w-6 flex items-center justify-center transform translate-y-1 translate-x-1"
+							>
+								<img src="/external/eth.png" alt="ETH" class="h-4 w-4" />
 							</div>
 						</div>
 						<div class="text-left">
@@ -83,17 +85,18 @@
 				<Card
 					variant="popover"
 					padding="base"
-					class="w-1/2 text-popover bg-cover bg-center bg-no-repeat shadow-xl shadow-white bg-blend-darken tracking-widest"
-					style="background-image: url('backgrounds/card-dashboard-stable.png');"
+					class="w-1/2 text-popover shadow-xl shadow-white bg-blend-darken  card-stablecoin-image-darken"
 				>
-					<button class="w-full h-full tracking-widest" on:click={() => goto(ROUTES.WALLET)}>
+					<button class="w-full h-full" on:click={() => goto(ROUTES.WALLET)}>
 						<div class="flex justify-between text-left">
 							<div class="pb-2">
 								<p class="text-lg font-extrabold">USDC</p>
-								<p class="text-xs tracking-normal">Your Wallet</p>
+								<p class="text-xs whitespace-nowrap text-gray-400">Your Ambos Wallet</p>
 							</div>
-							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
-								<img src="/external/usdc.png" alt="USDC" class="h-7 w-7" />
+							<div
+								class="rounded-full bg-background h-6 w-6 flex items-center justify-center transform translate-y-1 translate-x-1"
+							>
+								<img src="/external/usdc.png" alt="USDC" class="h-4 w-4" />
 							</div>
 						</div>
 						<div class="w-full text-left">
@@ -112,7 +115,7 @@
 					<div class="flex items-center justify-between pb-2 w-full">
 						<div class="flex gap-2 items-center justify-start">
 							<LockIcon class="text-muted-foreground h-4 w-4" />
-							<p class="font-bold tracking-widest pt-1">Supplied</p>
+							<p class="font-bold pt-1">Supplied</p>
 						</div>
 						<TooltipIcon text={TOOLTIPS.ETH_SUPPLIED} />
 					</div>
@@ -152,7 +155,7 @@
 					<div class="flex justify-between items-center">
 						<div class="flex gap-1 items-center justify-start">
 							<CreditCardIcon class="text-muted-foreground h-4 w-4" />
-							<p class="tracking-widest font-bold pt-[1.5px]">Borrowed</p>
+							<p class=" font-bold pt-[1.5px]">Borrowed</p>
 						</div>
 						<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
 					</div>
