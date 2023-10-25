@@ -71,7 +71,8 @@
 					{/if}
 				</div>
 			</UsdcWalletCard>
-			<Ramp class="border-0 h-[600px] w-full" {options} direction="sell" />
+			<Ramp class="border-0 h-[470px] w-full" {options} direction="sell" />
 		</Card>
+		<div class="h-72" />
 	</div>
 </BaseScreen>
