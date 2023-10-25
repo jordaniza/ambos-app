@@ -12,6 +12,7 @@
 	import { onDestroy } from 'svelte';
 
 	export let transferred: number;
+	export let toBeTransferred: number;
 
 	let manualWalletExchange = ['Manual', 'Wallet', 'Exchange'];
 	let manualWalletExchangeIndex = 0;
@@ -105,6 +106,6 @@
 
 		<!-- BUY ETH -->
 	{:else if useBuy}
-		<Buy />
+		<Buy quantity={toBeTransferred} />
 	{/if}
 {/if}

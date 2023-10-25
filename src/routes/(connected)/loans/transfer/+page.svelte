@@ -130,6 +130,6 @@
 				</div>
 			</Card>
 		</Card>
-		<Transfer bind:transferred />
+		<Transfer bind:transferred {toBeTransferred} />
 	</div>
 </BaseScreen>
