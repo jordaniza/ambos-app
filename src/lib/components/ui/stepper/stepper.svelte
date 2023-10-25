@@ -37,21 +37,7 @@
 {#if steps}
 	<div class="flex w-full">
 		{#each steps as step, i}
-			<div
-				tabindex="0"
-				on:keypress={(e) => {
-					if (e.key === 'right') {
-						const newKey = Math.max(i + 1, steps.length - 1);
-						goto(steps[newKey].route);
-					} else if (e.key === 'left') {
-						goto(steps[Math.max(i - 1, 0)].route);
-					}
-				}}
-				class="flex flex-col items-center w-full cursor-pointer"
-				role="button"
-				on:click={() => goto(step.route)}
-				aria-label="clickable stepper"
-			>
+			<div class="flex flex-col items-center w-full">
 				<div class="relative w-full flex items-center justify-center">
 					<div
 						class={'z-10 flex justify-center items-center rounded-full bg-background ' +

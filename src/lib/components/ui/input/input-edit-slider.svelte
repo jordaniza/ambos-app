@@ -13,7 +13,7 @@
 	export let showMax = false;
 	export let maxFormatter: (max: number) => string = (max) => max.toString();
 
-	function setShowRange() {
+	function edit() {
 		showRange = true;
 	}
 
@@ -28,7 +28,7 @@
 		{#if !showRange}<Button
 				variant="link"
 				class="no-underline text-sm font-bold tracking-widest"
-				on:click={setShowRange}>Edit</Button
+				on:click={edit}>Edit</Button
 			>
 		{/if}
 	</div>
@@ -46,7 +46,7 @@
 	/>
 	<div class="flex justify-between items-center py-2 w-full">
 		<slot name="below-input-left"><div /></slot>
-		{#if showMax}
+		{#if showMax && showRange}
 			<button on:click={setMax} class="flex gap-1 text-xs">
 				<p class="font-bold">Max:</p>
 				<p class="underline underline-offset-1.5">{maxFormatter(max)}</p>

@@ -18,7 +18,6 @@
 	const key = LOCAL_STORAGE_KEYS.WELCOME_DIALOG;
 
 	function closeWelcomeDialog() {
-		console.log('closeWelcomeDialog');
 		welcomeDialog = false;
 	}
 

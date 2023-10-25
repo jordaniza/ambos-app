@@ -51,7 +51,6 @@
 
 	// when the user clicks away from the input, we want to show the formatted value
 	function onBlur(): void {
-		console.log('onBlur', { tempValue, parsed: parseFloat(tempValue) });
 		data.raw = parseFloat(tempValue) || 0; // Convert the string value back to a float
 		value = data.raw; // Update the depositValue based on input
 		data.formatted = formatter(data.raw);

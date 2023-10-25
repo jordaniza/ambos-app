@@ -2,7 +2,7 @@ import { ChainId } from '@biconomy/core-types';
 import type { EthereumAddress } from './utils';
 
 export const MAX_BORROW_PERCENTAGE = 50;
-export const AMBOS_BORROW_FEE_PERCENT = 2;
+export const AMBOS_BORROW_FEE_PERCENT = 1;
 
 export const APP_NAME = 'Ambos Finance';
 export const DISCOVER_AMBOS = 'https://docs.ambos.finance';

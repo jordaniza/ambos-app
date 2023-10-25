@@ -134,7 +134,7 @@
 					showRange={true}
 					step={0.01}
 					bind:value={ethSupplyQty}
-					formatter={() => `${e(ethSupplyQty)} ETH`}
+					formatter={() => `${ethSupplyQty} ETH`}
 				>
 					<div slot="below-input-left" class="text-xs flex justify-between">
 						<div class="flex gap-1">

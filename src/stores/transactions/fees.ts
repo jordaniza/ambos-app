@@ -8,7 +8,7 @@ import {
 	type IHybridPaymaster,
 	type SponsorUserOperationDto
 } from '@biconomy/paymaster';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { getFeeCollector } from './batchActions';
 import type { EthereumAddress } from '$lib/utils';
 import type { TSupportedTokens } from '$lib/contracts';
@@ -120,10 +120,7 @@ export async function getTransferFeeQuoteEth({
 	const wethFeeQuote = await getFeeQuoteInWETH(usdcFeeQuote.small);
 
 	if (!wethFeeQuote) throw new Error('no weth fee quote');
-	console.log({
-		wethFeeQuote,
-		usdcFeeQuote
-	});
+
 	return {
 		small: Number(wethFeeQuote),
 		big: ethers.utils.parseUnits(wethFeeQuote, 18),
@@ -189,11 +186,6 @@ function truncateAndRound(value: string, units: number): string {
 	let [whole, decimal] = value.split('.');
 	if (decimal && decimal.length > units) {
 		decimal = decimal.slice(0, units);
-		// let roundUp = Number(decimal.slice(units - 1, units)) >= 5;
-		// if (roundUp) {
-		// 	decimal = (Number(decimal) + 1).toString();
-		// }
-		console.log('TRUNCATED', value, `${whole}.${decimal}`);
 		return `${whole}.${decimal}`;
 	}
 	return value;

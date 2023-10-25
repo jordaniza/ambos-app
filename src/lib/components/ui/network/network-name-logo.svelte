@@ -16,5 +16,5 @@
 	<div class="flex items-center justify-end gap-2">
 		<NetworkNames />
 		<TooltipIcon text={TOOLTIPS.NETWORK} />
-	</div></Card
->
+	</div>
+</Card>

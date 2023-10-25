@@ -168,7 +168,7 @@
 				showMax={true}
 				maxFormatter={formatETHValue}
 				step={0.01}
-				formatter={() => formatETHValue(ethSupply)}
+				formatter={() => `${ethSupply} ETH`}
 			>
 				<div slot="below-input-left" class="text-xs flex justify-between">
 					<div class="flex gap-1">

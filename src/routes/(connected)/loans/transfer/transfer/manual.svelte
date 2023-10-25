@@ -7,11 +7,15 @@
 	import { getAccountStore } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { AMBOS_FAQ, NETWORKS_AND_BRIDGING, WHAT_IS_AAVE } from '$lib/constants';
+	import { AMBOS_FAQ, NETWORKS_AND_BRIDGING } from '$lib/constants';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 
-	export let verifying: boolean;
+	// show the verification spinner
+	export let showVerification: boolean;
+
+	// behind the scenes, the verification process is started
+	export let startVerification: boolean;
 
 	let accountStore = getAccountStore();
 	let canvas: HTMLCanvasElement;
@@ -21,7 +25,7 @@
 
 	const setVerifying = () => {
 		checked = false;
-		verifying = true;
+		showVerification = true;
 	};
 
 	let checked: boolean = false;
@@ -41,6 +45,7 @@
 
 	function handleClick() {
 		hasReadNetworkPrimer = true;
+		startVerification = true;
 		setTimeout(() => (canvas = document.getElementById('canvas') as HTMLCanvasElement), 0);
 	}
 
@@ -48,6 +53,8 @@
 		canvas = document.getElementById('canvas') as HTMLCanvasElement;
 	});
 </script>
+
+<!-- Address viewerr -->
 
 {#if hasReadNetworkPrimer}
 	<Card class="flex flex-col gap-3 items-center justify-between px-3 py-2 text-sm text-center">
@@ -96,6 +103,8 @@
 			></Button
 		>
 	</div>
+
+	<!-- Network Primer -->
 {:else}
 	<Card class=" px-4 py-4 text-center rounded-xl flex flex-col gap-3 text-sm">
 		<p class="text-destructive font-bold">🛑 Network Confirmation Required! 🛑</p>
