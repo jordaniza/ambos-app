@@ -2,7 +2,6 @@
 	import Range from '$lib/components/range/range.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import FormatInput from '$lib/components/ui/input/formatInput.svelte';
-	import TooltipIcon from '../tooltip/tooltip-icon.svelte';
 
 	export let title: string;
 	export let max: number;

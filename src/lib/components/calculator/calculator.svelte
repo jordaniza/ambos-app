@@ -167,7 +167,7 @@
 				</InputEditSlider>
 
 				{#if showDepositWarning}
-					<p class="text-xs text-destructive">Increase the ETH deposit to borrow more</p>
+					<p class="text-xs text-secondary">Increase the ETH deposit if you want to borrow more</p>
 				{/if}
 			</div>
 			<!-- Stats -->

@@ -71,6 +71,9 @@
 		if (state === 'SIGNED') {
 			setSupplyEth(txStore, 0);
 			setBorrowUsd(txStore, 0);
+			checked = false;
+			ethSupply = 0;
+			borrowAmount = 0;
 		}
 	}
 
@@ -134,7 +137,7 @@
 		slot="background"
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
-	<div slot="header" class="pb-5">
+	<div slot="header" class="pb-5 w-full">
 		<BackButton backTo={ROUTES.LOANS_V2_TRANSFER} />
 		<div class="pt-5 px-4">
 			<h1 class="font-extrabold text-2xl pb-3">Review Your Loan Details</h1>

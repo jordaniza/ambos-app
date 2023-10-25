@@ -106,8 +106,9 @@
 								>Use Wallet Amount</Button
 							>
 						{:else}
-							<p class="text-destructive text-sm">
-								Not enough ETH for your deposit, please transfer {e(toBeTransferred)} more.
+							<p class="text-secondary text-sm">
+								We need to transfer {e(toBeTransferred)} ETH to your wallet to continue with your loan.
+								Please use one of the transfer or buy options below.
 							</p>
 						{/if}
 					</div>
