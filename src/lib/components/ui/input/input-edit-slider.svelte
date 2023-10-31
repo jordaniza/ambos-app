@@ -23,13 +23,13 @@
 	}
 </script>
 
-<div>
+<div class="text-sm md:text-base">
 	<div class="flex w-full justify-between items-center font-extrabold">
-		<p class="text-sm font-extrabold pb-2">{title}</p>
+		<p class="font-extrabold pb-2">{title}</p>
 		<div class="flex items-center justify-end">
 			{#if allowEdit && !showRange}<Button
 					variant="link"
-					class="no-underline text-sm font-bold -mx-2 "
+					class="no-underline font-bold -mx-2 "
 					on:click={edit}>Edit</Button
 				>
 			{/if}
@@ -46,12 +46,12 @@
 		disabled={!showRange}
 		class="
             border-[1px] rounded-xl border-secondary text-center py-2
-            bg-popover shadow-md font-bold w-full text-sm"
+            bg-popover shadow-md font-bold w-full "
 	/>
 	<div class="flex justify-between items-center py-2 w-full">
 		<slot name="below-input-left"><div /></slot>
 		{#if showMax && showRange}
-			<button on:click={setMax} class="flex gap-1 text-xs">
+			<button on:click={setMax} class="flex gap-1 text-xs md:text-sm">
 				<p class="font-bold">Max:</p>
 				<p class="underline underline-offset-1.5">{maxFormatter(max)}</p>
 			</button>

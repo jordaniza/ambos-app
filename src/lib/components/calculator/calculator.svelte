@@ -46,10 +46,16 @@
 	let accountStore = getAccountStore();
 	let estimatedNetworkFee = 0.01;
 
-	// Computed values
+	// store
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
-	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
+	$: smartAccount = $accountStore.smartAccount;
+	$: provider = $accountStore.provider;
+	$: savedEthToSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
+	$: savedUSDToBorrow = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+
+	// Computed values
+	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
 	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmountUSD, maxLTV);
 	$: minDepositValue = getMinimumDepositValue(liquidationPrice, ethSupplyQty);
 	$: depositUSDValue = getEthValue(ethSupplyQty, ethPrice);
@@ -72,11 +78,7 @@
 	$: loanVsSell = afterRepayment - ethRemainingIfUserHadSold;
 	$: totalFees = ambosFee + estimatedNetworkFee;
 	$: liquidated = liquidationPrice >= newEthPrice;
-	$: smartAccount = $accountStore.smartAccount;
-	$: provider = $accountStore.provider;
 	$: showDepositWarning = borrowAmountUSD === maxBorrow && ethSupplyQty < ethMaxValue;
-	$: savedEthToSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
-	$: savedUSDToBorrow = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	$: isDisabled = ethSupplyQty === 0 || borrowAmountUSD === 0;
 
 	$: {
