@@ -10,6 +10,7 @@
 	import { AMBOS_FAQ, NETWORKS_AND_BRIDGING } from '$lib/constants';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
+	import * as Accordion from '$lib/components/ui/accordion';
 
 	// show the verification spinner
 	export let showVerification: boolean;
@@ -19,7 +20,8 @@
 
 	let accountStore = getAccountStore();
 	let canvas: HTMLCanvasElement;
-	let hasReadNetworkPrimer = false;
+	let accordionOpen: boolean;
+	let padding = 'py-2';
 
 	$: address = $accountStore.address ?? '0x...';
 	$: blurClass = checked ? ' blur-none ' : ' blur-sm ';
@@ -44,10 +46,23 @@
 		}
 	}
 
-	function handleClick() {
-		hasReadNetworkPrimer = true;
-		startVerification = true;
-		setTimeout(() => (canvas = document.getElementById('canvas') as HTMLCanvasElement), 0);
+	$: {
+		if (checked) {
+			startVerification = true;
+			setTimeout(() => (canvas = document.getElementById('canvas') as HTMLCanvasElement), 0);
+		}
+	}
+
+	function onValueChange(value: string | string[] | undefined) {
+		if (value === '0') {
+			if (!accordionOpen) {
+				padding = 'py-4';
+				accordionOpen = true;
+			}
+		} else {
+			padding = 'py-2';
+			accordionOpen = false;
+		}
 	}
 
 	onMount(() => {
@@ -57,22 +72,49 @@
 
 <!-- Address viewerr -->
 
-{#if hasReadNetworkPrimer}
-	<Card class="flex flex-col gap-3 items-center justify-between px-3 py-2 text-sm text-center">
-		<p class="w-full font-bold text-destructive">Network Caution!</p>
-		<p class="w-full">
-			Ensure you send ETH to the correct network to avoid irreversible loss of funds!
-		</p>
-		<div class="flex items-center space-x-2 pb-2">
-			<Label
-				for="terms"
-				class="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-			>
-				I acknowledge the network details.
-			</Label>
-			<Checkbox id="terms" bind:checked />
-		</div>
+<Card class="flex flex-col gap-3 items-center justify-between px-3 py-4 text-sm text-center">
+	<p class="text-destructive font-bold">🛑 Network Confirmation Required! 🛑</p>
+	<div class="w-full">
+		<NetworkNameLogo />
+	</div>
+
+	<Card variant="popover" padding="base" class={'w-full shadow-none ' + padding}>
+		<Accordion.Root class="w-full items-center " {onValueChange}>
+			<Accordion.Item class="px-3 text-left" value={'0'}>
+				<Accordion.Trigger class="font-bold text-center">What is a Network?</Accordion.Trigger>
+				<Accordion.Content class="pt-5 ">
+					<div class="flex flex-col gap-3">
+						<p>
+							A single cryptocurrency can exist on a variety of networks, it's crucial to only send
+							assets to and from the correct one.
+						</p>
+						<button class="font-bold text-secondary underline">
+							<a href={NETWORKS_AND_BRIDGING} target="_blank"> Learn More</a></button
+						>
+						<p>
+							<b>Sending {'WETH'} from the wrong network can result in irreversible loss!</b>
+							<br /><br />Double check that you are only sending {'WETH'} on the
+							<span class="inline-block"><NetworkNames /></span> network. Always ensure that the address
+							you are sending crypto to fully matches the one displayed in the app.
+						</p>
+					</div>
+				</Accordion.Content>
+			</Accordion.Item>
+		</Accordion.Root>
 	</Card>
+
+	<p class="w-full">
+		Ensure you send ETH to the correct network to avoid irreversible loss of funds!
+	</p>
+	<div class="flex items-center space-x-2 pb-2">
+		<Label
+			for="terms"
+			class="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+		>
+			I acknowledge the network details.
+		</Label>
+		<Checkbox id="terms" bind:checked />
+	</div>
 
 	<div class="text-center flex flex-col gap-3 items-center">
 		<p class="font-bold">Your Ambos Wallet Address</p>
@@ -95,7 +137,7 @@
 				or
 			</p>
 		</div>
-		<canvas id="canvas" class={blurClass + ' h-32 w-32 blur-sm'}>Scan QR Code</canvas>
+		<canvas id="canvas" class={blurClass + ' h-32 w-32 '}>Scan QR Code</canvas>
 		<Button disabled={!checked} class="w-11/12 rounded-lg" on:click={setVerifying}
 			>Verify Sent ETH</Button
 		>
@@ -105,26 +147,4 @@
 			></Button
 		>
 	</div>
-
-	<!-- Network Primer -->
-{:else}
-	<Card class=" px-4 py-4 text-center rounded-xl flex flex-col gap-3 text-sm">
-		<p class="text-destructive font-bold">🛑 Network Confirmation Required! 🛑</p>
-		<NetworkNameLogo />
-		<p class="font-bold">What is a Network</p>
-		<p>
-			A single cryptocurrency can exist on a variety of networks, it's crucial to only send assets
-			to and from the correct one.
-		</p>
-		<button class="font-bold text-secondary underline">
-			<a href={NETWORKS_AND_BRIDGING} target="_blank"> Learn More</a></button
-		>
-		<p>
-			<b>Sending {'WETH'} from the wrong network can result in irreversible loss!</b> <br /><br
-			/>Double check that you are only sending {'WETH'} on the
-			<span class="inline-block"><NetworkNames /></span> network. Always ensure that the address you
-			are sending crypto to fully matches the one displayed in the app.
-		</p>
-		<Button class="w-full" on:click={handleClick}>I understand</Button>
-	</Card>
-{/if}
+</Card>

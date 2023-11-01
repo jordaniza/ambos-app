@@ -20,7 +20,7 @@
 
 	$: aWethBalance = $web3Store.balances['aWETH'].small ?? 0;
 	$: liquidationThreshold = $web3Store.userPoolData?.currentLiquidationThreshold.small ?? 0;
-	$: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0;
+	$: variableRateIR = $web3Store.poolReserveData?.['USDC'].variableBorrowingRate.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(owedUSD, aWethBalance, liquidationThreshold);
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
@@ -212,7 +212,7 @@
 						<img
 							src="/illustrations/how-ambos-works.png"
 							alt="How Ambos Works"
-							class="rounded-full h-12 w-12 overflow-visible -top-5 absolute"
+							class="rounded-full h-12 w-12 overflow-visible overflow-important -top-5 absolute"
 						/>
 						<p class="text-center pt-6">How Ambos works</p>
 						<Button variant="outline" class="w-full">

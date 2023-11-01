@@ -49,8 +49,9 @@
 	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
 	$: totalBorrow = borrowAmount + estimatedNetworkFee + getAmbosFee(borrowAmount);
 
-	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: maxLTV = $web3Store.poolReserveData['WETH'].ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
+	$: interestRate = ($web3Store.poolReserveData['USDC'].variableBorrowingRate.small ?? 0) * 100;
 
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
@@ -202,6 +203,15 @@
 			</div>
 
 			<FeesAndCharges bind:borrowAmountUSD={borrowAmount} />
+
+			<div
+				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
+			>
+				<p class="font-bold">Interest Rate</p>
+				<div class="flex gap-2 justify-end items-center">
+					<p>{pc(interestRate)}</p>
+				</div>
+			</div>
 
 			<!-- Total Borrow -->
 			<div class="flex flex-col gap-2 py-3">

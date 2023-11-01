@@ -12,6 +12,10 @@ const config = {
 			}
 		},
 		extend: {
+			// iOS Safe Area added to bottom of footer
+			spacing: {
+				'safe-bottom': 'env(safe-area-inset-bottom)'
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

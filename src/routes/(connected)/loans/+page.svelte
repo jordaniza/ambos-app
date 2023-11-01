@@ -17,7 +17,7 @@
 	let openRepay = false;
 	let web3Store = getWeb3Store();
 
-	$: interestRate = $web3Store.poolReserveData.variableBorrowingRate.small ?? 0;
+	$: interestRate = ($web3Store.poolReserveData['USDC'].variableBorrowingRate.small ?? 0) * 100;
 	$: borrowed = $web3Store.userPoolData.totalDebtBase.small ?? 0;
 	$: supplied = $web3Store.balances['aWETH'].small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;

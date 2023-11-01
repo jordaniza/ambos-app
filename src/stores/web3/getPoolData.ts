@@ -1,8 +1,8 @@
 import { AavePool__factory, AaveProtocolDataProvider__factory } from '$lib/abis/ts';
-import { ADDRESSES } from '$lib/contracts';
+import { ADDRESSES, type TSupportedTokens } from '$lib/contracts';
 import type { EthereumAddress } from '$lib/utils';
 import { BigNumber, ethers } from 'ethers';
-import { handleError, type web3Store } from '.';
+import { handleError, type PoolReserveDataTokens, type web3Store } from '.';
 import { BASE_CURRENCY_DECIMALS, LTV_DECIMALS, RAY_DECIMALS } from '$lib/constants';
 import type { AppProvider } from '$stores/account';
 
@@ -113,10 +113,12 @@ function setPoolDataReserve(
 	store: typeof web3Store,
 	{
 		reserveData,
-		reserveConfigData
+		reserveConfigData,
+		token
 	}: {
 		reserveData: PoolReserveData;
 		reserveConfigData: PoolReserveConfigData;
+		token: PoolReserveDataTokens;
 	},
 	blockNumber: number
 ) {
@@ -136,28 +138,43 @@ function setPoolDataReserve(
 			return s;
 		}
 
-		s.poolReserveData = newPoolReserveData;
+		s.poolReserveData[token] = newPoolReserveData;
 		return s;
 	});
 }
 
 export async function getSetPoolData(
 	userAddress: EthereumAddress,
-	reserveTokenAddress: EthereumAddress,
+	reserveTokens: PoolReserveTokensReturn,
 	provider: AppProvider,
 	store: typeof web3Store,
 	blockNumber: number
 ) {
 	try {
-		const [userPoolData, poolReserveData] = await Promise.all([
+		const [userPoolData, poolReserveDataWETH, poolReserveDataUSDC] = await Promise.all([
 			getPoolUserAccountData(userAddress, provider),
-			getPoolReserveAndConfigData(reserveTokenAddress, provider)
+			getPoolReserveAndConfigData(reserveTokens['WETH'], provider),
+			getPoolReserveAndConfigData(reserveTokens['USDC'], provider)
 		]);
 		setPoolDataUser(store, userPoolData, blockNumber);
-		setPoolDataReserve(store, poolReserveData, blockNumber);
+		setPoolDataReserve(store, { token: 'WETH', ...poolReserveDataWETH }, blockNumber);
+		setPoolDataReserve(store, { token: 'USDC', ...poolReserveDataUSDC }, blockNumber);
 	} catch (e) {
 		handleError(store, e as Error, 'getSetPoolData error');
 	}
+}
+
+type PoolReserveTokensReturn = {
+	[key in PoolReserveDataTokens]: EthereumAddress;
+};
+export function getReserveTokens(chainId: number): PoolReserveTokensReturn {
+	const WETH = ADDRESSES[chainId]['WETH'];
+	const USDC = ADDRESSES[chainId]['USDC'];
+
+	if (!WETH || !USDC) {
+		throw new Error(`Reserve tokens not supported on chain ${chainId}`);
+	}
+	return { WETH, USDC };
 }
 
 export async function watchPoolData(
@@ -167,12 +184,12 @@ export async function watchPoolData(
 	interval: number
 ): Promise<void> {
 	const chainId = (await provider.getNetwork()).chainId;
-	const reserveTokenAddress = ADDRESSES[chainId]['WETH'];
+	const reserveTokens = getReserveTokens(chainId);
 	const currentBlock = await provider.getBlockNumber();
-	await getSetPoolData(userAddress, reserveTokenAddress, provider, store, currentBlock);
+	await getSetPoolData(userAddress, reserveTokens, provider, store, currentBlock);
 	provider.on('block', async (blockNumber) => {
 		if (blockNumber % interval === 0) {
-			await getSetPoolData(userAddress, reserveTokenAddress, provider, store, blockNumber);
+			await getSetPoolData(userAddress, reserveTokens, provider, store, blockNumber);
 		}
 	});
 }

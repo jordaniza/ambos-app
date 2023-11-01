@@ -40,7 +40,6 @@
 	let borrowAmountUSD = 1000;
 	let ethPriceChangeWholePc = 20; // Initial value
 	let newEthPrice = 0;
-	let interestRate = 0.05; // 5%
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
 	let accountStore = getAccountStore();
@@ -49,7 +48,7 @@
 	// Computed values
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 	$: maxBorrow = getMaxBorrow(ethSupplyQty, ethPrice);
-	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: maxLTV = $web3Store.poolReserveData['WETH'].ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(ethSupplyQty, borrowAmountUSD, maxLTV);
 	$: minDepositValue = getMinimumDepositValue(liquidationPrice, ethSupplyQty);
 	$: depositUSDValue = getEthValue(ethSupplyQty, ethPrice);
@@ -78,6 +77,7 @@
 	$: savedEthToSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
 	$: savedUSDToBorrow = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	$: isDisabled = ethSupplyQty === 0 || borrowAmountUSD === 0;
+	$: interestRate = ($web3Store.poolReserveData['USDC'].variableBorrowingRate.small ?? 0) * 100;
 
 	$: {
 		if (borrowAmountUSD > maxBorrow) {
