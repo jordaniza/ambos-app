@@ -16,6 +16,7 @@
 	import Counter from '$lib/components/ui/counter/counter.svelte';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
+	import EthWalletCard from '$lib/components/wallet-cards/eth-wallet-card.svelte';
 
 	// bound to the transfer component to trigger the animation
 	let transferred: number;
@@ -69,31 +70,13 @@
 			<Card class="bg-popover p-4 flex flex-col gap-4">
 				<!-- ETH Summary -->
 
-				<Card
-					class="p-6 text-popover bg-[url('/backgrounds/card.png')] rounded-3xl flex flex-col gap"
-				>
-					<div class="w-full flex justify-between">
-						<div class=" rounded-xl">
-							<p class="font-extrabold text-lg">ETH</p>
-							<p class="text-sm font-extralight text-muted-foreground">Your Ambos Wallet</p>
-						</div>
-						<div class="flex flex-col items-end h-full justify-between">
-							<div class="h-10 w-10 bg-popover p-2 rounded-full flex items-center justify-center">
-								<img src="/external/eth.png" alt="ETH" class="h-6 w-6" />
-							</div>
-						</div>
+				<EthWalletCard>
+					<div slot="trigger-right" class="flex items-center justify-center">
+						{#if showNewETH}
+							<Counter class="text-secondary pt-2 text-xl" target={transferred} {formatter} />
+						{/if}
 					</div>
-					<div class="w-full flex justify-between items-center">
-						<p class="text-2xl">{e(ethBalance)} ETH</p>
-						<Counter
-							show={showNewETH}
-							class={'font-xl text-primary transition-opacity duration-300 ' +
-								(showNewETH ? ' opacity-100' : ' opacity-0')}
-							{formatter}
-							target={transferred}
-						/>
-					</div>
-				</Card>
+				</EthWalletCard>
 
 				<!-- Transfer Widget -->
 				<div class="flex flex-col gap-3">

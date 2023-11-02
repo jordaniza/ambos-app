@@ -16,7 +16,7 @@
 </script>
 
 <!-- Shadow effect behind the images, ngl just asked GPT to do this -->
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="absolute">
 	<filter id="svg-shadow" x="-50%" y="-50%" width="200%" height="200%">
 		<feGaussianBlur in="SourceAlpha" stdDeviation="50" />
 		<feOffset dx="0" dy="0" result="offsetblur" />
@@ -28,12 +28,12 @@
 
 <div class="h-full flex-col relative">
 	<!-- title bar -->
-	<div class="flex justify-between p-4">
+	<div class="flex justify-between p-4 absolute top-0 w-full z-10">
 		<h1>{welcomeSteps[currentPageIndex ?? 0].title}</h1>
 		<button class="text-primary" on:click={goToDashboard}>Skip →</button>
 	</div>
 
-	<div class="h-[90%] w-full pb-5">
+	<div class="h-full w-full pb-5 flex flex-col justify-center items-center">
 		<!-- carousel -->
 		{#if browser}
 			<Carousel

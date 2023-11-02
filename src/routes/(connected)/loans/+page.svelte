@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { e, f, getBarColor, getLiquidationPrice, pc } from '$lib/utils';
+	import { e, f, getBarColor, getLiquidationPrice, getTextColor, pc } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, GemIcon, LockIcon, ReceiptIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -28,7 +28,7 @@
 	$: barWidth = loanLQPercentage * 100;
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
 	$: borrowText = borrowed > 0 ? 'Borrow More' : 'Start Borrowing';
-	$: liquidationRiskTextColor = getLiquidationColor(barWidth);
+	$: liquidationRiskTextColor = getTextColor(barWidth);
 
 	function getLoanLiquidationPercentage(borrowed: number, supplied: number, maxLTV: number) {
 		if (borrowed === 0 || maxLTV === 0) return 0;
@@ -36,21 +36,6 @@
 		const borrowedOutOfSupplied = borrowed / supplied;
 		// now we need that as a percentage of the maxLTV
 		return borrowedOutOfSupplied / maxLTV;
-	}
-
-	function getLiquidationColor(barWidth: number): string {
-		switch (true) {
-			case barWidth > 75:
-				return 'text-destructive';
-			case barWidth > 60:
-				return 'text-orange-500';
-			case barWidth > 50:
-				return 'text-yellow-600';
-			case barWidth > 25:
-				return 'text-green-300';
-			default:
-				return 'text-primary';
-		}
 	}
 
 	function getLiquidationStatus(liquidationPercentage: number): string {
@@ -143,7 +128,6 @@
 						<p class="text-sm">{f(borrowed)}</p>
 					</div>
 				</div>
-				<Separator />
 				<div class="flex justify-between items-center">
 					<p>Interest Rate</p>
 					<p>{pc(interestRate)}</p>
@@ -181,8 +165,11 @@
 				<div class="flex flex-col items-start -mb-2">
 					<p class="text-xs text-muted-foreground">
 						Keep maintaining a healthy LTV to avoid liquidation, monitor your loan regularly.
+
+						<Button variant="link" class="text-left text-xs px-0 inline-block pl-1"
+							>Learn More</Button
+						>
 					</p>
-					<Button variant="link" class="text-left text-xs px-0">Learn More</Button>
 				</div>
 			</Card>
 			<!-- Repay Loan -->

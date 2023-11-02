@@ -11,13 +11,20 @@ export const N = (n: BigNumberish) => ethers.utils.formatEther(n);
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
-const { format } = new Intl.NumberFormat('en-US', {
+const formatter = new Intl.NumberFormat('en-US', {
 	style: 'currency',
-	currency: 'USD'
+	currency: 'USD',
+	currencyDisplay: 'code', // This will use the currency code 'USD'
+	minimumFractionDigits: 2 // Ensures decimal places are always shown
 });
 
-// apply default usd formatting
-export const f = (n: number) => (n > 0 && n < 0.01 ? '<$0.01' : format(n));
+export const f = (n: number) => {
+	if (n > 0 && n < 0.01) {
+		return '<$0.01';
+	}
+	// Replace 'USD' with '$' including the space
+	return formatter.format(n).replace('USD', '$');
+};
 
 // eth formatting
 export const e = (n: number) => (n > 1 ? n.toFixed(2) : n.toFixed(4));
@@ -104,6 +111,21 @@ export function getBarColor(barWidth: number): string {
 			return 'bg-green-300';
 		default:
 			return 'bg-primary';
+	}
+}
+
+export function getTextColor(barWidth: number): string {
+	switch (true) {
+		case barWidth > 75:
+			return 'text-destructive';
+		case barWidth > 60:
+			return 'text-orange-500';
+		case barWidth > 50:
+			return 'text-yellow-500';
+		case barWidth > 25:
+			return 'text-green-500';
+		default:
+			return 'text-primary';
 	}
 }
 

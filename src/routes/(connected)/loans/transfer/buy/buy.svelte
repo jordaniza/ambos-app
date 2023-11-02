@@ -7,7 +7,7 @@
 
 <Card class="bg-popover p-4 rounded-xl flex flex-col items-center gap-3">
 	<OnRamp
-		class="border-0 h-[500px] w-full"
+		class="border-0 h-[550px] w-full"
 		direction="buy"
 		options={{
 			defaultCryptoAmount: quantity

@@ -244,7 +244,7 @@
 							<p>{f(borrowAmountUSD)}</p>
 						</div>
 						<div class="flex justify-between">
-							<p class="font-bold">Supplied ETH is Worth</p>
+							<p class="font-bold">Deposited ETH is Worth</p>
 							<p>{f(newEthValue)}</p>
 						</div>
 						<div class="flex justify-between">

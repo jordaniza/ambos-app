@@ -65,9 +65,9 @@
 	<div slot="card">
 		<div class="transform -translate-y-44 flex w-full items-center flex-col gap-4 p-4">
 			<!-- Debit Card -->
-			<div class="flex w-[350px] items-center justify-center text-popover">
+			<div class="flex w-80 items-center justify-center text-popover">
 				<div
-					class="bg-cover w-full bg-center bg-no-repeat rounded-3xl shadow-xl shadow-popover p-4 pr-2"
+					class="bg-cover w-full bg-center bg-no-repeat rounded-3xl shadow-xl shadow-popover pb-4 pt-2 pl-5 pr-2"
 					style="background-image: url('backgrounds/card.png');"
 				>
 					<div class="flex w-full justify-between items-center gap-2">
@@ -90,6 +90,7 @@
 						<Button
 							on:click={triggers.withdraw}
 							disabled={!address}
+							variant="secondary"
 							class="py-0 text-sm h-8 rounded-lg w-1/3">Withdraw</Button
 						>
 					</div>
@@ -105,6 +106,13 @@
 					<TooltipIcon text={TOOLTIPS.WALLET_HOLDINGS} />
 				</div>
 				<!-- Eth -->
+				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
+					<p class="font-bold">Network</p>
+					<div class="flex items-center justify-end gap-2">
+						<NetworkNames />
+						<TooltipIcon text={TOOLTIPS.NETWORK} />
+					</div>
+				</Card>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex items-center gap-2">
 						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
@@ -117,19 +125,12 @@
 							</div>
 						</div>
 					</div>
-					<div>
+					<div class="flex flex-col items-end">
 						<p class="font-bold">{e(ethBalance)} ETH</p>
 						<p class="text-sm">{f(ethBalanceUSD)}</p>
 					</div>
 				</div>
-				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
-					<p class="font-bold">Network</p>
-					<div class="flex items-center justify-end gap-2">
-						<NetworkNames />
-						<TooltipIcon text={TOOLTIPS.NETWORK} />
-					</div>
-				</Card>
-				<Separator class="my-1 w-[95%] transform translate-x-[2.5%]" />
+				<Separator />
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex items-center gap-2">
 						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
@@ -140,17 +141,11 @@
 						</div>
 					</div>
 					<div class="text-end">
-						<p class="font-bold">{usdcBalance} USDC</p>
+						<p class="font-bold">{usdcBalance.toFixed(2)} USDC</p>
 						<p class="text-sm">{f(usdcBalance)}</p>
 					</div>
 				</div>
-				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
-					<p class="font-bold">Network</p>
-					<div class="flex items-center justify-end gap-2">
-						<NetworkNames />
-						<TooltipIcon text={TOOLTIPS.NETWORK} />
-					</div>
-				</Card>
+
 				<div class="flex w-full gap-3">
 					<Button on:click={triggers.buy} class="w-1/2">Buy</Button>
 					<Button

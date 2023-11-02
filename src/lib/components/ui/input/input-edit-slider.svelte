@@ -44,8 +44,8 @@
 		bind:value
 		formatter={() => formatter(...formatterArgs)}
 		disabled={!showRange}
-		class="
-            border-[1px] rounded-xl border-secondary text-center py-2
+		class="  
+            border-[1px] rounded-xl border-muted-foreground focus:outline-secondary text-center py-2
             bg-popover shadow-md font-bold w-full text-sm"
 	/>
 	<div class="flex justify-between items-center py-2 w-full">

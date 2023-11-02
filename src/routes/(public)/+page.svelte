@@ -125,7 +125,7 @@
 				<br />
 			</p>
 			{#if installationState === 'idle'}
-				<Button class="w-full sm:w-1/3 max-w-[350px]" disabled={installing} on:click={installPWA}
+				<Button class="w-full sm:w-1/3 max-w-[250px]" disabled={installing} on:click={installPWA}
 					>Install App</Button
 				>
 			{:else if installationState === 'loading'}
@@ -133,11 +133,11 @@
 			{:else if installationState === 'manual'}
 				<div class="space-y-5 text-muted-foreground -pt-5">
 					<p class="">Please install using the installation guide below:</p>
-					<div class="w-full flex flex-wrap gap-1 justify-center items-center">
-						<Button variant="secondary" class="max-w-[350px] w-full sm:w-1/3" on:click={toggleIos}
+					<div class="w-full flex flex-wrap gap-2 justify-center items-center">
+						<Button variant="secondary" class="max-w-[200px] w-full sm:w-1/3" on:click={toggleIos}
 							>iOS</Button
 						>
-						<Button class="w-full sm:w-1/3 max-w-[350px]" on:click={toggleAndroid}>Android</Button>
+						<Button class="w-full sm:w-1/3 max-w-[200px]" on:click={toggleAndroid}>Android</Button>
 					</div>
 				</div>
 			{/if}

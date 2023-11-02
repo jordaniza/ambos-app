@@ -2,11 +2,11 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import { f, e, getBarColor, getLiquidationPrice, pc } from '$lib/utils';
+	import { f, e, getBarColor, getLiquidationPrice, getTextColor } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
-	import { AFFILIATE_LINK, DISCOVER_AMBOS, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { AFFILIATE_LINK, DISCOVER_AMBOS, ROUTES } from '$lib/constants';
 	import WelcomeDialog from './welcome-dialog.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
@@ -32,6 +32,7 @@
 	$: barWidth = (liquidationPrice / ethPrice) * 100;
 	$: isSafe = barWidth < 70;
 	$: barStyle = getBarColor(barWidth) + ' rounded-full h-full';
+	$: textColor = getTextColor(barWidth);
 
 	function handleStartLoan() {
 		openEthDialog();
@@ -153,13 +154,13 @@
 					class="text-sm py-4 flex flex-col w-full justify-between gap-2"
 				>
 					<div class="flex justify-between items-center">
-						<div class="flex gap-1 items-center justify-start">
+						<div class="flex gap-2 items-center justify-start">
 							<CreditCardIcon class="text-muted-foreground h-4 w-4" />
 							<p class=" font-bold pt-[1.5px]">Borrowed</p>
 						</div>
 						<TooltipIcon text={TOOLTIPS.USD_BORROWED} />
 					</div>
-					<div class="flex w-full justify-between">
+					<div class="flex w-full justify-between pb-1">
 						<div class="flex items-center justify-center gap-2">
 							<div class="rounded-full bg-background h-10 w-10 flex items-center justify-center">
 								<DollarSign class="text-secondary stroke-2 h-7 w-7" />
@@ -171,7 +172,7 @@
 							<p class="text-xs text-muted-foreground">{owedUSD.toFixed(2)} USDC</p>
 						</div>
 					</div>
-					<Card class="rounded-xl text-xs shadow-none p-2">
+					<Card class="rounded-xl text-xs shadow-none p-2 flex flex-col gap-2">
 						<div class="flex justify-between font-bold">
 							<p>Liquidation Price</p>
 							<p>{f(liquidationPrice)}</p>
@@ -187,7 +188,7 @@
 									<div class={barStyle} style={`width: ${barWidth}%;`} />
 								</div>
 							</div>
-							<p class={isSafe ? 'text-secondary' : 'text-destructive'}>
+							<p class={textColor}>
 								{isSafe ? 'SAFE' : 'WARNING'}
 							</p>
 						</div>
@@ -239,7 +240,9 @@
 					>
 						<div>
 							<p class="text-sm font-light">Refer Rewards</p>
-							<p class="text-lg">Join the Ambos Referral Programme and Earn Rewards</p>
+							<p class="text-lg leading-tight">
+								Join the Ambos Referral Programme and Earn Rewards
+							</p>
 						</div>
 						<div>
 							<img
@@ -251,7 +254,7 @@
 					</a>
 				</button>
 			</CardContent>
-			<div class="h-72" />
+			<div class="h-36" />
 		</span>
 	</BaseScreen>
 </section>
