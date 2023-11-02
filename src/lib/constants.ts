@@ -31,7 +31,8 @@ export const ROUTES = {
 	LOANS_V2_REVIEW: '/loans/review',
 	LOANS_V2_CALCULATE: '/loans/calculator',
 	LOANS_V2_BANK_TRANSFER: '/loans/bank-transfer',
-	DOWNLOAD: '/download'
+	DOWNLOAD: '/download',
+	DISCLAIMER: '/disclaimer'
 } as const;
 
 // dont show footer on these routes

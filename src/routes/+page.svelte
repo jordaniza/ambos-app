@@ -6,7 +6,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Range from '$lib/components/range/range.svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
-	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
+	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import {
 		getEthValue,
@@ -22,6 +22,7 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { cacheFetch } from '$lib/cache';
+	import { goto } from '$app/navigation';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
@@ -83,16 +84,6 @@
 	onMount(() => {
 		tryQuoteFromCache();
 	});
-
-	const disclaimerText = `
-    This calculator is for illustrative purposes only. 
-    It is not intended to be a substitute for professional financial advice. 
-    While every attempt has been made to ensure that the calculations presented here are representative,
-    Ambos Finance does not guarantee the accuracy of the calculations or their applicability to your circumstances. 
-    
-    As always, do your own research: taking out a loan in any circumstance involves risk, and, especially in DeFi, it's important
-    to understand these risks.
-  `;
 </script>
 
 <div class="flex flex-wrap items-center w-full justify-center text-base">
@@ -109,11 +100,12 @@
 					<div class="flex w-full justify-between text-center">
 						<p class="text-base md:text-lg font-bold w-full">DeFi Lending Calculator</p>
 					</div>
-					<p class="text-center">
+					<p class="text-center px-4">
 						Estimate how much you can borrow when taking a DeFi loan on a platform like Aave,
-						Compound, Maker or Spark. <br />Want to get a USD loan for your ETH? Ambos makes DeFi
-						lending simple - try us today:
+						Compound, Maker or Spark. <br /><br />Want to get a USD loan for your ETH? Ambos makes
+						DeFi lending simple - try us today:
 					</p>
+					<Button variant="link" on:click={() => goto(ROUTES.DISCLAIMER)}>Disclaimer</Button>
 					<div class="flex flex-col gap-3 items-center justify-center">
 						<Button
 							target="_blank"
