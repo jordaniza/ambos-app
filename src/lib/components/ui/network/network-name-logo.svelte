@@ -6,7 +6,7 @@
 	import NetworkNames from './network-names.svelte';
 </script>
 
-<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
+<Card class="flex justify-between px-3 py-2 text-sm shadow-none w-full">
 	<div class="flex items-center gap-2">
 		<div class="h-8 w-8 bg-popover flex items-center justify-center rounded-full">
 			<NetworkLogos class="h-5 w-5" />

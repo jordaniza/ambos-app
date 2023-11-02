@@ -55,13 +55,9 @@
 					{/if}
 				</div>
 			</EthWalletCard>
-			<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
+			<Card class="flex justify-between w-full px-3 py-2 text-sm shadow-none">
 				<NetworkNameLogo />
-				<div class="flex items-center justify-end gap-2">
-					<p>ETH</p>
-					<TooltipIcon text={TOOLTIPS.NETWORK} />
-				</div></Card
-			>
+			</Card>
 		</Card>
 		<Card padding="base" variant="popover" class="flex flex-col gap-5 pt-4">
 			<UsdcWalletCard>
@@ -71,8 +67,8 @@
 					{/if}
 				</div>
 			</UsdcWalletCard>
-			<Ramp class="border-0 h-[550px] w-full" {options} direction="sell" />
+			<Ramp class="border-0 h-[520px] w-full" {options} direction="sell" />
 		</Card>
-		<div class="h-72" />
+		<div class="h-20" />
 	</div>
 </BaseScreen>

@@ -68,7 +68,7 @@
 						<div class="flex w-full justify-between text-left">
 							<div class="pb-2">
 								<p class="text-lg font-extrabold">ETH</p>
-								<p class="text-xs whitespace-nowrap text-gray-400">Your Ambos Wallet</p>
+								<p class="text-xs whitespace-nowrap text-popover">Your Ambos Wallet</p>
 							</div>
 							<div
 								class="rounded-full bg-background h-6 w-6 flex items-center justify-center transform translate-y-1 translate-x-1"
@@ -92,7 +92,7 @@
 						<div class="flex justify-between text-left">
 							<div class="pb-2">
 								<p class="text-lg font-extrabold">USDC</p>
-								<p class="text-xs whitespace-nowrap text-gray-400">Your Ambos Wallet</p>
+								<p class="text-xs whitespace-nowrap text-popover">Your Ambos Wallet</p>
 							</div>
 							<div
 								class="rounded-full bg-background h-6 w-6 flex items-center justify-center transform translate-y-1 translate-x-1"
@@ -199,7 +199,7 @@
 								<Receipt class="text-secondary" />
 								<p>Amount To Repay</p>
 							</div>
-							<div class="text-xs">
+							<div class="text-xs flex flex-col items-end justify-end">
 								<p class="text-end font-bold">{f(owedUSD)}</p>
 								<p>{owedUSD.toFixed()} USDC</p>
 							</div>
@@ -254,7 +254,7 @@
 					</a>
 				</button>
 			</CardContent>
-			<div class="h-36" />
+			<div class="h-24" />
 		</span>
 	</BaseScreen>
 </section>

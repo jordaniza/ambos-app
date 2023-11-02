@@ -11,7 +11,7 @@
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import RepaySelect from './(repay)/repay-select.svelte';
 	import { goto } from '$app/navigation';
-	import { ROUTES } from '$lib/constants';
+	import { LEARN_LIQUIDATIONS, ROUTES } from '$lib/constants';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 
 	let openRepay = false;
@@ -66,10 +66,11 @@
 		slot="background"
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
-	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20">
-		<h1 class="">Current Amount Borrowed</h1>
-		<h2 class="text-4xl">{f(borrowed)}</h2>
-	</div>
+
+	<span slot="header" class="-mt-4">
+		<h1 class=" pb-1">Current Amount Borrowed</h1>
+		<h2 class="text-3xl">{f(borrowed)}</h2>
+	</span>
 
 	<div slot="card">
 		<div class="transform -translate-y-16 flex flex-col gap-4 p-4">
@@ -108,7 +109,7 @@
 			<!-- Borrowed -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-2 py-4">
 				<div class="flex justify-between items-center">
-					<div class="flex gap-3 items-center justify-start">
+					<div class="flex gap-2 items-center justify-start">
 						<CreditCardIcon class="text-muted-foreground h-4 w-4" />
 						<p class=" font-bold pt-[1.5px]">Borrowed</p>
 					</div>
@@ -137,7 +138,7 @@
 			<!-- Loan Health -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-2 py-4">
 				<div class="flex justify-between items-center">
-					<div class="flex gap-3 items-center justify-start">
+					<div class="flex gap-2 items-center justify-start">
 						<GemIcon class="text-muted-foreground h-4 w-4" />
 						<p class=" font-bold pt-[1.5px]">Loan Health</p>
 					</div>
@@ -166,8 +167,8 @@
 					<p class="text-xs text-muted-foreground">
 						Keep maintaining a healthy LTV to avoid liquidation, monitor your loan regularly.
 
-						<Button variant="link" class="text-left text-xs px-0 inline-block pl-1"
-							>Learn More</Button
+						<a class="text-secondary underline pl-[1px]" href={LEARN_LIQUIDATIONS} target="_blank"
+							>Learn More</a
 						>
 					</p>
 				</div>
@@ -175,7 +176,7 @@
 			<!-- Repay Loan -->
 			<Card variant="popover" padding="base" class="flex text-sm flex-col gap-2 py-4">
 				<div class="flex justify-between items-center">
-					<div class="flex gap-3 items-center justify-start">
+					<div class="flex gap-2 items-center justify-start">
 						<ReceiptIcon class="text-muted-foreground h-4 w-4" />
 						<p class=" font-bold pt-[1.5px]">Repay Loan</p>
 					</div>

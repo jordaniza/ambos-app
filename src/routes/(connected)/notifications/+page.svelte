@@ -81,10 +81,10 @@
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/notifications.png')]"
 	/>
 	<div slot="header" class="w-full pb-20">
-		<nav class="w-full pt-4 px-4 pb-4 items-center justify-between text-popover flex gap-5">
+		<nav class="w-full pt-4 pb-4 items-center justify-between text-popover flex gap-5">
 			<BackButton />
 		</nav>
-		<p class="text-xl">Notifications</p>
+		<p class="text-xl font-bold -mt-4">Notifications</p>
 	</div>
 
 	<div slot="card">

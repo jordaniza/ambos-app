@@ -5,6 +5,7 @@ export const MAX_BORROW_PERCENTAGE = 50;
 export const AMBOS_BORROW_FEE_PERCENT = 1;
 
 export const APP_NAME = 'Ambos Finance';
+export const LEARN_LIQUIDATIONS = 'https://docs.ambos.finance/';
 export const DISCOVER_AMBOS = 'https://docs.ambos.finance';
 export const WHAT_IS_AAVE = 'https://www.youtube.com/watch?v=dTCwssZ116A';
 export const AMBOS_FAQ = 'https://docs.ambos.finance/faqs/frequently-asked-questions';

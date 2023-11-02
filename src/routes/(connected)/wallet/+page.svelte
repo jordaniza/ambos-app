@@ -49,7 +49,7 @@
 <WalletDialogies bind:triggers />
 <TopBar page="Wallet">
 	<button class="rounded-2xl bg-card-foreground opacity-80 text-xs px-2 py-0">
-		<a href={explorerURL} class="w-full flex items-center gap-1" target="_blank">
+		<a href={explorerURL} class="w-full flex items-start justify-start gap-1" target="_blank">
 			<p>View on Explorer</p>
 			<ExternalLink class="h-3 w-3" />
 		</a>
@@ -63,7 +63,7 @@
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20" />
 
 	<div slot="card">
-		<div class="transform -translate-y-44 flex w-full items-center flex-col gap-4 p-4">
+		<div class="transform -translate-y-36 flex w-full items-center flex-col gap-4 p-4">
 			<!-- Debit Card -->
 			<div class="flex w-80 items-center justify-center text-popover">
 				<div
@@ -76,7 +76,7 @@
 					</div>
 					<p>Your Balance</p>
 					<div class="flex w-full items-center justify-between">
-						<p class="text-[10px] font-extralight text-gray-400">{address ?? 'Not Connected'}</p>
+						<p class="text-[10px] font-extralight text-popover">{address ?? 'Not Connected'}</p>
 						<button class="h-3 w-3 text-muted mr-5" on:click={handleCopy}
 							><CopyIcon class="w-full h-full" /></button
 						>
