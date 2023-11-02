@@ -6,7 +6,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Range from '$lib/components/range/range.svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
-	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import {
 		getEthValue,
@@ -66,7 +66,7 @@
 	}
 
 	async function tryQuoteFromCache() {
-		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
+		const key = LOCAL_STORAGE_KEYS.CACHED_GET_ETH_PRICE;
 		const expiry = 5 * 60 * 1000; // 5 minutes
 		try {
 			ethPrice = await cacheFetch(key, expiry, async () => {
@@ -83,6 +83,16 @@
 	onMount(() => {
 		tryQuoteFromCache();
 	});
+
+	const disclaimerText = `
+    This calculator is for illustrative purposes only. 
+    It is not intended to be a substitute for professional financial advice. 
+    While every attempt has been made to ensure that the calculations presented here are representative,
+    Ambos Finance does not guarantee the accuracy of the calculations or their applicability to your circumstances. 
+    
+    As always, do your own research: taking out a loan in any circumstance involves risk, and, especially in DeFi, it's important
+    to understand these risks.
+  `;
 </script>
 
 <div class="flex flex-wrap items-center w-full justify-center text-base">
@@ -105,10 +115,14 @@
 						lending simple - try us today:
 					</p>
 					<div class="flex flex-col gap-3 items-center justify-center">
-						<Button href="https://ambos.finance" class="w-72 text-lg">Sign Up</Button>
+						<Button
+							target="_blank"
+							href="https://ambos.finance?openSignupForm=true"
+							class="w-72 text-lg">Sign Up</Button
+						>
 					</div>
 					<div class="flex w-full justify-between items-center pl-2">
-						<div class="flex grow items-center -mt-2 text-xs gap-1 justify-center">
+						<div class="flex grow items-center text-xs gap-1 justify-center">
 							<p class="ml-2 font-bold whitespace-nowrap">Powered by</p>
 							<img src="/external/aave.png" alt="aave logo" class="h-12" />
 						</div>
