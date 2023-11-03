@@ -97,34 +97,35 @@
 						<p class=" font-bold pt-[1.5px]">Loan History</p>
 					</div>
 				</div>
-				{#each transactions as [id, item]}
-					<Card
-						padding="base"
-						class="relative flex flex-col shadow-none justify-between items-center gap-2"
-					>
-						<NotificationCircle txId={id} position="absolute top-0 left-0" />
-						<div class="flex justify-between items-center w-full text-muted-foreground">
-							<p>{toProperCase(item.txType)}</p>
-							<p>{formatTimestamp(item.updatedOn)}</p>
-						</div>
-						<div class="flex justify-between items-center w-full">
-							<p>{item.state}</p>
+				<div class="flex flex-col gap-4 py-4 overflow-y-scroll max-h-[600px]">
+					{#each transactions as [id, item]}
+						<Card
+							padding="base"
+							class="relative flex flex-col shadow-none justify-between items-center gap-2"
+						>
+							<NotificationCircle txId={id} position="absolute top-0 left-0" />
+							<div class="flex justify-between items-center w-full text-muted-foreground">
+								<p>{toProperCase(item.txType)}</p>
+								<p>{formatTimestamp(item.updatedOn)}</p>
+							</div>
+							<div class="flex justify-between items-center w-full">
+								<p>{item.state}</p>
 
-							{#if item.finalTxHash}
-								<Button variant="link">
-									<a
-										class="w-full h-full"
-										href={`${blockExplorer}/tx/${item.finalTxHash}`}
-										target="_blank">Details</a
-									>
-								</Button>
-							{/if}
-						</div>
-					</Card>
-				{/each}
+								{#if item.finalTxHash}
+									<Button variant="link">
+										<a
+											class="w-full h-full"
+											href={`${blockExplorer}/tx/${item.finalTxHash}`}
+											target="_blank">Details</a
+										>
+									</Button>
+								{/if}
+							</div>
+						</Card>
+					{/each}
+				</div>
 			</Card>
-			<Logout />
-			<p>App Version: 0.6.2</p>
 		</div>
+		<div class="h-20" />
 	</div>
 </BaseScreen>
