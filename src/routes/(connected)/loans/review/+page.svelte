@@ -110,6 +110,10 @@
 		return `${f(value)}`;
 	}
 
+	function toggleChecked() {
+		checked = !checked;
+	}
+
 	function handleSubmit() {
 		const { address, provider, smartAccount } = $accountStore;
 		if (!address || !provider || !smartAccount) {
@@ -227,11 +231,13 @@
 			</div>
 
 			<Card class="flex flex-col px-2 py-4 text-center">
-				<p class="font-bold">Confirm</p>
-				<p class="flex items-center justify-center gap-2">
-					I have reviewed the loan terms
-					<Checkbox bind:checked />
-				</p>
+				<button on:click={toggleChecked}>
+					<p class="font-bold">Confirm</p>
+					<p class="flex items-center justify-center gap-2">
+						I have reviewed the loan terms
+						<Checkbox bind:checked />
+					</p>
+				</button>
 			</Card>
 
 			<!-- {#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if} -->

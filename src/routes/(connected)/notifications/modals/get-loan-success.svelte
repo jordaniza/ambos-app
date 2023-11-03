@@ -36,11 +36,6 @@
 		{:else}
 			<p class="pb-2">You successfully borrowed without selling your ETH.</p>
 		{/if}
-		<!-- <Button class="rounded-lg">
-			<a class="w-full h-full" href={`${blockExplorer}/tx/${finalTxHash}`} target="_blank"
-				>Details</a
-			>
-		</Button> -->
 		<Button class="rounded-lg" on:click={handleBankTransfer}>Transfer to your bank</Button>
 		<Button class="rounded-lg bg-popover" variant="outline" on:click={handleGoToWallet}
 			>Go to Wallet</Button

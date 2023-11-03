@@ -2,9 +2,11 @@
 	import type { TXDetail, TXState, TxContext } from '$stores/transactions/state';
 	import { toast } from 'svelte-sonner';
 	import Success from '../modals/get-loan-success.svelte';
+	import GetLoanPending from '../modals/get-loan-pending.svelte';
 
 	export let tx: TXDetail;
 	let showSuccessModal = false;
+	let showPendingModal = false;
 
 	$: state = tx?.state;
 	$: seen = tx?.seen;
@@ -41,12 +43,14 @@
 			case 'SIGNING':
 				return ['Awaiting Signature', true, 'pending'];
 			case 'SIGNED':
-				return ['Loan submitted, your loan is being processed', true, 'success'];
+				showPendingModal = true;
+				return ['Loan submitted, your loan is being processed', false, 'success'];
 			case 'FAILED':
 				return ['There was a problem processing your loan.', true, 'error'];
 			case 'REJECTED':
 				return ['Your loan application was rejected', true, 'error'];
 			case 'SUCCESSFUL':
+				showPendingModal = false;
 				showSuccessModal = true;
 				return ['Success! Your loan has been processed successfully.', true, 'success'];
 			default:
@@ -55,4 +59,5 @@
 	}
 </script>
 
+<GetLoanPending open={showPendingModal} />
 <Success {borrowAmount} open={showSuccessModal} {ethSupplied} />
