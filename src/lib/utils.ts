@@ -26,6 +26,12 @@ export const f = (n: number) => {
 	return formatter.format(n).replace('USD', '$');
 };
 
+// format = 0.00 SYMBOL (for stablecoins)
+export const stbl = (n: number, s: string) => {
+	const formatted = formatter.format(n).replace('USD', '');
+	return `${formatted.slice(1)} ${s}`;
+};
+
 // eth formatting
 export const e = (n: number) => (n > 1 ? n.toFixed(2) : n.toFixed(4));
 

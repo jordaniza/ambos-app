@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import { f, e, getBarColor, getLiquidationPrice, getTextColor } from '$lib/utils';
+	import { f, e, getBarColor, getLiquidationPrice, getTextColor, stbl, pc } from '$lib/utils';
 	import { CreditCardIcon, DollarSign, LockIcon, Receipt } from 'lucide-svelte';
 	import TopBar from './top-bar.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
@@ -20,7 +20,7 @@
 
 	$: aWethBalance = $web3Store.balances['aWETH'].small ?? 0;
 	$: liquidationThreshold = $web3Store.userPoolData?.currentLiquidationThreshold.small ?? 0;
-	$: variableRateIR = $web3Store.poolReserveData?.['USDC'].variableBorrowingRate.small ?? 0;
+	$: variableRateIR = ($web3Store.poolReserveData?.['USDC'].variableBorrowingRate.small ?? 0) * 100;
 	$: liquidationPrice = getLiquidationPrice(owedUSD, aWethBalance, liquidationThreshold);
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
@@ -169,7 +169,7 @@
 						</div>
 						<div class="flex flex-col">
 							<p class="text-end font-bold">{f(owedUSD)}</p>
-							<p class="text-xs text-muted-foreground">{owedUSD.toFixed(2)} USDC</p>
+							<p class="text-xs text-muted-foreground">{stbl(owedUSD, 'USDC')}</p>
 						</div>
 					</div>
 					<Card class="rounded-xl text-xs shadow-none p-2 flex flex-col gap-2">
@@ -179,7 +179,7 @@
 						</div>
 						<div class="flex justify-between">
 							<p>Interest Rate</p>
-							<p>{variableRateIR.toFixed(4)}%</p>
+							<p>{pc(variableRateIR)}</p>
 						</div>
 						<div class="flex items-center">
 							<p class="flex-shrink-0 whitespace-nowrap">Loan Health</p>
@@ -201,7 +201,7 @@
 							</div>
 							<div class="text-xs flex flex-col items-end justify-end">
 								<p class="text-end font-bold">{f(owedUSD)}</p>
-								<p>{owedUSD.toFixed()} USDC</p>
+								<p>{stbl(owedUSD, 'USDC')}</p>
 							</div>
 						</div>
 					</Card>

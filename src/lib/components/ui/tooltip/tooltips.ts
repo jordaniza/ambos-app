@@ -5,6 +5,7 @@ export const TOOLTIPS = {
 	TOTAL_BORROW:
 		'The total USD value that you will be borrowing, this includes the Ambos fee and any network fees, which will be added to the total amount you need to repay.',
 	GAS_FEES: 'Network fees to send your transaction, these are not controlled by Ambos',
+	GAS_FEES_ERC20: 'Network fees to send your transaction, these are not controlled by Ambos',
 	ETH_SUPPLIED:
 		'The amount of ETH you supplied as a collateral to secure your loan. Once the loan + interest are repaid, this amount will be sent back into your Ambos wallet.',
 	USD_BORROWED:

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { e, f } from '$lib/utils';
+	import { e, f, stbl } from '$lib/utils';
 	import { CopyIcon, DollarSign, ExternalLink, HistoryIcon, WalletIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -141,7 +141,7 @@
 						</div>
 					</div>
 					<div class="text-end">
-						<p class="font-bold">{usdcBalance.toFixed(2)} USDC</p>
+						<p class="font-bold">{stbl(usdcBalance, 'USDC')}</p>
 						<p class="text-sm">{f(usdcBalance)}</p>
 					</div>
 				</div>
