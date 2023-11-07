@@ -69,16 +69,6 @@
 		}
 	}
 
-	// check if the user has seen the welcome screen
-	$: {
-		if (browser) {
-			const seen = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME);
-			if (!seen && !excludedRoute) {
-				goto(ROUTES.WELCOME);
-			}
-		}
-	}
-
 	// watch the txStore for changes in the txCounter and refresh the web3Store
 	$: {
 		if ($txStore && web3Store) {

@@ -11,7 +11,7 @@
 <div
 	class="
     text-popover p-2 flex flex-col items-center text-center
-    justify-start min-h-[140px] tracking-widest"
+    justify-start min-h-[140px]"
 >
 	<slot name="header" />
 </div>

@@ -43,7 +43,7 @@ export default defineConfig({
 				display: 'standalone',
 				description:
 					'Get cash for your crypto today, without selling, in a streamlined, secure, non-custodial application.',
-				background_color: '#f6edfd',
+				background_color: '#ffffff',
 				theme_color: '#48b25c',
 				// use the pwa-asset-generator to generate icons and splash screens, see package.json
 				icons: [

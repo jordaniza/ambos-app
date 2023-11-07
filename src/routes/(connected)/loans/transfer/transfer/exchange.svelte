@@ -1,5 +1,7 @@
 <script lang="ts">
-	let items = Array.from({ length: 12 }, (_, i) => {
+	import { EXCHANGE_GUIDE } from '$lib/constants';
+
+	let items = Array.from({ length: 2 }, (_, i) => {
 		if (i % 2 === 0)
 			return {
 				img: 'binance.png',
@@ -16,15 +18,21 @@
 	const maxRowsBeforeToggle = 2;
 	let displayCount = showAll ? items.length : maxRowsBeforeToggle * 3; // 3 columns
 
+	function handleClick() {
+		alert(
+			'Exchange guides will made available soon. In the meantime, please use a manual transfer from an exchange of your choice'
+		);
+	}
+
 	$: displayCount = showAll ? items.length : maxRowsBeforeToggle * 3;
 </script>
 
 <div class="grid grid-cols-3 md:grid-cols-5 gap-4">
 	{#each items.slice(0, displayCount) as item}
-		<div class="p-2 flex flex-col gap-1 items-center justify-center">
+		<button class="w-full flex flex-col gap-1 items-center justify-center" on:click={handleClick}>
 			<img class="h-12 w-12" src={'/external/' + item.img} alt={item.name} />
 			<p>{item.name}</p>
-		</div>
+		</button>
 	{/each}
 	{#if !showAll && items.length > maxRowsBeforeToggle * 3}
 		<button

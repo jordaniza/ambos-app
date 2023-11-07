@@ -1,54 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
-
 	import Card from '$lib/components/ui/card/card.svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ROUTES } from '$lib/constants';
-	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import { increaseTxCounter } from '$stores/transactions/state';
-	import { onDestroy, onMount } from 'svelte';
 
 	// is the component visible, can be set to false to hide the component
 	export let showVerifying: boolean;
-	// are we awaiting verification
-	export let isVerifying: boolean = true;
-	// number of ETH detected as transferred
-	export let transferred: number;
 
 	const setEscape = () => (showVerifying = false);
-	let web3Store = getWeb3Store();
-	let txStore = getTxStore();
-	let interval: NodeJS.Timeout;
-
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
-
-	onMount(() => {
-		watchForNewEth();
-	});
-
-	onDestroy(() => {
-		clearInterval(interval);
-	});
-
-	/**
-	 * 5 second polling to check if the user has received any new ETH
-	 * If they have, we stop the polling and trigger the verification component
-	 * TODO: we need to attach a global listener here so the user can be notified
-	 * outside of the component flow
-	 */
-	function watchForNewEth() {
-		const initialETH = ethBalance;
-		interval = setInterval(() => {
-			increaseTxCounter(txStore);
-			if (ethBalance > initialETH) {
-				isVerifying = false;
-				transferred = ethBalance - initialETH;
-				clearInterval(interval);
-			}
-		}, 5000);
-	}
 </script>
 
 <Card class="bg-popover px-4 py-2 text-center">
@@ -57,8 +18,7 @@
 			<Button
 				on:click={setEscape}
 				variant="link"
-				class="text-popover-foreground no-underline text-left tracking-wider text-lg "
-				>← Back</Button
+				class="text-popover-foreground no-underline text-left  text-lg ">← Back</Button
 			>
 		</div>
 		<Separator />

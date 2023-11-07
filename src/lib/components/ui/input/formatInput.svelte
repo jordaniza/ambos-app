@@ -20,6 +20,7 @@
 		formatted: ''
 	};
 	let lastValidValue: string = '';
+	let el: HTMLInputElement;
 
 	function isNumeric(value: string): boolean {
 		return /^[0-9]*\.?[0-9]*$/.test(value);
@@ -31,6 +32,13 @@
 			tempValue = lastValidValue;
 		} else {
 			lastValidValue = tempValue;
+		}
+	}
+
+	function handleEnterKey(event: KeyboardEvent): void {
+		if (event.key === 'Enter') {
+			event.preventDefault(); // to prevent any default behavior
+			el.blur();
 		}
 	}
 
@@ -60,9 +68,11 @@
 </script>
 
 <input
+	bind:this={el}
 	bind:value={tempValue}
 	on:focus={onFocus}
 	on:blur={onBlur}
 	on:input={onInput}
+	on:keydown={handleEnterKey}
 	{...$$restProps}
 />

@@ -1,7 +1,7 @@
 import { ADDRESSES, SupportedTokens, type TSupportedTokens } from '$lib/contracts';
 import { writable } from 'svelte/store';
 import type { ChainId } from '@biconomy/core-types';
-import { getSetPoolData, watchPoolData } from './getPoolData';
+import { getReserveTokens, getSetPoolData, watchPoolData } from './getPoolData';
 import { getSetSupportedTokenBalances, watchSupportedTokenBalances } from './getBalances';
 import { getSetEthPrice, watchEthPrice } from './getPrices';
 import type { EthereumAddress } from '$lib/utils';
@@ -52,12 +52,24 @@ export type PoolLoanData = {
 	lastUpdatedBlock: number | null;
 };
 
+export type PoolReserveDataTokens = 'USDC' | 'WETH';
+
+// only USDC and WETH implemented, see below
+type PoolLoanDataMap = {
+	[T in PoolReserveDataTokens]: PoolLoanData;
+};
+
 const defaultPoolLoanData: PoolLoanData = {
 	ltv: defaultLoanDataItem,
 	stableBorrowingEnabled: false,
 	variableBorrowingRate: defaultLoanDataItem,
 	stableBorrowingRate: defaultLoanDataItem,
 	lastUpdatedBlock: null
+};
+
+const defaultPoolLoanDataMap: PoolLoanDataMap = {
+	USDC: defaultPoolLoanData,
+	WETH: defaultPoolLoanData
 };
 
 const defaultUserLoanData: UserLoanData = {
@@ -79,7 +91,7 @@ export type Web3Store = {
 	balances: StoreTokenBalances;
 	ethPrice: EthPrice;
 	userPoolData: UserLoanData;
-	poolReserveData: PoolLoanData;
+	poolReserveData: PoolLoanDataMap;
 	chainId: ChainId | null;
 	isTestnet: boolean;
 };
@@ -97,7 +109,7 @@ const DEFAULT_STORE: Web3Store = {
 		lastUpdatedBlock: null
 	},
 	userPoolData: defaultUserLoanData,
-	poolReserveData: defaultPoolLoanData,
+	poolReserveData: defaultPoolLoanDataMap,
 	balances: SupportedTokens.reduce((acc, token) => {
 		acc[token] = {
 			big: null,
@@ -129,12 +141,12 @@ export async function refreshW3Store(
 ) {
 	if (!provider || !userAddress) return;
 	const chainId = (await provider.getNetwork()).chainId;
-	const reserveTokenAddress = ADDRESSES[chainId]['WETH'];
+	const reserveTokens = getReserveTokens(chainId);
 	const currentBlock = await provider.getBlockNumber();
 	await Promise.all([
 		getSetSupportedTokenBalances(userAddress, provider, store),
 		getSetEthPrice(provider, store, currentBlock),
-		getSetPoolData(userAddress, reserveTokenAddress, provider, store, currentBlock)
+		getSetPoolData(userAddress, reserveTokens, provider, store, currentBlock)
 	]);
 }
 

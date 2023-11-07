@@ -13,5 +13,5 @@
 </script>
 
 <p class={priceUp ? 'text-primary' : 'text-destructive'}>
-	{priceUp ? '↑+' : '↓-'}{pc(ethPriceDelta)}
+	{priceUp ? '↑+' : '↓'}{pc(ethPriceDelta)}
 </p>

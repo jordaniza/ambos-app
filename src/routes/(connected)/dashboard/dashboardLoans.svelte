@@ -15,7 +15,7 @@
 
 	$: owedUSD = $web3Store.userPoolData?.totalDebtBase.small ?? 0;
 	$: collateralValueUSD = $web3Store.userPoolData?.totalCollateralBase.small ?? 0;
-	$: variableRateIR = $web3Store.poolReserveData?.variableBorrowingRate.small ?? 0;
+	$: variableRateIR = $web3Store.poolReserveData?.['USDC'].variableBorrowingRate.small ?? 0;
 </script>
 
 <Card class="w-full">
@@ -45,7 +45,7 @@
 	<Separator class="mb-5" />
 	<CardFooter>
 		<Button class="w-full md:py-7">
-			<a class="w-full md:text-xl md:py-3" href={ROUTES.MY_LOANS}>Manage Loans</a>
+			<a class="w-full md:text-xl md:py-3" href={ROUTES.LOANS_V2}>Manage Loans</a>
 		</Button>
 	</CardFooter>
 </Card>

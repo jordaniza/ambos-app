@@ -14,7 +14,7 @@
 	<div class="w-full flex justify-between items-center">
 		<div class=" rounded-xl">
 			<p class="font-extrabold text-lg">ETH</p>
-			<p class="text-sm font-extralight text-muted-foreground">Your Ambos Wallet</p>
+			<p class="text-sm font-extralight text-popover">Your Ambos Wallet</p>
 			<p class="text-2xl">{e(ethBalance)} ETH</p>
 		</div>
 		<div class="flex flex-col items-end justify-between">

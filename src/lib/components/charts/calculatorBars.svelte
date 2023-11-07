@@ -10,7 +10,6 @@
 		chart: {
 			type: 'bar',
 			toolbar: { show: false },
-
 			height: '100%'
 		},
 		legend: { show: false },

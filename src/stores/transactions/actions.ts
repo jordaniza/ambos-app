@@ -243,7 +243,6 @@ export function sendWETH({ store, amount, recipient, provider, smartAccount, id 
 				token: 'WETH',
 				recipient
 			});
-			console.log('fee', fee);
 			const wethAddress = await getTokenAddress(provider, 'WETH');
 			const weth = WETH__factory.connect(wethAddress, provider);
 			const tx0 = await weth.populateTransaction.transfer(recipient, amount);

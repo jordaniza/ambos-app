@@ -5,7 +5,8 @@
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ROUTES } from '$lib/constants';
-	import type { TXDetail, TxContext, TXState } from '$stores/transactions/state';
+	import type { TXDetail, TxContext } from '$stores/transactions/state';
+	import { toast } from 'svelte-sonner';
 	import RepayLoanSuccess from '../modals/repay-loan-success.svelte';
 
 	export let tx: TXDetail;
@@ -18,13 +19,19 @@
 
 	$: if (state !== undefined) {
 		switch (state) {
-			case 'STARTED':
+			case 'SIGNING':
+				toast.info('Awaiting Signature');
+				break;
+			case 'SIGNED':
 				showPendingModal = true;
 				break;
 			case 'SUCCESSFUL':
 				showPendingModal = false;
 				showSuccessModal = true;
 				break;
+			case 'REJECTED':
+			case 'FAILED':
+				toast.error('Repayment failed');
 			default:
 				break;
 		}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import Calculator from './calculator.svelte';
+	import Calculator from '$lib/components/calculator/calculator.svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 
 	let ethSupply = 10; // Initial value

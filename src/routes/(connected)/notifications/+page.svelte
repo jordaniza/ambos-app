@@ -80,13 +80,11 @@
 		slot="background"
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/notifications.png')]"
 	/>
-	<div slot="header" class="w-full tracking-widest pb-20">
-		<nav
-			class="w-full pt-4 px-4 pb-4 tracking-widest items-center justify-between text-popover flex gap-5"
-		>
+	<div slot="header" class="w-full pb-20">
+		<nav class="w-full pt-4 pb-4 items-center justify-between text-popover flex gap-5">
 			<BackButton />
 		</nav>
-		<p class="text-xl">Notifications</p>
+		<p class="text-xl font-bold -mt-4">Notifications</p>
 	</div>
 
 	<div slot="card">
@@ -96,34 +94,38 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Loan History</p>
+						<p class=" font-bold pt-[1.5px]">Loan History</p>
 					</div>
 				</div>
-				{#each transactions as [id, item]}
-					<Card
-						padding="base"
-						class="relative flex flex-col shadow-none justify-between items-center gap-2"
-					>
-						<NotificationCircle txId={id} position="absolute top-0 left-0" />
-						<div class="flex justify-between items-center w-full text-muted-foreground">
-							<p>{toProperCase(item.txType)}</p>
-							<p>{formatTimestamp(item.updatedOn)}</p>
-						</div>
-						<div class="flex justify-between items-center w-full">
-							<p>{item.state}</p>
-							<Button variant="link">
-								<a
-									class="w-full h-full"
-									href={`${blockExplorer}/tx/${item.finalTxHash}`}
-									target="_blank">Details</a
-								>
-							</Button>
-						</div>
-					</Card>
-				{/each}
+				<div class="flex flex-col gap-4 py-4 overflow-y-scroll max-h-[600px]">
+					{#each transactions as [id, item]}
+						<Card
+							padding="base"
+							class="relative flex flex-col shadow-none justify-between items-center gap-2"
+						>
+							<NotificationCircle txId={id} position="absolute top-0 left-0" />
+							<div class="flex justify-between items-center w-full text-muted-foreground">
+								<p>{toProperCase(item.txType)}</p>
+								<p>{formatTimestamp(item.updatedOn)}</p>
+							</div>
+							<div class="flex justify-between items-center w-full">
+								<p>{item.state}</p>
+
+								{#if item.finalTxHash}
+									<Button variant="link">
+										<a
+											class="w-full h-full"
+											href={`${blockExplorer}/tx/${item.finalTxHash}`}
+											target="_blank">Details</a
+										>
+									</Button>
+								{/if}
+							</div>
+						</Card>
+					{/each}
+				</div>
 			</Card>
-			<Logout />
-			<p>App Version: 0.6.2</p>
 		</div>
+		<div class="h-20" />
 	</div>
 </BaseScreen>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { e, f } from '$lib/utils';
+	import { e, f, stbl } from '$lib/utils';
 	import { CopyIcon, DollarSign, ExternalLink, HistoryIcon, WalletIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -49,7 +49,7 @@
 <WalletDialogies bind:triggers />
 <TopBar page="Wallet">
 	<button class="rounded-2xl bg-card-foreground opacity-80 text-xs px-2 py-0">
-		<a href={explorerURL} class="w-full flex items-center gap-1" target="_blank">
+		<a href={explorerURL} class="w-full flex items-start justify-start gap-1" target="_blank">
 			<p>View on Explorer</p>
 			<ExternalLink class="h-3 w-3" />
 		</a>
@@ -63,20 +63,20 @@
 	<div slot="header" class="flex flex-col items-center justify-center gap-2 pb-20" />
 
 	<div slot="card">
-		<div class="transform -translate-y-44 flex w-full items-center flex-col gap-4 p-4">
+		<div class="transform -translate-y-36 flex w-full items-center flex-col gap-4 p-4">
 			<!-- Debit Card -->
-			<div class="flex w-[350px] items-center justify-center text-popover tracking-wider">
+			<div class="flex w-80 items-center justify-center text-popover">
 				<div
-					class="bg-cover w-full bg-center bg-no-repeat rounded-3xl shadow-xl shadow-popover p-4 pr-2"
+					class="bg-cover w-full bg-center bg-no-repeat rounded-3xl shadow-xl shadow-popover pb-4 pt-2 pl-5 pr-2"
 					style="background-image: url('backgrounds/card.png');"
 				>
 					<div class="flex w-full justify-between items-center gap-2">
-						<p class="text-3xl tracking-widest">{f(totalUSDValue)}</p>
+						<p class="text-3xl">{f(totalUSDValue)}</p>
 						<img src="/Logo-light-transparent.png" alt="Ambos Finance" class="h-16 w-16" />
 					</div>
 					<p>Your Balance</p>
 					<div class="flex w-full items-center justify-between">
-						<p class="text-[10px] font-extralight text-gray-400">{address ?? 'Not Connected'}</p>
+						<p class="text-[10px] font-extralight text-popover">{address ?? 'Not Connected'}</p>
 						<button class="h-3 w-3 text-muted mr-5" on:click={handleCopy}
 							><CopyIcon class="w-full h-full" /></button
 						>
@@ -90,6 +90,7 @@
 						<Button
 							on:click={triggers.withdraw}
 							disabled={!address}
+							variant="secondary"
 							class="py-0 text-sm h-8 rounded-lg w-1/3">Withdraw</Button
 						>
 					</div>
@@ -97,7 +98,7 @@
 			</div>
 			<Card variant="popover" padding="base" class="flex flex-col w-full gap-4 py-4 text-sm">
 				<!-- header -->
-				<div class="flex w-full justify-between tracking-widest">
+				<div class="flex w-full justify-between">
 					<div class="flex items-center gap-3">
 						<WalletIcon class="text-muted-foreground h-4 w-4" />
 						<p class="font-bold">Your Wallet Holdings</p>
@@ -105,6 +106,13 @@
 					<TooltipIcon text={TOOLTIPS.WALLET_HOLDINGS} />
 				</div>
 				<!-- Eth -->
+				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
+					<p class="font-bold">Network</p>
+					<div class="flex items-center justify-end gap-2">
+						<NetworkNames />
+						<TooltipIcon text={TOOLTIPS.NETWORK} />
+					</div>
+				</Card>
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex items-center gap-2">
 						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
@@ -117,19 +125,12 @@
 							</div>
 						</div>
 					</div>
-					<div>
+					<div class="flex flex-col items-end">
 						<p class="font-bold">{e(ethBalance)} ETH</p>
 						<p class="text-sm">{f(ethBalanceUSD)}</p>
 					</div>
 				</div>
-				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
-					<p class="font-bold">Network</p>
-					<div class="flex items-center justify-end gap-2">
-						<NetworkNames />
-						<TooltipIcon text={TOOLTIPS.NETWORK} />
-					</div>
-				</Card>
-				<Separator class="my-1 w-[95%] transform translate-x-[2.5%]" />
+				<Separator />
 				<div class="flex justify-between items-center gap-2">
 					<div class="flex items-center gap-2">
 						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
@@ -140,17 +141,11 @@
 						</div>
 					</div>
 					<div class="text-end">
-						<p class="font-bold">{usdcBalance} USDC</p>
+						<p class="font-bold">{stbl(usdcBalance, 'USDC')}</p>
 						<p class="text-sm">{f(usdcBalance)}</p>
 					</div>
 				</div>
-				<Card class="flex w-full justify-between px-4 py-2 shadow-none">
-					<p class="font-bold">Network</p>
-					<div class="flex items-center justify-end gap-2">
-						<NetworkNames />
-						<TooltipIcon text={TOOLTIPS.NETWORK} />
-					</div>
-				</Card>
+
 				<div class="flex w-full gap-3">
 					<Button on:click={triggers.buy} class="w-1/2">Buy</Button>
 					<Button
@@ -165,7 +160,7 @@
 				<div class="flex justify-between items-center">
 					<div class="flex gap-3 items-center justify-start">
 						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class="tracking-widest font-bold pt-[1.5px]">Wallet History</p>
+						<p class=" font-bold pt-[1.5px]">Wallet History</p>
 					</div>
 				</div>
 				{#each historyItems as item}

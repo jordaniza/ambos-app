@@ -1,5 +1,5 @@
 <script lang="ts">
-	let items = Array.from({ length: 12 }, (_, i) => {
+	let items = Array.from({ length: 2 }, (_, i) => {
 		if (i % 2 === 0)
 			return {
 				img: 'metamask.png',
@@ -12,6 +12,10 @@
 			};
 	});
 
+	function handleClick() {
+		alert('Wallet support is not yet enabled, please use a manual transfer.');
+	}
+
 	let showAll = false;
 	const maxRowsBeforeToggle = 2;
 	let displayCount = showAll ? items.length : maxRowsBeforeToggle * 3; // 3 columns
@@ -21,10 +25,13 @@
 
 <div class="grid grid-cols-3 md:grid-cols-5 gap-4">
 	{#each items.slice(0, displayCount) as item}
-		<div class="p-2 flex flex-col gap-1 items-center justify-center text-center">
+		<button
+			on:click={handleClick}
+			class="p-2 flex flex-col gap-1 items-center justify-center text-center"
+		>
 			<img class="h-12 w-12" src={'/external/' + item.img} alt={item.name} />
 			<p>{item.name}</p>
-		</div>
+		</button>
 	{/each}
 	{#if !showAll && items.length > maxRowsBeforeToggle * 3}
 		<button

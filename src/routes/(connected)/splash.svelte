@@ -66,7 +66,7 @@
 					fill="#48B25C"
 				/>
 			</svg>
-			<div class="text-center tracking-widest flex flex-col items-center justify-center">
+			<div class="text-center flex flex-col items-center justify-center">
 				<p class="font-thin text-muted-foreground">Invest For Tomorrow</p>
 				<p class="font-semibold">Live For Today</p>
 				<LoadingSpinner

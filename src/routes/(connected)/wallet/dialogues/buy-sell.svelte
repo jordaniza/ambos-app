@@ -55,7 +55,7 @@
 <Dialog.Root bind:open>
 	<Dialog.FlyInContent class="bg-popover">
 		<Dialog.Title class="font-xl font-extrabold text-center">{title}</Dialog.Title>
-		<div class="flex flex-col p-4 gap-3">
+		<div class="flex flex-col gap-3">
 			<button
 				on:click={() => handleBuySell({ currency: 'WETH' })}
 				class="bg-background cursor-pointer rounded-2xl p-3 font-bold text-sm flex items-center justify-between shadow-none"

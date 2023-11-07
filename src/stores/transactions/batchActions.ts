@@ -4,12 +4,15 @@ import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
-import { batchSponsoredTx } from './sponsored';
+import { batchERC20Tx, batchSponsoredTx } from './sponsored';
 import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';
 import type { AppProvider } from '$stores/account';
 import * as process from '$env/static/public';
 import { AMBOS_BORROW_FEE_PERCENT } from '$lib/constants';
 import { getBorrowFeeQuote } from './fees';
+import { type IHybridPaymaster, type FeeQuotesOrDataDto, PaymasterMode } from '@biconomy/paymaster';
+import { TESTNET_ADDITIONAL_CONTRACTS } from '$lib/contracts';
+import { ChainId } from '@biconomy/core-types';
 
 type IncreaseDebtProps = {
 	store: TxStore;
@@ -74,7 +77,6 @@ export async function increaseDebt({
 
 	console.warn('estimated network fees will return 0 if undefined');
 	const total = totalPlusBorrowFee.add(estimatedNetworkFee.big);
-	const totalFees = fee.add(estimatedNetworkFee.big);
 
 	// populate the transactions ready for signing
 	const data0 = await weth.populateTransaction.approve(poolAddr, ethers.constants.MaxUint256);
@@ -108,15 +110,94 @@ type DecreaseDebtProps = {
 	store: TxStore;
 	repayAmountinUSDC: ethers.BigNumber;
 	id: string;
+	borrower: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
 };
-export async function decreaseDebt({ store, repayAmountinUSDC, id }: DecreaseDebtProps) {
+
+export async function getDecreaseDebtFeeQuote({
+	repayAmountinUSDC,
+	borrower,
+	provider,
+	smartAccount
+}: Omit<DecreaseDebtProps, 'id' | 'store'>) {
+	const promiseUSDC = getTokenAddress(provider, 'USDC');
+	const promisePool = getAavePool(provider);
+
+	const [usdcAddr, poolAddr] = await Promise.all([promiseUSDC, promisePool]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
+
+	const data0 = await usdc.populateTransaction.approve(poolAddr, repayAmountinUSDC);
+	const data1 = await pool.populateTransaction.repay(
+		usdcAddr,
+		repayAmountinUSDC,
+		InterestRateMode.VARIABLE_IR,
+		borrower
+	);
+
+	const tx0 = { to: usdcAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+
+	const transactions = [tx0, tx1];
+
+	const userOp = await smartAccount.buildUserOp(transactions);
+	const paymaster = smartAccount.paymaster as IHybridPaymaster<FeeQuotesOrDataDto>;
+
+	// problem here is that the USDC on testnets for aave might not be the same USDC for biconomy
+
+	console.warn('Warning: USDC for fees is different to USDC for loans on the polygon testnet');
+
+	const feeQuotesResponse = await paymaster.getPaymasterFeeQuotesOrData(userOp, {
+		mode: PaymasterMode.ERC20,
+		tokenList: [TESTNET_ADDITIONAL_CONTRACTS[ChainId.POLYGON_MUMBAI].PAYMASTER_USDC]
+	});
+
+	return feeQuotesResponse?.feeQuotes?.[0] ?? null;
+}
+
+export async function decreaseDebt({
+	store,
+	repayAmountinUSDC,
+	id,
+	borrower,
+	provider,
+	smartAccount
+}: DecreaseDebtProps) {
 	const transactionType = 'DECREASE_DEBT';
 	setNewTransaction<TxContext['DECREASE_DEBT']>(store, transactionType, id, {
 		amount: Number(ethers.utils.formatUnits(repayAmountinUSDC, 6))
 	});
 
-	await delay(10_000);
+	const promiseUSDC = getTokenAddress(provider, 'USDC');
+	const promisePool = getAavePool(provider);
+
+	const [usdcAddr, poolAddr] = await Promise.all([promiseUSDC, promisePool]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
+
+	const data0 = await usdc.populateTransaction.approve(poolAddr, repayAmountinUSDC);
+	const data1 = await pool.populateTransaction.repay(
+		usdcAddr,
+		repayAmountinUSDC,
+		InterestRateMode.VARIABLE_IR,
+		borrower
+	);
+
+	const tx0 = { to: usdcAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+
+	const transactions = [tx0, tx1];
+
 	updateTransaction(store, id, {
-		state: 'SUCCESSFUL'
+		state: 'SIGNING'
 	});
+
+	// problem here is that the USDC on testnets for aave might not be the same USDC for biconomy
+	console.warn('Warning: USDC for fees is different to USDC for loans on the polygon testnet');
+	const paymentToken = TESTNET_ADDITIONAL_CONTRACTS[ChainId.POLYGON_MUMBAI].PAYMASTER_USDC;
+
+	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
 }

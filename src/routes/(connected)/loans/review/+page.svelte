@@ -6,11 +6,14 @@
 	import LoanStepper from '$lib/components/ui/stepper/loanStepper.svelte';
 	import { ROUTES } from '$lib/constants';
 	import { BN, e, f, getLiquidationPrice, pc } from '$lib/utils';
-	import InputEditSlider from './input-edit-slider.svelte';
+	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import { getFeesAndCharges, getMaxBorrow } from '../../calculator/calculator';
-	import * as Accordion from '$lib/components/ui/accordion';
+	import {
+		getAmbosFee,
+		getAmbosFee as getFeesAndCharges,
+		getMaxBorrow
+	} from '$lib/components/calculator/calculator';
 	import { onMount } from 'svelte';
 	import {
 		setBorrowUsd,
@@ -25,6 +28,8 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
+	import FeesAndCharges from '$lib/components/calculator/fees-and-charges.svelte';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -35,21 +40,26 @@
 	let isPending = false;
 	let txId: string;
 	let estimatedNetworkFee = 0.01;
+	let checked = false;
 
 	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
+	$: ethSupplyValueUSD = ethSupply * ethPrice;
 
 	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
+	$: totalBorrow = borrowAmount + estimatedNetworkFee + getAmbosFee(borrowAmount);
 
-	$: maxLTV = $web3Store.poolReserveData.ltv.small ?? 0;
+	$: maxLTV = $web3Store.poolReserveData['WETH'].ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
-	$: feesAndCharges = getFeesAndCharges(borrowAmount);
+	$: interestRate = ($web3Store.poolReserveData['USDC'].variableBorrowingRate.small ?? 0) * 100;
 
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
 
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
+
+	$: isConfirmDisabled = !checked || isPending || borrowAmount === 0 || ethSupply === 0;
 
 	$: if (state !== undefined) {
 		// the state should be loading while pending
@@ -62,6 +72,9 @@
 		if (state === 'SIGNED') {
 			setSupplyEth(txStore, 0);
 			setBorrowUsd(txStore, 0);
+			checked = false;
+			ethSupply = 0;
+			borrowAmount = 0;
 		}
 	}
 
@@ -89,12 +102,16 @@
 		setIncreaseDebtBuilderStage(txStore, 'review');
 	});
 
-	function formatETHValue(value: number, ethPrice: number): string {
-		return `${e(value)} ETH - ${f(value * ethPrice)}`;
+	function formatETHValue(value: number): string {
+		return `${e(value)} ETH`;
 	}
 
-	function formatBorrowValue(value: number, maxBorrow: number): string {
-		return `${f(value)} of ${f(maxBorrow)}`;
+	function formatBorrowValue(value: number): string {
+		return `${f(value)}`;
+	}
+
+	function toggleChecked() {
+		checked = !checked;
 	}
 
 	function handleSubmit() {
@@ -125,10 +142,10 @@
 		slot="background"
 		class="w-full h-full bg-contain bg-top bg-[url('/backgrounds/loans-2.png')]"
 	/>
-	<div slot="header" class="pb-5">
-		<BackButton backTo={ROUTES.DASHBOARD_V2} />
+	<div slot="header" class="pb-5 w-full">
+		<BackButton backTo={ROUTES.LOANS_V2_TRANSFER} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Review Your Loan Details</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Review Your Loan Details</h1>
 			<p>Check all the details and get your loan now</p>
 		</div>
 	</div>
@@ -156,15 +173,28 @@
 				title="You Supply"
 				bind:value={ethSupply}
 				max={ethBalance}
+				showMax={true}
+				allowEdit={false}
+				maxFormatter={formatETHValue}
 				step={0.01}
-				formatter={() => formatETHValue(ethSupply, ethPrice)}
-			/>
+				formatter={() => `${ethSupply} ETH`}
+			>
+				<div slot="below-input-left" class="text-xs flex justify-between">
+					<div class="flex gap-1">
+						<p class="font-bold">Value:</p>
+						<p>{f(ethSupplyValueUSD)}</p>
+					</div>
+				</div>
+			</InputEditSlider>
 			<InputEditSlider
 				title="Borrowing"
 				bind:value={borrowAmount}
 				max={maxBorrow}
+				showMax={true}
+				allowEdit={false}
+				maxFormatter={f}
 				step={1}
-				formatter={() => formatBorrowValue(borrowAmount, maxBorrow)}
+				formatter={() => formatBorrowValue(borrowAmount)}
 			/>
 			<div
 				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
@@ -175,49 +205,50 @@
 					<TooltipIcon text={TOOLTIPS.LIQUIDATION_PRICE} />
 				</div>
 			</div>
-			<!-- Fees and Charges -->
-			<Accordion.Root class="flex w-full text-xs justify-between bg-background rounded-2xl px-3">
-				<Accordion.Item value="item-1" class="w-full">
-					<Accordion.Trigger class="w-full py-2">
-						<div class="font-bold">Est. Fees & Charges</div>
-						<div slot="trigger-right">
-							{f(feesAndCharges.total)}
-							<span class="pl-1 text-muted-foreground">{pc(feesAndCharges.percentOfBorrowed)}</span>
-						</div>
-					</Accordion.Trigger>
-					<Accordion.Content>
-						<div class="pt-1 text-xs">
-							<div class="flex w-full justify-between">
-								<p>Ambos Fee</p>
-								<div>
-									<p>{f(feesAndCharges.ambosFee)}</p>
-								</div>
-							</div>
-							<div class="flex w-full justify-between">
-								<p>Est. Exchange Fees</p>
-								<div>
-									<p>{f(feesAndCharges.exchangeFee)}</p>
-								</div>
-							</div>
-							<div class="flex w-full justify-between">
-								<p>Est. Network Fees</p>
-								<div>
-									<p>{f(estimatedNetworkFee ?? feesAndCharges.networkFee)}</p>
-								</div>
-							</div>
-						</div>
-					</Accordion.Content>
-				</Accordion.Item>
-			</Accordion.Root>
+
+			<FeesAndCharges bind:borrowAmountUSD={borrowAmount} />
+
+			<div
+				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"
+			>
+				<p class="font-bold">Interest Rate</p>
+				<div class="flex gap-2 justify-end items-center">
+					<p>{pc(interestRate)}</p>
+				</div>
+			</div>
+
+			<!-- Total Borrow -->
+			<div class="flex flex-col gap-2 py-3">
+				<div class="flex w-full items-center justify-between">
+					<p class="font-bold">Total Borrow</p>
+					<TooltipIcon text={TOOLTIPS.TOTAL_BORROW} />
+				</div>
+				<div
+					class="text-sm border-[1px] shadow-sm font-bold border-secondary text-center flex justify-center items-center py-2 rounded-xl"
+				>
+					{f(totalBorrow)}
+				</div>
+			</div>
+
+			<Card class="flex flex-col px-2 py-4 text-center">
+				<button on:click={toggleChecked}>
+					<p class="font-bold">Confirm</p>
+					<p class="flex items-center justify-center gap-2">
+						I have reviewed the loan terms
+						<Checkbox bind:checked />
+					</p>
+				</button>
+			</Card>
+
 			<!-- {#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if} -->
-			<Button on:click={handleSubmit} class="w-full py-5">
+			<Button on:click={handleSubmit} disabled={isConfirmDisabled} class="w-full py-5">
 				{#if isPending}
 					<LoadingSpinner class="text-popover animate-spin" />
 				{:else}
 					Confirm & Get Loan
 				{/if}
 			</Button>
-			<Button variant="link">Repayment Terms</Button>
+			<!-- <Button variant="link">Repayment Terms</Button> -->
 		</Card>
 	</div>
 </BaseScreen>

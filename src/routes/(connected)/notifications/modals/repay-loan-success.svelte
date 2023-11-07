@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { e, f } from '$lib/utils';
+	import { e, f, stbl } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { ROUTES } from '$lib/constants';
 	import { goto } from '$app/navigation';
@@ -15,6 +15,7 @@
 	let web3Store = getWeb3Store();
 
 	$: usdcBalance = $web3Store.balances['USDC'].small ?? 0;
+	$: outstandingQty = $web3Store.userPoolData.totalDebtBase.small ?? 0;
 
 	function handleGoBack() {
 		open = false;
@@ -29,7 +30,7 @@
 
 		<Counter
 			target={repaymentQty}
-			formatter={(value) => `-${e(value)} USDC`}
+			formatter={(value) => `-${stbl(value, 'USDC')}`}
 			show={true}
 			class="text-secondary text-center text-2xl"
 		/>
@@ -50,10 +51,10 @@
 				</div>
 			</div>
 			<div class="w-full flex justify-between items-center">
-				<p class="text-2xl">{e(usdcBalance)} USDC</p>
+				<p class="text-2xl">{stbl(usdcBalance, 'USDC')}</p>
 				<Counter
 					target={repaymentQty}
-					formatter={(value) => `-${e(value)} USDC`}
+					formatter={(value) => `-${stbl(value, 'USDC')}`}
 					show={true}
 					class="text-background text-center text-xl"
 				/>
@@ -63,12 +64,12 @@
 			<div class="flex flex-col text-base gap-2">
 				<div class="flex justify-between">
 					<p>Outstanding Amount:</p>
-					<p class="text-secondary">{f(1000)}</p>
+					<p class="text-secondary">{f(outstandingQty)}</p>
 				</div>
-				<div class="flex justify-between">
+				<!-- <div class="flex justify-between">
 					<p>Interest:</p>
 					<p class="text-secondary">{f(500)}</p>
-				</div>
+				</div> -->
 			</div>
 		</div>
 		<Button

@@ -19,7 +19,7 @@
 </script>
 
 <footer
-	class="fixed bottom-0 left-0 select-none w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs"
+	class="fixed bottom-0 left-0 select-none w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs pb-4"
 >
 	<!-- Dashboard Icon -->
 	<MenuLink href={ROUTES.DASHBOARD_V2} name="Dashboard">

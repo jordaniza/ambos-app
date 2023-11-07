@@ -41,7 +41,7 @@
 	<div slot="header" class="pb-5">
 		<BackButton backTo={ROUTES.DASHBOARD_V2} />
 		<div class="pt-5 px-4">
-			<h1 class="font-extrabold text-2xl pb-3 tracking-widest">Transfer to your bank</h1>
+			<h1 class="font-extrabold text-2xl pb-3">Transfer to your bank</h1>
 			<p>Transfer ETH or Stablecoins to your bank in just one click</p>
 		</div>
 	</div>
@@ -55,13 +55,9 @@
 					{/if}
 				</div>
 			</EthWalletCard>
-			<Card class="flex justify-between px-3 py-2 text-sm shadow-none">
+			<Card class="flex justify-between w-full px-3 py-2 text-sm shadow-none">
 				<NetworkNameLogo />
-				<div class="flex items-center justify-end gap-2">
-					<p>ETH</p>
-					<TooltipIcon text={TOOLTIPS.NETWORK} />
-				</div></Card
-			>
+			</Card>
 		</Card>
 		<Card padding="base" variant="popover" class="flex flex-col gap-5 pt-4">
 			<UsdcWalletCard>
@@ -71,7 +67,8 @@
 					{/if}
 				</div>
 			</UsdcWalletCard>
-			<Ramp class="border-0 h-[600px] w-full" {options} direction="sell" />
+			<Ramp class="border-0 h-[520px] w-full" {options} direction="sell" />
 		</Card>
+		<div class="h-20" />
 	</div>
 </BaseScreen>
