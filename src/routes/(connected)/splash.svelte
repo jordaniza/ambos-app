@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import { EXCLUDED_SPLASH_ROUTES } from '$lib/constants';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import { browser } from '$app/environment';
 
-	export let isLoading = true;
+	export let showSplash = true;
 	let showLoading = false;
 
 	function preventScroll(_: HTMLElement) {
@@ -27,11 +28,11 @@
 		currentPage as (typeof EXCLUDED_SPLASH_ROUTES)[number]
 	);
 	$: {
-		if (!isLoading) document.body.classList.remove('overflow-hidden');
+		if (!showSplash && browser) document.body.classList.remove('overflow-hidden');
 	}
 </script>
 
-{#if !excludedRoute && isLoading}
+{#if !excludedRoute && showSplash}
 	<div
 		class="fixed inset-0 flex flex-col items-center justify-center bg-background z-50"
 		transition:fade

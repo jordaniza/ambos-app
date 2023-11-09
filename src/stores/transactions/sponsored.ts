@@ -29,7 +29,11 @@ export async function sponsoredTx(
 		]);
 		const paymaster = smartAccount.paymaster as IHybridPaymaster<SponsorUserOperationDto>;
 		const paymasterAndDataResponse = await paymaster.getPaymasterAndData(userOp, {
-			mode: PaymasterMode.SPONSORED
+			mode: PaymasterMode.SPONSORED,
+			smartAccountInfo: {
+				name: 'BICONOMY',
+				version: '2.0.0'
+			}
 		});
 		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
 
@@ -78,7 +82,11 @@ export async function batchSponsoredTx(
 		const userOp = await smartAccount.buildUserOp(txs);
 		const paymaster = smartAccount.paymaster as IHybridPaymaster<SponsorUserOperationDto>;
 		const paymasterAndDataResponse = await paymaster.getPaymasterAndData(userOp, {
-			mode: PaymasterMode.SPONSORED
+			mode: PaymasterMode.SPONSORED,
+			smartAccountInfo: {
+				name: 'BICONOMY',
+				version: '2.0.0'
+			}
 		});
 
 		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
@@ -142,6 +150,10 @@ export async function batchERC20Tx(
 
 		let paymasterServiceData = {
 			mode: PaymasterMode.ERC20,
+			smartAccountInfo: {
+				name: 'BICONOMY',
+				version: '2.0.0'
+			},
 			feeTokenAddress: tokenFeeQuote.tokenAddress,
 			calculateGasLimits: true // Always recommended and especially when using token paymaster
 		};

@@ -1,11 +1,12 @@
 // export the 3rd party SDKs behind a common interface
-import type { providers } from 'ethers';
+import type { ethers, providers } from 'ethers';
 import * as biconomy from './biconomy';
 import * as particle from './particle';
 import type { IBundler } from '@biconomy/bundler';
 import type { IPaymaster } from '@biconomy/paymaster';
-import type { BiconomySmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
 import type { ParticleAuthModule } from '@biconomy/particle-auth';
+import type { AppProvider } from '.';
 
 export interface AccountAbstractor<
 	Provider = providers.Web3Provider,
@@ -17,7 +18,7 @@ export interface AccountAbstractor<
 	getProvider(network: string): Provider;
 	getBundler(): Bundler;
 	getPaymaster(): Paymaster;
-	getSCW(): Promise<SCW>;
+	getSCW(provider: ethers.providers.Web3Provider): Promise<SCW>;
 	getUser(): Promise<User>;
 	signOut(): Promise<void>;
 }
@@ -28,7 +29,7 @@ export class BiconomyAccountAbstractor
 			providers.Web3Provider | undefined,
 			IBundler,
 			IPaymaster,
-			BiconomySmartAccount | undefined,
+			BiconomySmartAccountV2 | undefined,
 			particle.ParticleUserInfo | null | undefined
 		>
 {
@@ -65,9 +66,10 @@ export class BiconomyAccountAbstractor
 		}
 	}
 
-	public async getSCW(): Promise<BiconomySmartAccount | undefined> {
+	public async getSCW(
+		provider: ethers.providers.Web3Provider
+	): Promise<BiconomySmartAccountV2 | undefined> {
 		try {
-			const provider = this.getProvider();
 			if (!provider) throw new Error('Provider is not initialized');
 			// this will sign the user in and return the user info
 			const bundler = this.getBundler();

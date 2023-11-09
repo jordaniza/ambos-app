@@ -1,13 +1,14 @@
 import { Bundler, type IBundler } from '@biconomy/bundler';
 import {
-	BiconomySmartAccount,
-	type BiconomySmartAccountConfig,
-	DEFAULT_ENTRYPOINT_ADDRESS
+	DEFAULT_ENTRYPOINT_ADDRESS,
+	BiconomySmartAccountV2,
+	type BiconomySmartAccountV2Config
 } from '@biconomy/account';
 import type { ChainId } from '@biconomy/core-types';
 import { BiconomyPaymaster, type IPaymaster } from '@biconomy/paymaster';
 import type { ethers } from 'ethers';
 import * as process from '$env/static/public';
+import { DEFAULT_ECDSA_OWNERSHIP_MODULE, ECDSAOwnershipValidationModule } from '@biconomy/modules';
 
 export const getBundler = (
 	chainId: ChainId,
@@ -48,12 +49,19 @@ export const getSmartAccount = async ({
 	bundler,
 	paymaster
 }: GetSmartAccountProps) => {
-	const biconomySmartAccountConfig: BiconomySmartAccountConfig = {
-		signer: provider.getSigner(),
+	const module = await ECDSAOwnershipValidationModule.create({
+		signer: provider.getSigner(), // you will need to supply a signer from an EOA in this step
+		moduleAddress: DEFAULT_ECDSA_OWNERSHIP_MODULE
+	});
+
+	const biconomySmartAccountConfig: BiconomySmartAccountV2Config = {
 		chainId,
 		bundler,
-		paymaster
+		paymaster,
+		entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
+		defaultValidationModule: module,
+		activeValidationModule: module
 	};
-	const biconomySmartAccount = new BiconomySmartAccount(biconomySmartAccountConfig);
-	return await biconomySmartAccount.init();
+	const biconomySmartAccount = await BiconomySmartAccountV2.create(biconomySmartAccountConfig);
+	return biconomySmartAccount;
 };

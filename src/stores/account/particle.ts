@@ -29,7 +29,11 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 		chains: [PolygonMumbai],
 		wallets: evmWallets({
 			projectId: wcProjectId
-		})
+		}),
+		particleWalletEntry: {
+			displayWalletEntry: false
+		},
+		preload: true
 	});
 	// console.log('connectKit', connectKit);
 	return connectKit;
@@ -90,7 +94,7 @@ export const getUserInfo = async (
 		if (!particle.auth.isLogin()) {
 			userInfo = await particle.auth.login();
 		} else {
-			userInfo = particle.auth.userInfo();
+			particle.auth.getUserInfo();
 		}
 		return userInfo;
 	} catch (error) {

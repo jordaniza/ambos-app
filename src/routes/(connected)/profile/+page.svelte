@@ -8,6 +8,7 @@
 	import Logout from '$lib/components/connect/logout.svelte';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();
@@ -39,10 +40,6 @@
 		<Card variant="popover" class="flex flex-col gap-5 items-center p-4">
 			<p class="text-start w-full font-bold">Settings</p>
 			<Logout class="w-full bg-transparent border-secondary text-secondary border-[1px]" />
-			<Button
-				on:click={() => goto(ROUTES.LOGIN)}
-				class="w-full bg-transparent border-primary text-primary border-[1px]">Login</Button
-			>
 		</Card>
 		<!-- <Card variant="popover" class="flex flex-col gap-5 items-center p-4">
 			<p class="font-bold w-full text-start">Got Feedback? We'd love to hear it</p>

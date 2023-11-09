@@ -1,21 +1,18 @@
 <script lang="ts">
-	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
-	import { getWeb3Store } from '$lib/context/getStores';
+	import { goto } from '$app/navigation';
+	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { getAccountStore } from '$lib/context/getStores';
 	import { disconnect } from '$stores/account';
 	import Button from '../ui/button/button.svelte';
 
-	let web3Store = getWeb3Store();
-
-	$: chainId = $web3Store.chainId;
+	let accountStore = getAccountStore();
 
 	async function logout(): Promise<void> {
-		if (!chainId) throw new Error('No chainId');
-
 		localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME);
+		localStorage.removeItem(LOCAL_STORAGE_KEYS.PARTICLE_CACHED_PROVIDER);
 
-		await disconnect(chainId);
-		// reload the page
-		window.location.reload();
+		await disconnect(accountStore);
+		goto(ROUTES.LOGIN);
 	}
 </script>
 

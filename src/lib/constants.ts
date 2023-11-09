@@ -88,7 +88,9 @@ export const LOCAL_STORAGE_KEYS = {
 	CACHED_CHART_DATA: 'cachedChartData',
 	// fee estimations
 	CACHED_FEE_DATA_GET_LOAN: 'cachedFeeDataGetLoan',
-	CACHED_FEE_DATA_TRANSFER: 'cachedFeeDataTransfer'
+	CACHED_FEE_DATA_TRANSFER: 'cachedFeeDataTransfer',
+
+	PARTICLE_CACHED_PROVIDER: 'particle_connect_cached_provider'
 };
 
 export const getUserStorageKey = (address: EthereumAddress) =>

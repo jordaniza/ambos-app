@@ -3,7 +3,7 @@ import { defaultBuilders, type TxBuilders } from './builders';
 import type { EthereumAddress } from '$lib/utils';
 import { LOCAL_STORAGE_KEYS, getUserStorageKey } from '$lib/constants';
 import type { AppProvider } from '$stores/account';
-import type { SmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccountV2 as SmartAccount } from '@biconomy/account';
 import { v4 } from 'uuid';
 import type { TSupportedTokens } from '$lib/contracts';
 
@@ -313,7 +313,7 @@ function getPendingTxHashes(store: TxStore): { hash: `0x${string}`; userOp: bool
 
 async function grabSmartAccountTxReceipt(smartAccount: SmartAccount, hash: string) {
 	// const { receipt } = await smartAccount.bundler.getUserOpReceipt(hash);
-	const uop = await smartAccount.bundler.getUserOpReceipt(hash);
+	const uop = await smartAccount.bundler?.getUserOpReceipt(hash);
 	if (!uop) return;
 	return uop.receipt;
 }

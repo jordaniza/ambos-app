@@ -1,6 +1,8 @@
 import type { BigNumber, BigNumberish, ethers } from 'ethers';
 import type { EthereumAddress } from './utils';
 import { ChainId } from '@biconomy/core-types';
+import type { ChainInfo } from '@particle-network/connect';
+import { PolygonMumbai } from '@particle-network/chains';
 
 export const SupportedTokens = ['USDC', 'WETH', 'aWETH'] as const;
 export const SupportedContracts = [
@@ -13,6 +15,11 @@ export const SupportedContracts = [
 
 export type TSupportedTokens = (typeof SupportedTokens)[number];
 export type TSupportedContracts = (typeof SupportedContracts)[number];
+
+// map bico => particle chains
+export const ChainMap: Record<number, ChainInfo> = {
+	[ChainId.POLYGON_MUMBAI]: PolygonMumbai
+};
 
 export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, EthereumAddress>> = {
 	[ChainId.POLYGON_MUMBAI]: {
