@@ -101,6 +101,7 @@ export async function getSetSupportedTokenBalances(
 	provider: AppProvider,
 	store: typeof web3Store
 ): Promise<void> {
+	debugger;
 	const tokens = await getSupportedTokenContracts(provider);
 	tokens.forEach(([token, name]) => {
 		getSetTokenBalance(token, name, userAddress, store, 0);

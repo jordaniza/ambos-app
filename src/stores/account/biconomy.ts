@@ -39,29 +39,28 @@ export const getPaymaster = (chainId: ChainId): IPaymaster => {
 type GetSmartAccountProps = {
 	chainId: ChainId;
 	provider: ethers.providers.Web3Provider;
-	bundler: IBundler;
-	paymaster: IPaymaster;
 };
 
-export const getSmartAccount = async ({
-	chainId,
-	provider,
-	bundler,
-	paymaster
-}: GetSmartAccountProps) => {
-	const module = await ECDSAOwnershipValidationModule.create({
-		signer: provider.getSigner(), // you will need to supply a signer from an EOA in this step
-		moduleAddress: DEFAULT_ECDSA_OWNERSHIP_MODULE
-	});
+export const getSmartAccount = async ({ chainId, provider }: GetSmartAccountProps) => {
+	try {
+		const module = await ECDSAOwnershipValidationModule.create({
+			signer: provider.getSigner(), // you will need to supply a signer from an EOA in this step
+			moduleAddress: DEFAULT_ECDSA_OWNERSHIP_MODULE
+		});
 
-	const biconomySmartAccountConfig: BiconomySmartAccountV2Config = {
-		chainId,
-		bundler,
-		paymaster,
-		entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
-		defaultValidationModule: module,
-		activeValidationModule: module
-	};
-	const biconomySmartAccount = await BiconomySmartAccountV2.create(biconomySmartAccountConfig);
-	return biconomySmartAccount;
+		const bundler = getBundler(chainId);
+		const paymaster = getPaymaster(chainId);
+		const biconomySmartAccountConfig: BiconomySmartAccountV2Config = {
+			chainId,
+			bundler,
+			paymaster,
+			entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
+			defaultValidationModule: module,
+			activeValidationModule: module
+		};
+		const biconomySmartAccount = await BiconomySmartAccountV2.create(biconomySmartAccountConfig);
+		return biconomySmartAccount;
+	} catch (error) {
+		console.error('Error Fetching The Biconomy Smart Account:', error);
+	}
 };

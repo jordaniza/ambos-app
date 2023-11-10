@@ -3,9 +3,10 @@ import { ParticleAuthModule, ParticleProvider } from '@biconomy/particle-auth';
 import { providers } from 'ethers';
 import * as process from '$env/static/public';
 import { particleChainNames } from './particleChainNames';
-import { evmWallets, ParticleConnect } from '@particle-network/connect';
+import { evmWallets, ParticleConnect, type EVMProvider } from '@particle-network/connect';
 import type { ParticleNetwork } from '@particle-network/auth';
 import { PolygonMumbai } from '@particle-network/chains';
+import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 export type ParticleUserInfo = ParticleAuthModule.UserInfo;
 
 export const initConnectKit = (chainId: ChainId): ParticleConnect => {
@@ -22,6 +23,8 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 		throw new Error('Missing chainName for Particle provider');
 	}
 
+	console.warn('Auth is configured to use the Polygon chain');
+
 	const connectKit = new ParticleConnect({
 		projectId: particleProjectId,
 		clientKey,
@@ -35,80 +38,34 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 		},
 		preload: true
 	});
-	// console.log('connectKit', connectKit);
 	return connectKit;
 };
 
-export const initParticle = (chainId: ChainId): ParticleNetwork => {
-	const connectKit = initConnectKit(chainId);
-	return connectKit.particle;
+export async function getCachedProvider(
+	connectKit: ParticleConnect
+): Promise<providers.Web3Provider | undefined> {
+	const cachedProvider = await connectKit.connectToCachedProvider();
+	if (!cachedProvider) return;
+	return new providers.Web3Provider(cachedProvider as EVMProvider, 'any');
+}
 
-	// console.warn('Auth is configured to use the Polygon chain');
-	// const auth = new ParticleAuthModule.ParticleNetwork({
-	// 	projectId: particleProjectId,
-	// 	clientKey,
-	// 	appId,
-	// 	chainId,
-	// 	chainName,
-	// 	wallet: {
-	// 		displayWalletEntry: false,
-	// 		uiMode: 'light',
-	// 		supportChains: [
-	// 			{
-	// 				id: chainId,
-	// 				name: 'Polygon'
-	// 			}
-	// 		]
-	// 	}
-	// });
-
-	// console.log('auth', auth);
-	// return auth;
-};
-
-export const getProvider = (particle: ParticleNetwork): providers.Web3Provider | undefined => {
+export async function getSocialProvider(
+	connectKit: ParticleConnect
+): Promise<providers.Web3Provider | undefined> {
 	try {
 		const particleProvider = new ParticleProvider(
-			particle.auth as unknown as ParticleAuthModule.Auth
+			connectKit.particle.auth as unknown as ParticleAuthModule.Auth
 		);
-		const w3Provider = new providers.Web3Provider(particleProvider, 'any');
-		return w3Provider;
+		return new providers.Web3Provider(particleProvider, 'any');
 	} catch (error) {
-		console.error('AMBOS:', error);
+		console.error('Failed to get particle provider:', error);
 	}
-};
+}
 
-export const signOut = async (particle: ParticleNetwork): Promise<void> => {
-	try {
-		await particle.auth.logout();
-	} catch (error) {
-		console.error('Problem with Logout', error);
-	}
-};
-
-export const getUserInfo = async (
-	particle: ParticleNetwork
-): Promise<ParticleUserInfo | null | undefined> => {
-	try {
-		let userInfo;
-		if (!particle.auth.isLogin()) {
-			userInfo = await particle.auth.login();
-		} else {
-			particle.auth.getUserInfo();
-		}
-		return userInfo;
-	} catch (error) {
-		console.error('Problem with getUserInfo', error);
-	}
-};
-
-export const signIn = async (
-	particle: ParticleNetwork
-): Promise<ParticleUserInfo | null | undefined> => {
-	try {
-		const userInfo = await particle.auth.login();
-		return userInfo;
-	} catch (error) {
-		console.error('Problem with Login', error);
-	}
+export const signOut = async (connectKit: ParticleConnect): Promise<void> => {
+	// all settled doesn't throw an error if one of the promises fails
+	// we try both disconnection methods
+	await Promise.allSettled([connectKit.disconnect(), connectKit.particle.auth.logout()]);
+	// clear the cached provider
+	localStorage.removeItem(LOCAL_STORAGE_KEYS.PARTICLE_CACHED_PROVIDER);
 };

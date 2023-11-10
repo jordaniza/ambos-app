@@ -138,3 +138,21 @@ export function getTextColor(barWidth: number): string {
 export async function delay(ms: number) {
 	return await new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function withTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(() => {
+			reject(new Error('timeout'));
+		}, timeout);
+
+		promise
+			.then((value) => {
+				clearTimeout(timer);
+				resolve(value);
+			})
+			.catch((reason) => {
+				clearTimeout(timer);
+				reject(reason);
+			});
+	});
+}

@@ -1,37 +1,35 @@
 <script lang="ts">
 	import { PUBLIC_WALLETCONNECT_PROJECT_ID } from '$env/static/public';
-	import { getProvider, initConnectKit } from '$stores/account/particle';
-	import { ChainId } from '@biconomy/core-types';
-	import { evmWallets, type EVMProvider, type ParticleConnect } from '@particle-network/connect';
+	import { evmInjectedWallet, evmWallets } from '@particle-network/connect';
 	import { onMount } from 'svelte';
 	import type { AuthTypes } from '@particle-network/auth';
-	import { ethers } from 'ethers';
-	import { PolygonMumbai } from '@particle-network/chains';
-	import type { EthereumAddress } from '$lib/utils';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { ChevronDown, MailIcon, SmartphoneIcon } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { getAccountStore } from '$lib/context/getStores';
-	import { connect } from '$stores/account';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
+	import { withTimeout } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
+	import { getSocialProvider } from '$stores/account/particle';
+	import { initAccountStore } from '$stores/account';
+	import { ethers, providers } from 'ethers';
 
-	let connectKit: ParticleConnect;
+	const SUPPORTED_WALLETS = ['injected', 'metamask', 'walletconnect_v2'];
+
 	let wallets: ReturnType<typeof evmWallets> = [];
-	let provider: ethers.providers.Web3Provider | undefined;
-	let walletAddress: EthereumAddress | undefined;
-	let chainId: number;
 	let pending = false;
 	let pendingCrypto = false;
 	let selectCryptoWallet = false;
 	let timedOut = false;
 	let accountStore = getAccountStore();
-
-	const SUPPORTED_WALLETS = ['injected', 'metamask', 'walletconnect_v2'];
+	let web3Store = getWeb3Store();
 
 	$: isConnected = $accountStore?.isConnected;
+	$: connectKit = $accountStore?.connectKit;
+	$: chainId = $web3Store.chainId;
 
 	$: {
 		if (browser && isConnected) {
@@ -39,77 +37,39 @@
 		}
 	}
 
-	function withTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
-		return new Promise((resolve, reject) => {
-			const timer = setTimeout(() => {
-				reject(new Error('timeout'));
-			}, timeout);
-
-			promise
-				.then((value) => {
-					clearTimeout(timer);
-					resolve(value);
-				})
-				.catch((reason) => {
-					clearTimeout(timer);
-					reject(reason);
-				});
-		});
-	}
-
 	onMount(() => {
-		connectKit = initConnectKit(ChainId.POLYGON_MUMBAI);
 		wallets = evmWallets({
 			projectId: PUBLIC_WALLETCONNECT_PROJECT_ID
 		}).filter((wallet) => SUPPORTED_WALLETS.includes(wallet.id));
-
-		connectKit.on('connect', (p) => {
-			const evmp = p as EVMProvider;
-			connectKit.switchChain(PolygonMumbai);
-			provider = new ethers.providers.Web3Provider(evmp, 'any');
-			provider.getNetwork().then((network) => {
-				chainId = network.chainId;
-
-				// connect to the account store
-				connect(accountStore, chainId, provider);
-			});
-			provider.listAccounts().then((accounts) => {
-				walletAddress = accounts[0] as EthereumAddress;
-			});
-		});
 	});
 
-	function connectWithSocial(id?: (typeof AuthTypes)[number]) {
-		const loginOptions = id
-			? {
-					preferredAuthType: id
-			  }
-			: undefined;
+	async function connectWithSocial(id?: (typeof AuthTypes)[number]) {
+		try {
+			if (!connectKit || !chainId) throw new Error('No connect kit or chainId');
+			pending = true;
+			const loginOptions = id
+				? {
+						preferredAuthType: id
+				  }
+				: undefined;
 
-		pending = true;
-		connectKit.particle.auth
-			.login(loginOptions)
-			.then((info) => {
-				provider = getProvider(connectKit.particle);
-				provider?.getNetwork().then((network) => {
-					chainId = network.chainId;
-					connect(accountStore, chainId, provider);
-				});
-				walletAddress = info.wallets[0].public_address as EthereumAddress;
-			})
-			.finally(() => {
-				pending = false;
-			});
+			await connectKit.particle.auth.login(loginOptions);
+			const provider = await getSocialProvider(connectKit);
+			initAccountStore(accountStore, chainId, provider!);
+		} catch (e) {
+			toast.error('Error With Login, please try again');
+			console.error(e);
+		} finally {
+			pending = false;
+		}
 	}
 
-	function handleConnectWithCrypto() {
-		selectCryptoWallet = true;
-	}
-
-	async function handleConnect(id: string) {
+	function handleConnectWithCrypto(id: string) {
+		if (!connectKit) throw new Error('No connect kit');
 		pendingCrypto = true;
 		timedOut = false;
 		withTimeout(
+			// root listener will set the remaining state
 			connectKit.connect(id).then(() => {
 				selectCryptoWallet = false;
 			}),
@@ -131,13 +91,7 @@
 	</div>
 {/if}
 
-{#if walletAddress && chainId}
-	<div
-		class="bg-primary text-white flex items-center text-center justify-center w-full absolute top-0 p-2"
-	>
-		Connected to {walletAddress} on Chain {chainId}
-	</div>
-{:else if timedOut}
+{#if timedOut}
 	<div
 		class="bg-destructive text-white flex items-center text-center justify-center w-full absolute top-0 p-2"
 	>
@@ -168,7 +122,8 @@
 				<p class="font-bold text-xl">Login</p>
 				<p class="text-center px-6">Please choose how you would like to connect to Ambos</p>
 			</div>
-			<Button on:click={handleConnectWithCrypto} class="w-3/4">Use a Crypto Wallet</Button>
+			<Button on:click={() => (selectCryptoWallet = true)} class="w-3/4">Use a Crypto Wallet</Button
+			>
 
 			<div class="relative w-full flex items-center justify-center">
 				<div class="h-[0.5px] absolute bg-black w-8/12" />
@@ -230,7 +185,7 @@
 			<div class="grid grid-cols-3 gap-5">
 				{#each wallets as wallet}
 					<button
-						on:click={() => handleConnect(wallet.id)}
+						on:click={() => handleConnectWithCrypto(wallet.id)}
 						class="flex flex-col items-center justify-center gap-1"
 					>
 						<div class="h-12 w-12 bg-popover rounded-lg flex items-center justify-center">

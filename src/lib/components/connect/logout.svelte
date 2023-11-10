@@ -9,8 +9,6 @@
 
 	async function logout(): Promise<void> {
 		localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME);
-		localStorage.removeItem(LOCAL_STORAGE_KEYS.PARTICLE_CACHED_PROVIDER);
-
 		await disconnect(accountStore);
 		goto(ROUTES.LOGIN);
 	}

@@ -6,8 +6,6 @@ import type { AppProvider } from '$stores/account';
 
 export async function getOracleWETHPrice(provider: AppProvider) {
 	const { chainId } = await provider.getNetwork();
-	// debugger;
-	console.log('getOracleWETHPrice', { chainId });
 	const oracleAddress = ADDRESSES[chainId]['ORACLE'];
 	const oracle = Oracle__factory.connect(oracleAddress, provider);
 	const [price, decimals] = await Promise.all([oracle.latestAnswer(), oracle.decimals()]);
@@ -63,7 +61,6 @@ export async function watchEthPrice(
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {
-	console.log('watchEthPrice', { interval });
 	const currentBlock = await provider.getBlockNumber();
 	await getSetEthPrice(provider, store, currentBlock);
 	provider.on('block', async (blockNumber) => {

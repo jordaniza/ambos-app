@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { connect } from '$stores/account';
-	import { onDestroy, onMount } from 'svelte';
+	import { initAccountStore, setConnectKit, initMulticallProvider } from '$stores/account';
+	import { onMount } from 'svelte';
 	import { ChainId } from '@biconomy/core-types';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
@@ -25,9 +25,10 @@
 	import { fade } from 'svelte/transition';
 	import { ethers } from 'ethers';
 	import type { EVMProvider, ParticleConnect } from '@particle-network/connect';
-	import { initConnectKit } from '$stores/account/particle';
+	import { getCachedProvider } from '$stores/account/particle';
 	import { ChainMap } from '$lib/contracts';
 	import { toast } from 'svelte-sonner';
+	import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -49,16 +50,15 @@
 
 	let lastTxCount = 0;
 	let toastId: number | string | null = null;
-	// has the application loaded for the first time
-	let firstLoad = true;
-	let onSupportedChain = false;
-	let connectKit: ParticleConnect;
+	let onSupportedChain: boolean | null = null;
+	let walletAddress = '';
 
 	// adjust the chain id here for the whole app
 	const chainId = ChainId.POLYGON_MUMBAI;
 	const WATCH_INTERVAL = 30; // seconds
 
 	$: provider = $accountStore?.provider;
+	$: connectKit = $accountStore?.connectKit;
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
 	$: smartAccount = $accountStore?.smartAccount;
@@ -70,68 +70,60 @@
 		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
 	);
 
-	async function tryConnectAndSwitch(chainId: number) {
-		if (!connectKit) {
-			throw new Error('No connectKit');
-		}
+	async function checkChainAndSetupListeners(
+		p: MulticallProvider | ethers.providers.Web3Provider | undefined = provider
+	) {
 		try {
-			// try connecting to the cached provider
-			const evmp = (await connectKit.connectToCachedProvider()) as EVMProvider;
-			if (!evmp) {
-				throw new Error('No provider found');
+			if (!connectKit || !p) {
+				console.warn('No connectKit or provider');
+				return;
+			}
+			const multiP = initMulticallProvider(p as ethers.providers.Web3Provider)!;
+			onSupportedChain = await checkChainIdIsCorrect(multiP);
+
+			if (onSupportedChain === false) {
+				const success = await trySwitchChain(connectKit);
+				if (!success) return;
 			}
 
-			// attempt to connect and build the account store
-			await connect(accountStore, chainId, new ethers.providers.Web3Provider(evmp, 'any'));
+			if (!address || !smartAccount) {
+				console.warn('No address or smartAccount found, cannot set listeners');
+				return;
+			}
 
-			// attempt to switch to the correct chain (this returns if the chain is already correct)
-			await trySwitchChain(connectKit);
-
-			// validate the chain is correct
-			onSupportedChain = await checkChainIdIsCorrect();
-			if (!onSupportedChain) return;
-
-			// initialize the txStore and watch for changes
-			await initializeTxStore(txStore, address!, provider!, smartAccount!);
-			watchW3Store(web3Store, address!, provider!, WATCH_INTERVAL);
+			await initializeTxStore(txStore, address, multiP, smartAccount);
+			p.removeAllListeners();
+			watchW3Store(web3Store, address, multiP, WATCH_INTERVAL);
 		} catch (e) {
-			// if this can't be done, go to the login page
 			console.error(e);
-			goto(ROUTES.LOGIN);
 		}
 	}
 
-	async function checkChainIdIsCorrect(): Promise<boolean> {
-		if (!provider) return false;
-		const currentNetwork = await provider.getNetwork();
+	async function checkChainIdIsCorrect(p: MulticallProvider): Promise<boolean | null> {
+		if (!p) return null;
+		const currentNetwork = await p.getNetwork();
 		return currentNetwork.chainId === chainId;
 	}
 
-	async function trySwitchChain(kit: ParticleConnect) {
-		onSupportedChain = await checkChainIdIsCorrect();
-
-		if (onSupportedChain) {
-			if (toastId) toast.dismiss(toastId);
-			return;
-		}
-
+	async function trySwitchChain(kit: ParticleConnect): Promise<boolean> {
 		try {
 			await kit.switchChain(ChainMap[chainId]);
 			onSupportedChain = true;
-			if (toastId) toast.dismiss(toastId);
+			return true;
 		} catch (e) {
-			console.log('chain switch error', e);
+			console.log('Error switching chains: usually a problem with the wallet');
+			return false;
 		}
 	}
 
 	$: {
-		if (!onSupportedChain) {
+		if (onSupportedChain === false && browser) {
 			const chainName = ChainMap[chainId].fullname;
 			toastId = toast.error(`Unsupported chain, please switch to ${chainName}`, {
 				duration: Infinity
 			});
-		} else {
-			if (toastId) toast.dismiss(toastId);
+		} else if (onSupportedChain && toastId !== null) {
+			toast.dismiss(toastId);
 		}
 	}
 
@@ -154,23 +146,44 @@
 
 	onMount(async () => {
 		try {
-			// load globals and connect to web3
 			loadTheme();
 			setChainId(web3Store, chainId);
-			connectKit = initConnectKit(chainId);
-			connectKit.on('chainChanged', async (to) => {
-				tryConnectAndSwitch(chainId);
+
+			// init the connection
+			const kit = setConnectKit(accountStore, chainId);
+
+			// setup listeners at the root
+			kit.on('connect', (p) => {
+				if (!chainId) throw new Error('No chain id');
+				const evmp = p as EVMProvider;
+				const provider = new ethers.providers.Web3Provider(evmp, 'any');
+				provider.listAccounts().then((accounts) => {
+					walletAddress = accounts[0];
+				});
+				initAccountStore(accountStore, chainId, provider);
+				checkChainAndSetupListeners(provider);
 			});
-			tryConnectAndSwitch(chainId);
+
+			// watch for chain changes
+			kit.on('chainChanged', () => {
+				checkChainAndSetupListeners();
+			});
+
+			// connect will try to use a cached provider if it exists
+			if (!isConnected) {
+				const cachedProvider = await getCachedProvider(kit);
+				if (!cachedProvider) goto(ROUTES.LOGIN);
+				else initAccountStore(accountStore, chainId, cachedProvider);
+			}
 		} catch (e) {
 			console.log('Failed to connect', e);
+			goto(ROUTES.LOGIN);
 		}
 	});
 </script>
 
 {#if browser}
 	<Toast />
-	<!-- <LoginReminder bind:firstLoad /> -->
 	<NotificationHandler />
 {/if}
 <Splash {showSplash} />

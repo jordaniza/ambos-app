@@ -104,8 +104,6 @@ export async function increaseDebt({
 		state: 'SIGNING'
 	});
 
-	console.log({ transactions });
-
 	await batchSponsoredTx(store, id, transactions, smartAccount);
 }
 

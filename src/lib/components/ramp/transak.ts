@@ -103,7 +103,6 @@ export function initOnRamp(
 	optionsOverride: Partial<ITransakDto> = {}
 ) {
 	const options = { ...optionsOn(selectedNetwork, receiveAddress), ...optionsOverride };
-	console.log({ options });
 	const transak = new transakSDK(options);
 	transak.init();
 }
