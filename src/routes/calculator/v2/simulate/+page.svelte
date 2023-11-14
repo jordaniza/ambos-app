@@ -227,14 +227,14 @@
 				<div class="w-full flex flex-col gap-5 px-5">
 					<Button
 						target="_blank"
-						href="https://discord.gg/xhYkFyDU6y"
+						href="https://discord.gg/hhXMdH8QKW"
 						variant="secondary"
 						class="rounded-2xl">Get Up to $300 in Fees Credit*</Button
 					>
 					<p class="text-sm text-muted-foreground">
 						*The offer is limited to users that take out loans of a minimum of $1000 and maximum of
 						$60,000. 50% of the fee paid on the loan will be credited back into your account. Head
-						over to our <a href={'https://discord.gg/xhYkFyDU6y'} target="_blank">discord</a> to activate
+						over to our <a href={'https://discord.gg/hhXMdH8QKW'} target="_blank">discord</a> to activate
 						the offer.
 					</p>
 					<div class="w-full flex gap-2 text-lg">
