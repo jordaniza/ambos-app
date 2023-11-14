@@ -23,10 +23,14 @@ export function connectToPostgres(): Sql<{}> {
 	return postgres(connectionString);
 }
 
-export async function readEmails(): Promise<[string, string][]> {
+type Email = string;
+type CreatedAt = string;
+type Name = string | null;
+
+export async function readEmails(): Promise<[Email, CreatedAt, Name][]> {
 	const sql = connectToPostgres();
-	const emails = await sql`SELECT email, created_at FROM emails`;
-	return emails.map((e) => [e.email, e.created_at]);
+	const emails = await sql`SELECT email, created_at, name FROM emails`;
+	return emails.map((e) => [e.email, e.created_at, e.name]);
 }
 
 export function connectToGoogleSheets() {
@@ -41,7 +45,7 @@ export function connectToGoogleSheets() {
 	return google.sheets({ version: 'v4', auth: client });
 }
 
-export async function writeValuesToGSheet(values: unknown, range = 'Sheet1!A:B') {
+export async function writeValuesToGSheet(values: unknown, range = 'Sheet1!A:C') {
 	const google = connectToGoogleSheets();
 	const spreadsheetId = '1Zx-80GTviwhG0cESchJA4wQEJMzIJYpBQTWjyW7C_oQ';
 	return await google.spreadsheets.values.update({
@@ -54,6 +58,6 @@ export async function writeValuesToGSheet(values: unknown, range = 'Sheet1!A:B')
 
 export async function writeEmailsToGoogleSheets() {
 	const emails = await readEmails();
-	const headers = [['email', 'created_at']];
+	const headers = [['email', 'created_at', 'name']];
 	await writeValuesToGSheet([...headers, ...emails]);
 }
