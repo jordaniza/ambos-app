@@ -1,5 +1,4 @@
 <script>
-	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 </script>
 
@@ -16,6 +15,6 @@
 			important to understand these risks.
 		</p>
 
-		<Button variant="link" class="text-base" on:click={() => goto('/')}>Back</Button>
+		<Button variant="link" class="text-base" on:click={() => history.back()}>Back</Button>
 	</div>
 </div>
