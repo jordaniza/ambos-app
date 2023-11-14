@@ -117,7 +117,7 @@
 	</span>
 
 	<section>
-		<div class="flex flex-col gap-5 pb-20">
+		<div class="flex flex-col gap-5">
 			<!-- Simulate results -->
 			<Card class=" text-center bg-popover p-4">
 				<CardContent class="flex flex-col gap-5">
@@ -227,11 +227,16 @@
 				<div class="w-full flex flex-col gap-5 px-5">
 					<Button
 						target="_blank"
-						href="https://ambos.finance?openSignupForm=true"
+						href="https://discord.gg/xhYkFyDU6y"
 						variant="secondary"
 						class="rounded-2xl">Get Up to $300 in Fees Credit*</Button
 					>
-					<p class="text-sm text-muted-foreground">*Exclusive offer. Limited to first 50 users</p>
+					<p class="text-sm text-muted-foreground">
+						*The offer is limited to users that take out loans of a minimum of $1000 and maximum of
+						$60,000. 50% of the fee paid on the loan will be credited back into your account. Head
+						over to our <a href={'https://discord.gg/xhYkFyDU6y'} target="_blank">discord</a> to activate
+						the offer.
+					</p>
 					<div class="w-full flex gap-2 text-lg">
 						<Button
 							on:click={handleBack}

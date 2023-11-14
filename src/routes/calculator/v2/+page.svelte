@@ -109,19 +109,5 @@
 				</CardContent>
 			</Card>
 		</div>
-		<div class="flex justify-center w-full text-center px-4 pt-10">
-			<div class="p-4 flex flex-col gap-2 w-full">
-				<p class="text-xl font-extrabold">DISCLAMER</p>
-
-				<p class="text-muted-foreground">
-					This calculator is for illustrative purposes only. It is not intended to be a substitute
-					for professional financial advice. While every attempt has been made to ensure that the
-					calculations presented here are representative, Ambos Finance does not guarantee the
-					accuracy of the calculations or their applicability to your circumstances. <br />As
-					always, do your own research: taking out a loan in any circumstance involves risk, and,
-					especially in DeFi, it's important to understand these risks.
-				</p>
-			</div>
-		</div>
 	</section>
 </Layout>
