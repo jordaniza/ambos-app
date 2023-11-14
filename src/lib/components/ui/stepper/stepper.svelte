@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { CheckCircle2Icon, CheckIcon } from 'lucide-svelte';
+	import { CheckIcon } from 'lucide-svelte';
 	import type { Step } from '.';
 
 	export let steps: Step[];
 
 	function getSelectedIndex() {
-		const currentPage = $page.url.href;
-		return steps.findIndex((step) => currentPage.includes(step.route)) || 0;
+		const currentPage = $page.route.id;
+		return steps.findIndex((step) => currentPage === step.route);
 	}
 
 	$: selectedIndex = getSelectedIndex();

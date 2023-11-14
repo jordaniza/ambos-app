@@ -32,7 +32,10 @@ export const ROUTES = {
 	LOANS_V2_CALCULATE: '/loans/calculator',
 	LOANS_V2_BANK_TRANSFER: '/loans/bank-transfer',
 	DOWNLOAD: '/download',
-	DISCLAIMER: '/calculator/disclaimer'
+	DISCLAIMER: '/calculator/disclaimer',
+	CALCULATOR_V2_START: '/calculator/v2',
+	CALCULATOR_V2_BORROW: '/calculator/v2/borrow',
+	CALCULATOR_V2_SIMULATE: '/calculator/v2/simulate'
 } as const;
 
 // dont show footer on these routes
