@@ -38,12 +38,5 @@
 			<p class="text-start w-full font-bold">Settings</p>
 			<Logout class="w-full bg-transparent border-secondary text-secondary border-[1px]" />
 		</Card>
-		<!-- <Card variant="popover" class="flex flex-col gap-5 items-center p-4">
-			<p class="font-bold w-full text-start">Got Feedback? We'd love to hear it</p>
-			<textarea
-				class="w-full text-sm text-s rounded-2xl border-[1px] border-muted p-2 min-h-[150px] outline-none"
-				placeholder="Write your feedback here..."
-			/>
-		</Card> -->
 	</div>
 </BaseScreen>
