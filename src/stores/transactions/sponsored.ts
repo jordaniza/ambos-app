@@ -9,7 +9,7 @@ import type { PopulatedTransaction } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
 import { updateTransaction, type UUID, type TxStore, increaseTxCounter } from './state';
 import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
-import { TESTNET_ADDITIONAL_CONTRACTS } from '$lib/contracts';
+import { PAYMASTER_ADDRESSES } from '$lib/contracts';
 import { ChainId } from '@biconomy/core-types';
 
 export async function sponsoredTx(

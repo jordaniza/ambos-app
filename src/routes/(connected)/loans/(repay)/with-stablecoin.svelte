@@ -12,6 +12,7 @@
 	import UsdcWalletCard from '$lib/components/wallet-cards/usdc-wallet-card.svelte';
 	import { onMount } from 'svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import { prototype } from 'events';
 
 	export let open = false;
 

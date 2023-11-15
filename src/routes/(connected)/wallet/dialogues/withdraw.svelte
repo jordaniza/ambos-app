@@ -23,8 +23,7 @@
 	import type { BiconomySmartAccount } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { getTransferFeeQuote } from '$stores/transactions/fees';
-	import { cacheFetch, getChangeInEthPrice } from '$lib/cache';
-	import { onMount } from 'svelte';
+	import { cacheFetch } from '$lib/cache';
 
 	export const trigger = () => {
 		open = true;

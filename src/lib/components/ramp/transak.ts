@@ -1,17 +1,27 @@
 // @ts-ignore
 import transakSDK from '@transak/transak-sdk';
-import type { ITransakDto } from './Interface';
+import type { ITransakDto, environments } from './Interface';
 import * as process from '$env/static/public';
 import type { EthereumAddress } from '$lib/utils';
 import { ChainId } from '@biconomy/core-types';
 
 const apiKey = process.PUBLIC_TRANSAK_API_KEY;
-console.warn('TRANSAK IS SET TO STAGING');
+
+function getEnv(): environments {
+	const environment = process.PUBLIC_ENV;
+	console.log('Transak::Environment set to', environment);
+	if (environment === 'production') {
+		return 'PRODUCTION';
+	} else {
+		return 'STAGING';
+	}
+}
+
 const commonOptions: ITransakDto = {
 	apiKey,
 	widgetHeight: '100%',
 	widgetWidth: '100%',
-	environment: 'STAGING'
+	environment: getEnv()
 };
 
 const networkConfigOffRamp: Record<string, Partial<ITransakDto>> = {
@@ -20,6 +30,12 @@ const networkConfigOffRamp: Record<string, Partial<ITransakDto>> = {
 		defaultCryptoCurrency: 'USDC',
 		cryptoCurrencyList: 'USDC',
 		network: 'polygon'
+	},
+	arbitrum: {
+		defaultNetwork: 'arbitrum',
+		defaultCryptoCurrency: 'USDC',
+		cryptoCurrencyList: 'USDC',
+		network: 'arbitrum'
 	},
 	// broken at time of writing
 	optimism: {
@@ -35,6 +51,12 @@ const networkConfigOnRamp: Record<string, Partial<ITransakDto>> = {
 		defaultCryptoCurrency: 'WETH',
 		cryptoCurrencyList: 'ETH,WETH',
 		networks: 'polygon'
+	},
+	arbitrum: {
+		defaultNetwork: 'arbitrum',
+		defaultCryptoCurrency: 'WETH',
+		cryptoCurrencyList: 'ETH,WETH',
+		networks: 'arbitrum'
 	},
 	optimism: {
 		defaultNetwork: 'optimism',
@@ -103,7 +125,6 @@ export function initOnRamp(
 	optionsOverride: Partial<ITransakDto> = {}
 ) {
 	const options = { ...optionsOn(selectedNetwork, receiveAddress), ...optionsOverride };
-	console.log({ options });
 	const transak = new transakSDK(options);
 	transak.init();
 }
@@ -122,10 +143,17 @@ export function initOffRamp(
 }
 
 export const getTransakNetwork = (chainId: ChainId | null): string => {
-	if (!chainId || (chainId !== ChainId.POLYGON_MUMBAI && chainId)) {
-		throw new Error('Unsupported chainId for tranasak');
+	if (!chainId) {
+		throw new Error('No chainId provided to getTransakNetwork');
 	}
-	// need to add new chains as they are supported
-	console.warn('Transak network is set to polygon');
-	return 'polygon';
+
+	switch (chainId) {
+		case ChainId.POLYGON_MUMBAI:
+			return 'polygon';
+		case ChainId.ARBITRUM_ONE_MAINNET:
+		case ChainId.ARBITRUM_GOERLI_TESTNET:
+			return 'arbitrum';
+		default:
+			throw new Error('Unsupported chainId for tranasak');
+	}
 };

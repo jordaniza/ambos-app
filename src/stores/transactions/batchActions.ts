@@ -11,7 +11,7 @@ import * as process from '$env/static/public';
 import { AMBOS_BORROW_FEE_PERCENT } from '$lib/constants';
 import { getBorrowFeeQuote } from './fees';
 import { type IHybridPaymaster, type FeeQuotesOrDataDto, PaymasterMode } from '@biconomy/paymaster';
-import { TESTNET_ADDITIONAL_CONTRACTS } from '$lib/contracts';
+import { PAYMASTER_ADDRESSES } from '$lib/contracts';
 import { ChainId } from '@biconomy/core-types';
 
 type IncreaseDebtProps = {
@@ -123,8 +123,13 @@ export async function getDecreaseDebtFeeQuote({
 }: Omit<DecreaseDebtProps, 'id' | 'store'>) {
 	const promiseUSDC = getTokenAddress(provider, 'USDC');
 	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
 
-	const [usdcAddr, poolAddr] = await Promise.all([promiseUSDC, promisePool]);
+	const [usdcAddr, poolAddr, network] = await Promise.all([
+		promiseUSDC,
+		promisePool,
+		promiseNetwork
+	]);
 
 	const pool = AavePool__factory.connect(poolAddr, provider);
 	const usdc = USDC__factory.connect(usdcAddr, provider);
@@ -142,17 +147,17 @@ export async function getDecreaseDebtFeeQuote({
 
 	const transactions = [tx0, tx1];
 
+	console.log({ transactions });
+
 	const userOp = await smartAccount.buildUserOp(transactions);
 	const paymaster = smartAccount.paymaster as IHybridPaymaster<FeeQuotesOrDataDto>;
 
-	// problem here is that the USDC on testnets for aave might not be the same USDC for biconomy
-
-	console.warn('Warning: USDC for fees is different to USDC for loans on the polygon testnet');
-
 	const feeQuotesResponse = await paymaster.getPaymasterFeeQuotesOrData(userOp, {
 		mode: PaymasterMode.ERC20,
-		tokenList: [TESTNET_ADDITIONAL_CONTRACTS[ChainId.POLYGON_MUMBAI].PAYMASTER_USDC]
+		tokenList: [PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC]
 	});
+
+	console.log({ feeQuotesResponse });
 
 	return feeQuotesResponse?.feeQuotes?.[0] ?? null;
 }
@@ -172,8 +177,13 @@ export async function decreaseDebt({
 
 	const promiseUSDC = getTokenAddress(provider, 'USDC');
 	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
 
-	const [usdcAddr, poolAddr] = await Promise.all([promiseUSDC, promisePool]);
+	const [usdcAddr, poolAddr, network] = await Promise.all([
+		promiseUSDC,
+		promisePool,
+		promiseNetwork
+	]);
 
 	const pool = AavePool__factory.connect(poolAddr, provider);
 	const usdc = USDC__factory.connect(usdcAddr, provider);
@@ -195,9 +205,7 @@ export async function decreaseDebt({
 		state: 'SIGNING'
 	});
 
-	// problem here is that the USDC on testnets for aave might not be the same USDC for biconomy
-	console.warn('Warning: USDC for fees is different to USDC for loans on the polygon testnet');
-	const paymentToken = TESTNET_ADDITIONAL_CONTRACTS[ChainId.POLYGON_MUMBAI].PAYMASTER_USDC;
+	const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
 
 	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
 }

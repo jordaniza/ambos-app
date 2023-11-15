@@ -24,6 +24,7 @@
 	import NotificationHandler from './notifications/notificationHandler.svelte';
 	import { fade } from 'svelte/transition';
 	import LoginReminder from './login-reminder.svelte';
+	import { PUBLIC_CHAIN_ID } from '$env/static/public';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -48,7 +49,12 @@
 	let firstLoad = true;
 
 	// adjust the chain id here for the whole app
-	const chainId = ChainId.POLYGON_MUMBAI;
+	let chainId = Number(PUBLIC_CHAIN_ID);
+
+	if (!chainId) {
+		throw new Error('Chain ID not found in the Environment');
+	}
+
 	const WATCH_INTERVAL = 30; // seconds
 
 	$: provider = $accountStore?.provider;
