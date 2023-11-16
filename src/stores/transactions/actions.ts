@@ -1,18 +1,22 @@
-import { AavePool__factory, Faucet__factory, WETH__factory } from '$lib/abis/ts';
+import { AavePool__factory, Faucet__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import type { EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import type { BiconomySmartAccount } from '@biconomy/account';
-import type { BigNumber, ethers } from 'ethers';
+import { ethers, type BigNumber } from 'ethers';
 import {
 	setNewTransaction,
 	updateTransaction,
 	type TxStore,
 	type UUID,
-	type SupportedSingleTransaction
+	type SupportedSingleTransaction,
+	type TxContext
 } from './state';
-import { sponsoredTx } from './sponsored';
+import { batchSponsoredTx, sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES } from '$lib/contracts';
+import type { AppProvider } from '$stores/account';
+import { getFeeCollector } from './batchActions';
+import { getTransferFeeQuote, getTransferFeeQuoteEth } from './fees';
 
 /**
  * Basic handler for sponsored transactions
@@ -25,98 +29,141 @@ import { ADDRESSES } from '$lib/contracts';
 async function handleSponsoredTransaction(
 	store: TxStore,
 	transactionType: SupportedSingleTransaction,
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	smartAccount: BiconomySmartAccount,
+	id: string,
 	transactionBuilder: (
-		provider: ethers.providers.Web3Provider,
+		provider: AppProvider,
 		id: UUID
-	) => Promise<{ contractAddress: EthereumAddress; data: any }>
+	) => Promise<{ to: EthereumAddress; data: any }[]>,
+	context?: TxContext[keyof TxContext]
 ): Promise<void> {
-	const id = setNewTransaction(store, transactionType);
-	const { contractAddress, data } = await transactionBuilder(provider, id);
+	setNewTransaction(store, transactionType, id, context);
+	const transactions = await transactionBuilder(provider, id);
 	updateTransaction(store, id, {
 		state: 'SIGNING'
 	});
-	await sponsoredTx(store, id, contractAddress, data, smartAccount);
+	await batchSponsoredTx(store, id, transactions, smartAccount);
 }
 
-export function approveWethSmartAccount(
-	store: TxStore,
-	addressToApprove: EthereumAddress,
-	amount: BigNumber,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type ApproveWethSmartAccountProps = {
+	store: TxStore;
+	addressToApprove: EthereumAddress;
+	amount: BigNumber;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function approveWethSmartAccount({
+	store,
+	addressToApprove,
+	amount,
+	provider,
+	smartAccount,
+	id
+}: ApproveWethSmartAccountProps) {
 	return handleSponsoredTransaction(
 		store,
 		'APPROVE_WETH',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
 			const wethAddress = await getTokenAddress(provider, 'WETH');
 			const weth = WETH__factory.connect(wethAddress, provider);
 			const approveTx = await weth.populateTransaction.approve(addressToApprove, amount);
-			return { contractAddress: wethAddress, data: approveTx.data };
+			return [{ to: wethAddress, data: approveTx.data }];
 		}
 	);
 }
 
-export function sendWethSmartAccount(
-	store: TxStore,
-	addressTo: EthereumAddress,
-	amount: BigNumber,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type SendWethSmartAccountProps = {
+	store: TxStore;
+	addressTo: EthereumAddress;
+	amount: BigNumber;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function sendWethSmartAccount({
+	store,
+	addressTo,
+	amount,
+	provider,
+	smartAccount,
+	id
+}: SendWethSmartAccountProps) {
 	return handleSponsoredTransaction(
 		store,
 		'SEND_WETH',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
 			const wethAddress = await getTokenAddress(provider, 'WETH');
 			const weth = WETH__factory.connect(wethAddress, provider);
 			const transferTx = await weth.populateTransaction.transfer(addressTo, amount);
-			return { contractAddress: wethAddress, data: transferTx.data };
+			return [{ to: wethAddress, data: transferTx.data }];
 		}
 	);
 }
 
-export function supplyWethToAavePool(
-	store: TxStore,
-	amount: ethers.BigNumber,
-	onBehalfOf: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type SupplyWethToAavePoolProps = {
+	store: TxStore;
+	amount: BigNumber;
+	onBehalfOf: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function supplyWethToAavePool({
+	store,
+	amount,
+	onBehalfOf,
+	provider,
+	smartAccount,
+	id
+}: SupplyWethToAavePoolProps) {
 	return handleSponsoredTransaction(
 		store,
 		'SUPPLY_WETH',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
 			const poolAddress = await getAavePool(provider);
 			const pool = AavePool__factory.connect(poolAddress, provider);
 			const wethAddress = await getTokenAddress(provider, 'WETH');
 			const tx = await pool.populateTransaction.supply(wethAddress, amount, onBehalfOf, 0);
-			return { contractAddress: poolAddress, data: tx.data };
+			return [{ to: poolAddress, data: tx.data }];
 		}
 	);
 }
 
-export function borrowUsdcFromAavePool(
-	store: TxStore,
-	amount: ethers.BigNumber,
-	borrower: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount,
-	interestRateMode: InterestRateMode
-) {
+type BorrowUsdcFromAavePoolProps = {
+	store: TxStore;
+	amount: BigNumber;
+	borrower: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	interestRateMode: InterestRateMode;
+	id: string;
+};
+export function borrowUsdcFromAavePool({
+	store,
+	amount,
+	borrower,
+	provider,
+	smartAccount,
+	interestRateMode,
+	id
+}: BorrowUsdcFromAavePoolProps) {
 	return handleSponsoredTransaction(
 		store,
 		'BORROW_USDC',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
 			const poolAddress = await getAavePool(provider);
 			const pool = AavePool__factory.connect(poolAddress, provider);
@@ -128,72 +175,138 @@ export function borrowUsdcFromAavePool(
 				0,
 				borrower
 			);
-			return { contractAddress: poolAddress, data: tx.data };
+			return [{ to: poolAddress, data: tx.data }];
 		}
 	);
 }
 
-export function requestWETHFromTestnetFaucet(
-	store: TxStore,
-	amount: ethers.BigNumber,
-	provider: ethers.providers.Web3Provider,
-	recipient: EthereumAddress,
-	smartAccount: BiconomySmartAccount
-) {
+type RequestWETHFromTestnetFaucetProps = {
+	store: TxStore;
+	amount: BigNumber;
+	recipient: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function requestWETHFromTestnetFaucet({
+	store,
+	amount,
+	recipient,
+	provider,
+	smartAccount,
+	id
+}: RequestWETHFromTestnetFaucetProps) {
 	return handleSponsoredTransaction(
 		store,
 		'REQUEST_WETH_FROM_FAUCET',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
 			const { chainId } = await provider.getNetwork();
 			const wethAddress = ADDRESSES[chainId]['WETH'];
 			const faucetAddress = ADDRESSES[chainId]['TESTNET_FAUCET'];
 			const faucet = Faucet__factory.connect(faucetAddress, provider);
 			const tx = await faucet.populateTransaction.mint(wethAddress, recipient, amount);
-			return { contractAddress: faucetAddress, data: tx.data };
+			return [{ to: faucetAddress, data: tx.data }];
 		}
 	);
 }
 
-export function sendWETH(
-	store: TxStore,
-	amount: ethers.BigNumber,
-	recipient: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type SendWETHProps = {
+	store: TxStore;
+	amount: BigNumber;
+	recipient: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function sendWETH({ store, amount, recipient, provider, smartAccount, id }: SendWETHProps) {
+	const context: TxContext['TRANSFER'] = {
+		amount: Number(ethers.utils.formatUnits(amount, 18)),
+		recipient,
+		token: 'WETH'
+	};
+
 	return handleSponsoredTransaction(
 		store,
 		'SEND_WETH',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
+			const feeCollector = getFeeCollector();
+			const fee = await getTransferFeeQuoteEth({
+				smartAccount,
+				provider,
+				transferQty: amount,
+				token: 'WETH',
+				recipient
+			});
 			const wethAddress = await getTokenAddress(provider, 'WETH');
 			const weth = WETH__factory.connect(wethAddress, provider);
-			const tx = await weth.populateTransaction.transfer(recipient, amount);
-			return { contractAddress: wethAddress, data: tx.data };
-		}
+			const tx0 = await weth.populateTransaction.transfer(recipient, amount);
+			const tx1 = await weth.populateTransaction.transfer(feeCollector, fee.big);
+			return [
+				{
+					to: wethAddress,
+					data: tx0.data
+				},
+				{
+					to: wethAddress,
+					data: tx1.data
+				}
+			];
+		},
+		context
 	);
 }
 
-export function sendUSDC(
-	store: TxStore,
-	amount: ethers.BigNumber,
-	recipient: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type SendUSDCProps = {
+	store: TxStore;
+	amount: BigNumber;
+	recipient: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function sendUSDC({ store, amount, recipient, provider, smartAccount, id }: SendUSDCProps) {
+	const context: TxContext['TRANSFER'] = {
+		amount: Number(ethers.utils.formatUnits(amount, 6)),
+		recipient,
+		token: 'USDC'
+	};
+
 	return handleSponsoredTransaction(
 		store,
 		'SEND_USDC',
 		provider,
 		smartAccount,
+		id,
 		async (provider) => {
+			const feeCollector = getFeeCollector();
+			const fee = await getTransferFeeQuote({
+				smartAccount,
+				provider,
+				transferQty: amount,
+				token: 'USDC',
+				recipient
+			});
 			const usdcAddress = await getTokenAddress(provider, 'USDC');
-			const usdc = WETH__factory.connect(usdcAddress, provider);
-			const tx = await usdc.populateTransaction.transfer(recipient, amount);
-			return { contractAddress: usdcAddress, data: tx.data };
-		}
+			const usdc = USDC__factory.connect(usdcAddress, provider);
+			const tx0 = await usdc.populateTransaction.transfer(recipient, amount);
+			const tx1 = await usdc.populateTransaction.transfer(feeCollector, fee.big);
+			return [
+				{
+					to: usdcAddress,
+					data: tx0.data
+				},
+				{
+					to: usdcAddress,
+					data: tx1.data
+				}
+			];
+		},
+		context
 	);
 }

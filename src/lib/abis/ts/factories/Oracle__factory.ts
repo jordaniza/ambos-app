@@ -10,9 +10,34 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "int256",
-        name: "initialAnswer",
-        type: "int256",
+        internalType: "contract IPoolAddressesProvider",
+        name: "provider",
+        type: "address",
+      },
+      {
+        internalType: "address[]",
+        name: "assets",
+        type: "address[]",
+      },
+      {
+        internalType: "address[]",
+        name: "sources",
+        type: "address[]",
+      },
+      {
+        internalType: "address",
+        name: "fallbackOracle",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "baseCurrency",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "baseCurrencyUnit",
+        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",
@@ -23,42 +48,81 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "int256",
-        name: "current",
-        type: "int256",
+        internalType: "address",
+        name: "asset",
+        type: "address",
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "roundId",
-        type: "uint256",
+        internalType: "address",
+        name: "source",
+        type: "address",
+      },
+    ],
+    name: "AssetSourceUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "baseCurrency",
+        type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "updatedAt",
+        name: "baseCurrencyUnit",
         type: "uint256",
       },
     ],
-    name: "AnswerUpdated",
+    name: "BaseCurrencySet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "fallbackOracle",
+        type: "address",
+      },
+    ],
+    name: "FallbackOracleUpdated",
     type: "event",
   },
   {
     inputs: [],
-    name: "decimals",
+    name: "ADDRESSES_PROVIDER",
     outputs: [
       {
-        internalType: "uint8",
+        internalType: "contract IPoolAddressesProvider",
         name: "",
-        type: "uint8",
+        type: "address",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "getTokenType",
+    name: "BASE_CURRENCY",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "BASE_CURRENCY_UNIT",
     outputs: [
       {
         internalType: "uint256",
@@ -66,20 +130,108 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+    ],
+    name: "getAssetPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "assets",
+        type: "address[]",
+      },
+    ],
+    name: "getAssetsPrices",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "latestAnswer",
+    name: "getFallbackOracle",
     outputs: [
       {
-        internalType: "int256",
+        internalType: "address",
         name: "",
-        type: "int256",
+        type: "address",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+    ],
+    name: "getSourceOfAsset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "assets",
+        type: "address[]",
+      },
+      {
+        internalType: "address[]",
+        name: "sources",
+        type: "address[]",
+      },
+    ],
+    name: "setAssetSources",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "fallbackOracle",
+        type: "address",
+      },
+    ],
+    name: "setFallbackOracle",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;

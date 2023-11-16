@@ -1,50 +1,211 @@
-import { AavePool__factory, WETH__factory } from '$lib/abis/ts';
-import type { EthereumAddress } from '$lib/utils';
+import { AavePool__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
+import { N, type EthereumAddress, delay } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import type { BiconomySmartAccount } from '@biconomy/account';
 import { ethers } from 'ethers';
-import { batchSponsoredTx } from './sponsored';
-import { setNewTransaction, updateTransaction, type TxStore } from './state';
+import { batchERC20Tx, batchSponsoredTx } from './sponsored';
+import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';
+import type { AppProvider } from '$stores/account';
+import * as process from '$env/static/public';
+import { AMBOS_BORROW_FEE_PERCENT } from '$lib/constants';
+import { getBorrowFeeQuote } from './fees';
+import { type IHybridPaymaster, type FeeQuotesOrDataDto, PaymasterMode } from '@biconomy/paymaster';
+import { PAYMASTER_ADDRESSES } from '$lib/contracts';
+import { ChainId } from '@biconomy/core-types';
 
-export async function getCashNow(
-	store: TxStore,
-	borrower: EthereumAddress,
-	amountInWeth: ethers.BigNumber,
-	amountOutUsdc: ethers.BigNumber,
-	interestRateMode: InterestRateMode,
-	provider: ethers.providers.Web3Provider,
-	smartAccount: BiconomySmartAccount
-) {
+type IncreaseDebtProps = {
+	store: TxStore;
+	borrower: EthereumAddress;
+	amountInWeth: ethers.BigNumber;
+	amountOutUsdc: ethers.BigNumber;
+	interestRateMode: InterestRateMode;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+
+export function getFeeCollector() {
+	const feeCollector = process.PUBLIC_AMBOS_FEE_COLLECTOR;
+	if (!feeCollector) {
+		throw new Error('Missing environment variable: PUBLIC_AMBOS_FEE_COLLECTOR');
+	}
+	return feeCollector;
+}
+
+export async function increaseDebt({
+	borrower,
+	amountInWeth,
+	amountOutUsdc,
+	interestRateMode,
+	provider,
+	smartAccount,
+	id,
+	store
+}: IncreaseDebtProps) {
+	const feeCollector = getFeeCollector();
+
+	// create the tx in the store
 	const transactionType = 'INCREASE_DEBT';
-	const id = setNewTransaction(store, transactionType);
+	setNewTransaction<TxContext['INCREASE_DEBT']>(store, transactionType, id, {
+		ethToSupply: Number(N(amountInWeth)),
+		usdToBorrow: Number(ethers.utils.formatUnits(amountOutUsdc, 6))
+	});
 
+	// add the fee
+	const fee = amountOutUsdc.mul(AMBOS_BORROW_FEE_PERCENT).div(100);
+	const totalPlusBorrowFee = amountOutUsdc.add(fee);
+
+	// fetch the addresses
 	const promiseWeth = getTokenAddress(provider, 'WETH');
 	const promisePool = getAavePool(provider);
-	const promisUsdc = getTokenAddress(provider, 'USDC');
-	const [wethAddr, poolAddr, usdcAddr] = await Promise.all([promiseWeth, promisePool, promisUsdc]);
+	const promiseUsdc = getTokenAddress(provider, 'USDC');
+	const [wethAddr, poolAddr, usdcAddr] = await Promise.all([promiseWeth, promisePool, promiseUsdc]);
+
+	// connect to the contracts
 	const weth = WETH__factory.connect(wethAddr, provider);
 	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
 
-	// create the txs - might need to be sequential or nonce will be off
+	const estimatedNetworkFee = await getBorrowFeeQuote({
+		smartAccount,
+		provider,
+		amountInWeth,
+		totalBorrow: totalPlusBorrowFee,
+		borrower
+	});
+
+	console.warn('estimated network fees will return 0 if undefined');
+	const total = totalPlusBorrowFee.add(estimatedNetworkFee.big);
+
+	// populate the transactions ready for signing
 	const data0 = await weth.populateTransaction.approve(poolAddr, ethers.constants.MaxUint256);
 	const data1 = await pool.populateTransaction.supply(wethAddr, amountInWeth, borrower, 0);
 	const data2 = await pool.populateTransaction.borrow(
 		usdcAddr,
-		amountOutUsdc,
+		total,
 		interestRateMode,
 		0,
 		borrower
 	);
+	const data3 = await usdc.populateTransaction.transfer(feeCollector, estimatedNetworkFee.big);
+	const data4 = await usdc.populateTransaction.transfer(feeCollector, fee);
+
+	const tx0 = { to: wethAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+	const tx2 = { to: poolAddr, data: data2.data };
+	const tx3 = { to: usdcAddr, data: data3.data };
+	const tx4 = { to: usdcAddr, data: data4.data };
+
+	const transactions = [tx0, tx1, tx2, tx3, tx4];
+
+	// update the tx state and hand off to the sponsored tx function
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+	await batchSponsoredTx(store, id, transactions, smartAccount);
+}
+
+type DecreaseDebtProps = {
+	store: TxStore;
+	repayAmountinUSDC: ethers.BigNumber;
+	id: string;
+	borrower: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccount;
+};
+
+export async function getDecreaseDebtFeeQuote({
+	repayAmountinUSDC,
+	borrower,
+	provider,
+	smartAccount
+}: Omit<DecreaseDebtProps, 'id' | 'store'>) {
+	const promiseUSDC = getTokenAddress(provider, 'USDC');
+	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
+
+	const [usdcAddr, poolAddr, network] = await Promise.all([
+		promiseUSDC,
+		promisePool,
+		promiseNetwork
+	]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
+
+	const data0 = await usdc.populateTransaction.approve(poolAddr, repayAmountinUSDC);
+	const data1 = await pool.populateTransaction.repay(
+		usdcAddr,
+		repayAmountinUSDC,
+		InterestRateMode.VARIABLE_IR,
+		borrower
+	);
+
+	const tx0 = { to: usdcAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+
+	const transactions = [tx0, tx1];
+
+	console.log({ transactions });
+
+	const userOp = await smartAccount.buildUserOp(transactions);
+	const paymaster = smartAccount.paymaster as IHybridPaymaster<FeeQuotesOrDataDto>;
+
+	const feeQuotesResponse = await paymaster.getPaymasterFeeQuotesOrData(userOp, {
+		mode: PaymasterMode.ERC20,
+		tokenList: [PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC]
+	});
+
+	console.log({ feeQuotesResponse });
+
+	return feeQuotesResponse?.feeQuotes?.[0] ?? null;
+}
+
+export async function decreaseDebt({
+	store,
+	repayAmountinUSDC,
+	id,
+	borrower,
+	provider,
+	smartAccount
+}: DecreaseDebtProps) {
+	const transactionType = 'DECREASE_DEBT';
+	setNewTransaction<TxContext['DECREASE_DEBT']>(store, transactionType, id, {
+		amount: Number(ethers.utils.formatUnits(repayAmountinUSDC, 6))
+	});
+
+	const promiseUSDC = getTokenAddress(provider, 'USDC');
+	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
+
+	const [usdcAddr, poolAddr, network] = await Promise.all([
+		promiseUSDC,
+		promisePool,
+		promiseNetwork
+	]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	const usdc = USDC__factory.connect(usdcAddr, provider);
+
+	const data0 = await usdc.populateTransaction.approve(poolAddr, repayAmountinUSDC);
+	const data1 = await pool.populateTransaction.repay(
+		usdcAddr,
+		repayAmountinUSDC,
+		InterestRateMode.VARIABLE_IR,
+		borrower
+	);
+
+	const tx0 = { to: usdcAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+
+	const transactions = [tx0, tx1];
 
 	updateTransaction(store, id, {
 		state: 'SIGNING'
 	});
 
-	const tx0 = { to: wethAddr, data: data0.data };
-	const tx1 = { to: poolAddr, data: data1.data };
-	const tx2 = { to: poolAddr, data: data2.data };
+	const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
 
-	// create the batch
-	await batchSponsoredTx(store, id, [tx0, tx1, tx2], smartAccount);
+	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
 }

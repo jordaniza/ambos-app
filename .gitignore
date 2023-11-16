@@ -8,3 +8,11 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+.vercel/
+yarn-error.log
+TODO.md
+_feeQuotes.json
+static/prompt-sw.js
+
+# keep certain scripts private
+scripts/_*

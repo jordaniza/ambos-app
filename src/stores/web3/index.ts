@@ -1,11 +1,11 @@
 import { ADDRESSES, SupportedTokens, type TSupportedTokens } from '$lib/contracts';
 import { writable } from 'svelte/store';
 import type { ChainId } from '@biconomy/core-types';
-import { getSetPoolData, watchPoolData } from './getPoolData';
+import { getReserveTokens, getSetPoolData, watchPoolData } from './getPoolData';
 import { getSetSupportedTokenBalances, watchSupportedTokenBalances } from './getBalances';
 import { getSetEthPrice, watchEthPrice } from './getPrices';
-import type { ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
+import type { AppProvider } from '$stores/account';
 
 type TokenBalance = {
 	big: string | null;
@@ -52,12 +52,24 @@ export type PoolLoanData = {
 	lastUpdatedBlock: number | null;
 };
 
+export type PoolReserveDataTokens = 'USDC' | 'WETH';
+
+// only USDC and WETH implemented, see below
+type PoolLoanDataMap = {
+	[T in PoolReserveDataTokens]: PoolLoanData;
+};
+
 const defaultPoolLoanData: PoolLoanData = {
 	ltv: defaultLoanDataItem,
 	stableBorrowingEnabled: false,
 	variableBorrowingRate: defaultLoanDataItem,
 	stableBorrowingRate: defaultLoanDataItem,
 	lastUpdatedBlock: null
+};
+
+const defaultPoolLoanDataMap: PoolLoanDataMap = {
+	USDC: defaultPoolLoanData,
+	WETH: defaultPoolLoanData
 };
 
 const defaultUserLoanData: UserLoanData = {
@@ -70,16 +82,24 @@ const defaultUserLoanData: UserLoanData = {
 	lastUpdatedBlock: null
 };
 
+type ErrCounter = {
+	errors: number;
+};
+
 export type Web3Store = {
+	errs: ErrCounter;
 	balances: StoreTokenBalances;
 	ethPrice: EthPrice;
 	userPoolData: UserLoanData;
-	poolReserveData: PoolLoanData;
+	poolReserveData: PoolLoanDataMap;
 	chainId: ChainId | null;
 	isTestnet: boolean;
 };
 
 const DEFAULT_STORE: Web3Store = {
+	errs: {
+		errors: 0
+	},
 	chainId: null,
 	isTestnet: false,
 	ethPrice: {
@@ -89,7 +109,7 @@ const DEFAULT_STORE: Web3Store = {
 		lastUpdatedBlock: null
 	},
 	userPoolData: defaultUserLoanData,
-	poolReserveData: defaultPoolLoanData,
+	poolReserveData: defaultPoolLoanDataMap,
 	balances: SupportedTokens.reduce((acc, token) => {
 		acc[token] = {
 			big: null,
@@ -104,9 +124,9 @@ const DEFAULT_STORE: Web3Store = {
 export const web3Store = writable(DEFAULT_STORE);
 
 export function watchW3Store(
-	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
 	store: typeof web3Store,
+	userAddress: EthereumAddress,
+	provider: AppProvider,
 	blockInterval: number = 30
 ) {
 	watchSupportedTokenBalances(userAddress, provider, store, blockInterval);
@@ -115,16 +135,40 @@ export function watchW3Store(
 }
 
 export async function refreshW3Store(
-	userAddress: EthereumAddress,
-	provider: ethers.providers.Web3Provider,
-	store: typeof web3Store
+	store: typeof web3Store,
+	userAddress?: EthereumAddress,
+	provider?: AppProvider
 ) {
+	if (!provider || !userAddress) return;
 	const chainId = (await provider.getNetwork()).chainId;
-	const reserveTokenAddress = ADDRESSES[chainId]['WETH'];
+	const reserveTokens = getReserveTokens(chainId);
 	const currentBlock = await provider.getBlockNumber();
 	await Promise.all([
 		getSetSupportedTokenBalances(userAddress, provider, store),
 		getSetEthPrice(provider, store, currentBlock),
-		getSetPoolData(userAddress, reserveTokenAddress, provider, store, currentBlock)
+		getSetPoolData(userAddress, reserveTokens, provider, store, currentBlock)
 	]);
+}
+
+export function handleError(store: typeof web3Store, e: Error, logMessage?: string): void {
+	if ('error' in e) {
+		const messageError = e.error as any;
+		if ('message' in messageError) {
+			/**
+			 * Beleive this an error on the RPC side, so nothing we can do at this stage
+			 * other than log the error and provide a bit of a warning as they count up
+			 */
+			if (messageError.message === 'method handler crashed') {
+				store.update((s) => {
+					s.errs.errors++;
+					if (s.errs.errors % 5 === 0) console.warn(`RPC: ${s.errs.errors} handler errors`);
+					return s;
+				});
+			} else {
+				console.error(logMessage, e.message);
+			}
+		}
+	} else {
+		console.error(logMessage ?? '', e);
+	}
 }

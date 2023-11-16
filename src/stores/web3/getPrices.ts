@@ -1,17 +1,19 @@
 import { type Oracle, Oracle__factory } from '$lib/abis/ts';
 import { ADDRESSES } from '$lib/contracts';
 import { type BigNumber, ethers } from 'ethers';
-import type { web3Store } from '.';
+import { handleError, type web3Store } from '.';
+import type { AppProvider } from '$stores/account';
+import { BASE_CURRENCY_DECIMALS } from '$lib/constants';
 
-export async function getOracleWETHPrice(provider: ethers.providers.Web3Provider) {
+export async function getOracleWETHPrice(provider: AppProvider) {
 	const { chainId } = await provider.getNetwork();
 	const oracleAddress = ADDRESSES[chainId]['ORACLE'];
 	const oracle = Oracle__factory.connect(oracleAddress, provider);
-	const [price, decimals] = await Promise.all([oracle.latestAnswer(), oracle.decimals()]);
+	const price = await oracle.getAssetPrice(ADDRESSES[chainId]['WETH']);
 
 	return {
 		price,
-		decimals
+		decimals: BASE_CURRENCY_DECIMALS
 	};
 }
 
@@ -43,7 +45,7 @@ function setEthPrice(
 }
 
 export async function getSetEthPrice(
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	blockNumber: number
 ): Promise<void> {
@@ -51,12 +53,12 @@ export async function getSetEthPrice(
 		const { price, decimals } = await getOracleWETHPrice(provider);
 		setEthPrice(store, price, blockNumber, decimals);
 	} catch (e) {
-		console.error('Error fetching token balance: ', e);
+		handleError(store, e as Error, 'getSetEthPrice error');
 	}
 }
 
 export async function watchEthPrice(
-	provider: ethers.providers.Web3Provider,
+	provider: AppProvider,
 	store: typeof web3Store,
 	interval: number
 ): Promise<void> {

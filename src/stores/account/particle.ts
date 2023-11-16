@@ -18,6 +18,7 @@ export const initParticle = (chainId: ChainId) => {
 		throw new Error('Missing chainName for Particle provider');
 	}
 
+	// console.warn('Auth is configured to use the Polygon chain');
 	return new ParticleAuthModule.ParticleNetwork({
 		projectId,
 		clientKey,
@@ -25,14 +26,14 @@ export const initParticle = (chainId: ChainId) => {
 		chainId,
 		chainName,
 		wallet: {
-			displayWalletEntry: true,
+			displayWalletEntry: false,
+			uiMode: 'light',
 			supportChains: [
 				{
 					id: chainId,
-					name: 'Polygon'
+					name: chainName
 				}
-			],
-			defaultWalletEntryPosition: ParticleAuthModule.WalletEntryPosition.BR
+			]
 		}
 	});
 };
@@ -43,7 +44,6 @@ export const getProvider = (
 	try {
 		const particleProvider = new ParticleProvider(particle.auth);
 		const w3Provider = new providers.Web3Provider(particleProvider, 'any');
-
 		return w3Provider;
 	} catch (error) {
 		console.error(error);

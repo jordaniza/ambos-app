@@ -7,5 +7,5 @@
 </script>
 
 {#if isLoading}
-	<Loader bind:this={loader} class="animate-spin" {...$$props} />
+	<Loader bind:this={loader} class="animate-spin text-secondary" {...$$props} />
 {/if}

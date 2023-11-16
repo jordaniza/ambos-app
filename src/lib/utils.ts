@@ -11,11 +11,32 @@ export const N = (n: BigNumberish) => ethers.utils.formatEther(n);
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
-const { format } = new Intl.NumberFormat('en-US', {
+const formatter = new Intl.NumberFormat('en-US', {
 	style: 'currency',
-	currency: 'USD'
+	currency: 'USD',
+	currencyDisplay: 'code', // This will use the currency code 'USD'
+	minimumFractionDigits: 2 // Ensures decimal places are always shown
 });
-export const f = (n: number) => format(n);
+
+export const f = (n: number) => {
+	if (n > 0 && n < 0.01) {
+		return '<$0.01';
+	}
+	// Replace 'USD' with '$' including the space
+	return formatter.format(n).replace('USD', '$');
+};
+
+// format = 0.00 SYMBOL (for stablecoins)
+export const stbl = (n: number, s: string) => {
+	const formatted = formatter.format(n).replace('USD', '');
+	return `${formatted.slice(1)} ${s}`;
+};
+
+// eth formatting
+export const e = (n: number) => (n > 1 ? n.toFixed(2) : n.toFixed(4));
+
+// percentage formatting
+export const pc = (n: number) => (n < 0.01 ? `${n.toFixed(4)}%` : `${n.toFixed(2)}%`);
 
 type FlyAndScaleParams = {
 	y?: number;
@@ -67,4 +88,53 @@ export const flyAndScale = (
 
 export function classNames(...classes: (false | null | undefined | string)[]): string {
 	return classes.filter(Boolean).join(' ');
+}
+
+export function getLiquidationPrice(
+	debtValueUSD: number,
+	collateralInEth: number,
+	maxLTV: number
+): number {
+	// we need to work out the price at which the collateral becomes worth less than maxLTV% of the debtValueUSD
+	// P = (D / C) / (maxLTV)
+	// Eg: ($5000 Debt / 2 ETH) = $2500 per ETH
+	//    $2500 per ETH / (50% maxLTV) = $5000 per ETH
+	if (collateralInEth === 0 || maxLTV === 0) return 0;
+	const debtPerCollateralDeposited = debtValueUSD / collateralInEth;
+	const liquidationPrice = debtPerCollateralDeposited / maxLTV;
+	return liquidationPrice;
+}
+
+export function getBarColor(barWidth: number): string {
+	switch (true) {
+		case barWidth > 75:
+			return 'bg-destructive';
+		case barWidth > 60:
+			return 'bg-orange-300';
+		case barWidth > 50:
+			return 'bg-yellow-300';
+		case barWidth > 25:
+			return 'bg-green-300';
+		default:
+			return 'bg-primary';
+	}
+}
+
+export function getTextColor(barWidth: number): string {
+	switch (true) {
+		case barWidth > 75:
+			return 'text-destructive';
+		case barWidth > 60:
+			return 'text-orange-500';
+		case barWidth > 50:
+			return 'text-yellow-500';
+		case barWidth > 25:
+			return 'text-green-500';
+		default:
+			return 'text-primary';
+	}
+}
+
+export async function delay(ms: number) {
+	return await new Promise((resolve) => setTimeout(resolve, ms));
 }
