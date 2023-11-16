@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { connect } from '$stores/account';
 	import { onMount } from 'svelte';
-	import { ChainId } from '@biconomy/core-types';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
@@ -18,9 +17,8 @@
 	import Footer from './footer.svelte';
 	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
-	import { EXCLUDED_FOOTER_ROUTES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { EXCLUDED_FOOTER_ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
 	import NotificationHandler from './notifications/notificationHandler.svelte';
 	import { fade } from 'svelte/transition';
 	import LoginReminder from './login-reminder.svelte';

@@ -17,12 +17,12 @@ function getEnv(): environments {
 	}
 }
 
-const commonOptions: ITransakDto = {
+const commonOptions = (): ITransakDto => ({
 	apiKey,
 	widgetHeight: '100%',
 	widgetWidth: '100%',
 	environment: getEnv()
-};
+});
 
 const networkConfigOffRamp: Record<string, Partial<ITransakDto>> = {
 	polygon: {
@@ -99,7 +99,7 @@ export const getTransakURLOff = (
  * the SELL widget will silently hang if you pass unsupported parameters
  */
 const optionsOff = (selectedNetwork: string, defaultCryptoAmount: number): ITransakDto => ({
-	...commonOptions,
+	...commonOptions(),
 	productsAvailed: 'SELL',
 	cryptoCurrencyList: 'USDC',
 	cryptoCurrencyCode: 'USDC',
@@ -112,7 +112,7 @@ export const optionsOn = (
 	selectedNetwork: string,
 	walletAddress: EthereumAddress
 ): ITransakDto => ({
-	...commonOptions,
+	...commonOptions(),
 	...networkConfigOnRamp[selectedNetwork],
 	walletAddress,
 	exchangeScreenTitle: 'Buy ETH',
