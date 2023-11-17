@@ -163,7 +163,7 @@ export async function getBorrowFeeQuote({
 	const data2 = await pool.populateTransaction.borrow(
 		usdcAddr,
 		totalBorrow,
-		InterestRateMode.STABLE_IR,
+		InterestRateMode.VARIABLE_IR,
 		0,
 		borrower
 	);

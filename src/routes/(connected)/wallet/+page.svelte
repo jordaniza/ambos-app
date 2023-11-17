@@ -6,7 +6,7 @@
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
-	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
+	import { BLOCK_EXPLORER_URLS, CHAIN_ETH_TYPE } from '$lib/contracts';
 	import { toast } from 'svelte-sonner';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -19,12 +19,13 @@
 	let web3Store = getWeb3Store();
 
 	$: address = $accountStore.address;
-	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 	$: ethBalanceUSD = ethBalance * ethPrice;
 	$: totalUSDValue = ethBalanceUSD + usdcBalance;
 	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: explorerURL = BLOCK_EXPLORER_URLS[chainId] + '/address/' + address;
 
 	function handleCopy() {

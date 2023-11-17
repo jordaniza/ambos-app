@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TSupportedTokens } from '$lib/contracts';
-	import { e, f } from '$lib/utils';
+	import { e } from '$lib/utils';
 	import type { TXDetail, TXState, TxContext } from '$stores/transactions/state';
 	import { toast } from 'svelte-sonner';
 

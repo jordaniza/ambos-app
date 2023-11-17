@@ -59,7 +59,7 @@
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
 	$: smartAccount = $accountStore?.smartAccount;
-	$: currentPage = $page.url.pathname;
+	$: currentPage = browser ? $page.url.pathname : '';
 
 	// don't show the footer on certain pages
 	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(

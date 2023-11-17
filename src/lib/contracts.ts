@@ -2,7 +2,7 @@ import type { BigNumber, BigNumberish, ethers } from 'ethers';
 import type { EthereumAddress } from './utils';
 import { ChainId } from '@biconomy/core-types';
 
-export const SupportedTokens = ['USDC', 'WETH', 'aWETH', 'wstETH'] as const;
+export const SupportedTokens = ['USDC', 'WETH', 'aWETH', 'wstETH', 'ETH'] as const;
 export const SupportedContracts = [
 	...SupportedTokens,
 	'POOL',
@@ -25,7 +25,8 @@ export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, Eth
 		POOL_DATA_PROVIDER: '0x9e2DDb6aA91399546Bd875E2e63E8d6df276922e',
 		TESTNET_FAUCET: '0x2c95d10bA4BBEc79e562e8B3f48687751808C925',
 		// not supported
-		wstETH: '0x'
+		wstETH: '0x',
+		ETH: '0x'
 	},
 	[ChainId.ARBITRUM_GOERLI_TESTNET]: {
 		USDC: '0xd513e4537510c75e24f941f159b7cafa74e7b3b9',
@@ -35,17 +36,19 @@ export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, Eth
 		ORACLE: '0x4C0EBa43c13ac25885fE0edf3E8Fd4fe32b528dE',
 		POOL_DATA_PROVIDER: '0x7E4025a4e9Ae4e7EcA533cDFF1ba269eDD31146F',
 		TESTNET_FAUCET: '0xc1b3cc37cf2f922abDFE7F01A17bc932F4078665',
+		ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
 		// not supported
 		wstETH: '0x'
 	},
 	[ChainId.ARBITRUM_ONE_MAINNET]: {
-		USDC: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+		USDC: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
 		WETH: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
 		POOL: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
 		aWETH: '0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8',
 		wstETH: '0x5979d7b546e38e414f7e9822514be443a4800529',
 		ORACLE: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7',
 		POOL_DATA_PROVIDER: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
+		ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
 		// not supported
 		TESTNET_FAUCET: '0x'
 	}
@@ -79,4 +82,11 @@ export const BLOCK_EXPLORER_URLS: Record<number | ChainId, string> = {
 	[ChainId.POLYGON_MUMBAI]: 'https://mumbai.polygonscan.com',
 	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'https://goerli.arbiscan.io',
 	[ChainId.ARBITRUM_ONE_MAINNET]: 'https://arbiscan.io'
+};
+
+// which token to use for the chain, native or wrapped
+export const CHAIN_ETH_TYPE: Record<number | ChainId, 'ETH' | 'WETH'> = {
+	[ChainId.POLYGON_MUMBAI]: 'WETH',
+	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'ETH',
+	[ChainId.ARBITRUM_ONE_MAINNET]: 'ETH'
 };

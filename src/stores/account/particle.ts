@@ -18,7 +18,6 @@ export const initParticle = (chainId: ChainId) => {
 		throw new Error('Missing chainName for Particle provider');
 	}
 
-	// console.warn('Auth is configured to use the Polygon chain');
 	return new ParticleAuthModule.ParticleNetwork({
 		projectId,
 		clientKey,

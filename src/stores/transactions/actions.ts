@@ -11,9 +11,9 @@ import {
 	type SupportedSingleTransaction,
 	type TxContext
 } from './state';
-import { batchSponsoredTx, sponsoredTx } from './sponsored';
+import { batchERC20Tx, batchSponsoredTx, batchUserTransaction, sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
-import { ADDRESSES } from '$lib/contracts';
+import { ADDRESSES, PAYMASTER_ADDRESSES } from '$lib/contracts';
 import type { AppProvider } from '$stores/account';
 import { getFeeCollector } from './batchActions';
 import { getTransferFeeQuote, getTransferFeeQuoteEth } from './fees';
@@ -35,7 +35,7 @@ async function handleSponsoredTransaction(
 	transactionBuilder: (
 		provider: AppProvider,
 		id: UUID
-	) => Promise<{ to: EthereumAddress; data: any }[]>,
+	) => Promise<{ to: EthereumAddress; data: any; value?: BigNumber }[]>,
 	context?: TxContext[keyof TxContext]
 ): Promise<void> {
 	setNewTransaction(store, transactionType, id, context);
@@ -44,6 +44,26 @@ async function handleSponsoredTransaction(
 		state: 'SIGNING'
 	});
 	await batchSponsoredTx(store, id, transactions, smartAccount);
+}
+
+async function handleUserPaidTransaction(
+	store: TxStore,
+	transactionType: SupportedSingleTransaction,
+	provider: AppProvider,
+	smartAccount: BiconomySmartAccount,
+	id: string,
+	transactionBuilder: (
+		provider: AppProvider,
+		id: UUID
+	) => Promise<{ to: EthereumAddress; data: any; value?: BigNumber }[]>,
+	context?: TxContext[keyof TxContext]
+): Promise<void> {
+	setNewTransaction(store, transactionType, id, context);
+	const transactions = await transactionBuilder(provider, id);
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+	await batchUserTransaction(store, id, transactions, smartAccount);
 }
 
 type ApproveWethSmartAccountProps = {
@@ -262,6 +282,39 @@ export function sendWETH({ store, amount, recipient, provider, smartAccount, id 
 	);
 }
 
+type SendETHProps = {
+	store: TxStore;
+	amount: BigNumber;
+	provider: AppProvider;
+	recipient: EthereumAddress;
+	smartAccount: BiconomySmartAccount;
+	id: string;
+};
+export function sendETH({ store, amount, recipient, provider, smartAccount, id }: SendETHProps) {
+	const context: TxContext['TRANSFER'] = {
+		amount: Number(ethers.utils.formatUnits(amount, 18)),
+		recipient,
+		token: 'ETH'
+	};
+	return handleUserPaidTransaction(
+		store,
+		'SEND_ETH',
+		provider,
+		smartAccount,
+		id,
+		async () => {
+			return [
+				{
+					data: '0x',
+					to: recipient,
+					value: amount
+				}
+			];
+		},
+		context
+	);
+}
+
 type SendUSDCProps = {
 	store: TxStore;
 	amount: BigNumber;
@@ -270,43 +323,39 @@ type SendUSDCProps = {
 	smartAccount: BiconomySmartAccount;
 	id: string;
 };
-export function sendUSDC({ store, amount, recipient, provider, smartAccount, id }: SendUSDCProps) {
+export async function sendUSDC({
+	store,
+	amount,
+	recipient,
+	provider,
+	smartAccount,
+	id
+}: SendUSDCProps) {
 	const context: TxContext['TRANSFER'] = {
 		amount: Number(ethers.utils.formatUnits(amount, 6)),
 		recipient,
 		token: 'USDC'
 	};
 
-	return handleSponsoredTransaction(
-		store,
-		'SEND_USDC',
-		provider,
-		smartAccount,
-		id,
-		async (provider) => {
-			const feeCollector = getFeeCollector();
-			const fee = await getTransferFeeQuote({
-				smartAccount,
-				provider,
-				transferQty: amount,
-				token: 'USDC',
-				recipient
-			});
-			const usdcAddress = await getTokenAddress(provider, 'USDC');
-			const usdc = USDC__factory.connect(usdcAddress, provider);
-			const tx0 = await usdc.populateTransaction.transfer(recipient, amount);
-			const tx1 = await usdc.populateTransaction.transfer(feeCollector, fee.big);
-			return [
-				{
-					to: usdcAddress,
-					data: tx0.data
-				},
-				{
-					to: usdcAddress,
-					data: tx1.data
-				}
-			];
-		},
-		context
-	);
+	setNewTransaction(store, 'SEND_USDC', id, context);
+
+	const promiseUSDCAddress = getTokenAddress(provider, 'USDC');
+	const promiseNetwork = provider.getNetwork();
+	const [usdcAddress, network] = await Promise.all([promiseUSDCAddress, promiseNetwork]);
+
+	const usdc = USDC__factory.connect(usdcAddress, provider);
+
+	const tx0 = await usdc.populateTransaction.transfer(recipient, amount);
+	const transactions = [
+		{
+			to: usdcAddress,
+			data: tx0.data
+		}
+	];
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+
+	const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
+	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
 }
