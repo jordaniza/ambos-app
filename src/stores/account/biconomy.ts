@@ -1,13 +1,14 @@
 import { Bundler, type IBundler } from '@biconomy/bundler';
 import {
-	BiconomySmartAccount,
-	type BiconomySmartAccountConfig,
-	DEFAULT_ENTRYPOINT_ADDRESS
+	DEFAULT_ENTRYPOINT_ADDRESS,
+	BiconomySmartAccountV2,
+	type BiconomySmartAccountV2Config
 } from '@biconomy/account';
 import type { ChainId } from '@biconomy/core-types';
 import { BiconomyPaymaster, type IPaymaster } from '@biconomy/paymaster';
 import type { ethers } from 'ethers';
 import * as process from '$env/static/public';
+import { DEFAULT_ECDSA_OWNERSHIP_MODULE, ECDSAOwnershipValidationModule } from '@biconomy/modules';
 
 export const getBundler = (
 	chainId: ChainId,
@@ -38,22 +39,28 @@ export const getPaymaster = (chainId: ChainId): IPaymaster => {
 type GetSmartAccountProps = {
 	chainId: ChainId;
 	provider: ethers.providers.Web3Provider;
-	bundler: IBundler;
-	paymaster: IPaymaster;
 };
 
-export const getSmartAccount = async ({
-	chainId,
-	provider,
-	bundler,
-	paymaster
-}: GetSmartAccountProps) => {
-	const biconomySmartAccountConfig: BiconomySmartAccountConfig = {
-		signer: provider.getSigner(),
-		chainId,
-		bundler,
-		paymaster
-	};
-	const biconomySmartAccount = new BiconomySmartAccount(biconomySmartAccountConfig);
-	return await biconomySmartAccount.init();
+export const getSmartAccount = async ({ chainId, provider }: GetSmartAccountProps) => {
+	try {
+		const module = await ECDSAOwnershipValidationModule.create({
+			signer: provider.getSigner(), // you will need to supply a signer from an EOA in this step
+			moduleAddress: DEFAULT_ECDSA_OWNERSHIP_MODULE
+		});
+
+		const bundler = getBundler(chainId);
+		const paymaster = getPaymaster(chainId);
+		const biconomySmartAccountConfig: BiconomySmartAccountV2Config = {
+			chainId,
+			bundler,
+			paymaster,
+			entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
+			defaultValidationModule: module,
+			activeValidationModule: module
+		};
+		const biconomySmartAccount = await BiconomySmartAccountV2.create(biconomySmartAccountConfig);
+		return biconomySmartAccount;
+	} catch (error) {
+		console.error('Error Fetching The Biconomy Smart Account:', error);
+	}
 };

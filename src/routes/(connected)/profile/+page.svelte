@@ -6,6 +6,9 @@
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
 	import Logout from '$lib/components/connect/logout.svelte';
+	import { goto } from '$app/navigation';
+	import { ROUTES } from '$lib/constants';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();

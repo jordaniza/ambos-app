@@ -1,25 +1,25 @@
-import { BiconomyAccountAbstractor } from './abstractor';
-import type { BiconomySmartAccount } from '@biconomy/account';
-import type { IBundler } from '@biconomy/bundler';
-import type { IPaymaster } from '@biconomy/paymaster';
-import type { providers } from 'ethers';
+import type { BiconomySmartAccountV2 } from '@biconomy/account';
 import * as _0x from '@0xsequence/multicall';
-import { type Writable, writable } from 'svelte/store';
+import * as biconomy from './biconomy';
+import * as particle from './particle';
+import { writable } from 'svelte/store';
 import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
+import { get } from 'svelte/store';
+import type { ParticleConnect } from '@particle-network/connect';
+import type { providers } from 'ethers';
+import type { EthereumAddress } from '$lib/utils';
 
 // standardize the typing for use across the application
 export type AppProvider = MulticallProvider;
 
 export interface SmartAccountStore {
-	smartAccount: BiconomySmartAccount | undefined;
+	smartAccount: BiconomySmartAccountV2 | undefined;
 	loading: boolean;
 	error: string | undefined;
 	provider: AppProvider | undefined;
-	bundler: IBundler | undefined;
-	paymaster: IPaymaster | undefined;
-	userInfo?: any | undefined;
 	address: `0x${string}` | undefined;
 	isConnected: boolean;
+	connectKit: ParticleConnect | undefined;
 }
 
 const defaults: SmartAccountStore = {
@@ -27,45 +27,49 @@ const defaults: SmartAccountStore = {
 	loading: false,
 	error: undefined,
 	provider: undefined,
-	bundler: undefined,
 	address: undefined,
-	paymaster: undefined,
-	userInfo: undefined,
-	isConnected: false
+	isConnected: false,
+	connectKit: undefined
 };
 
-function initMulticallProvider(
+export const accountStore = writable<SmartAccountStore>(defaults);
+
+export function initMulticallProvider(
 	provider: providers.Web3Provider | undefined
 ): MulticallProvider | undefined {
 	return provider && new _0x.providers.MulticallProvider(provider);
 }
 
-export const accountStore = writable<SmartAccountStore>(defaults);
-export async function connect(chainId: number) {
-	const accountAbstractor = new BiconomyAccountAbstractor(chainId);
+export function setConnectKit(store: typeof accountStore, chainId: number): ParticleConnect {
+	const connectKit = particle.initConnectKit(chainId);
+	store.update((state) => ({ ...state, connectKit }));
+	return connectKit;
+}
+
+export async function initAccountStore(
+	store: typeof accountStore,
+	chainId: number,
+	provider: providers.Web3Provider
+) {
 	try {
-		accountStore.update((state) => ({ ...state, loading: true }));
-		const scw = await accountAbstractor.getSCW();
-		const userInfo = await accountAbstractor.getUser();
-		const _provider = accountAbstractor.getProvider();
-		const provider = initMulticallProvider(_provider);
-		const bundler = accountAbstractor.getBundler();
-		const paymaster = accountAbstractor.getPaymaster();
-		const address = await scw?.getSmartAccountAddress();
-		accountStore.update((state) => ({
+		store.update((state) => ({ ...state, loading: true }));
+
+		const scw = await biconomy.getSmartAccount({ chainId, provider });
+		const multicallProvider = initMulticallProvider(provider);
+		const address = (await scw?.getAccountAddress()) as EthereumAddress;
+
+		store.update((state) => ({
 			...state,
 			smartAccount: scw,
-			userInfo,
-			provider,
-			bundler,
-			paymaster,
-			address: address as `0x${string}`,
+			provider: multicallProvider,
+			address,
 			isConnected: true,
 			loading: false
 		}));
 	} catch (error) {
 		console.error(error);
-		accountStore.update((state) => ({
+
+		store.update((state) => ({
 			...state,
 			error: 'Error fetching account details',
 			loading: false
@@ -73,26 +77,23 @@ export async function connect(chainId: number) {
 	}
 }
 
-// Function to handle disconnection
-export async function disconnect(chainId: number) {
-	const accountAbstractor = new BiconomyAccountAbstractor(chainId);
-	await accountAbstractor.signOut();
+export async function disconnect(store: typeof accountStore) {
+	const connectKit = get(store).connectKit;
 
-	accountStore.set({
-		...defaults,
+	if (!connectKit) {
+		throw new Error('ConnectKit is not initialized');
+	}
+
+	await particle.signOut(connectKit);
+
+	store.set({
+		// keep the connectKit so we can reconnect if needed
+		connectKit,
 		smartAccount: undefined,
 		loading: false,
 		error: undefined,
 		provider: undefined,
-		bundler: undefined,
-		paymaster: undefined,
-		userInfo: undefined,
 		address: undefined,
 		isConnected: false
 	});
-}
-
-// we ported this from react so this is a compatability wrapper
-export function useBiconomyAccountAbstraction(): Writable<SmartAccountStore> {
-	return accountStore;
 }

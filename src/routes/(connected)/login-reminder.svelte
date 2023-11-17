@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
-	import { connect } from '$stores/account';
+	import { goto } from '$app/navigation';
+	import { ROUTES } from '$lib/constants';
+	import { getAccountStore } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 
 	export let firstLoad: boolean;
 
 	let accountStore = getAccountStore();
-	let web3Store = getWeb3Store();
 	let connectionToast: string | number | null = null;
-	let chainId = $web3Store.chainId ?? 1;
 
 	// dismiss the toast if the user connects
 	$: {
@@ -28,7 +27,7 @@
 					action: {
 						label: 'Reconnect',
 						onClick: () => {
-							connect(chainId);
+							goto(ROUTES.LOGIN);
 						}
 					}
 				}

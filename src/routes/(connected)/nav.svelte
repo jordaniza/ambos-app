@@ -15,7 +15,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import AvatarPopover from './profile/avatarPopover.svelte';
 	import { page } from '$app/stores';
-	import { connect, disconnect } from '$stores/account';
+	import { initAccountStore, disconnect } from '$stores/account';
 
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import ThemeToggle from '$lib/components/ui/theme-toggle/theme-toggle.svelte';
@@ -30,7 +30,7 @@
 	async function login() {
 		try {
 			if (!chainId) throw new Error('No chainId');
-			await connect(chainId);
+			await initAccountStore(chainId);
 		} catch (error) {
 			console.log('Attempted Login Error: ', error);
 		}

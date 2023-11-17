@@ -2,15 +2,18 @@ import type { ChainId } from '@biconomy/core-types';
 import { ParticleAuthModule, ParticleProvider } from '@biconomy/particle-auth';
 import { providers } from 'ethers';
 import * as process from '$env/static/public';
-import { particleChainNames } from './particleChainNames';
+import { particleChainNames, particleChains } from './particle-chains';
+import { evmWallets, ParticleConnect, type EVMProvider } from '@particle-network/connect';
+import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 export type ParticleUserInfo = ParticleAuthModule.UserInfo;
 
-export const initParticle = (chainId: ChainId) => {
-	const projectId = process.PUBLIC_PARTICLE_PROJECT_ID;
+export const initConnectKit = (chainId: ChainId): ParticleConnect => {
+	const particleProjectId = process.PUBLIC_PARTICLE_PROJECT_ID;
 	const clientKey = process.PUBLIC_PARTICLE_CLIENT_KEY;
 	const appId = process.PUBLIC_PARTICLE_APP_ID;
+	const wcProjectId = process.PUBLIC_WALLETCONNECT_PROJECT_ID;
 
-	if (!projectId || !clientKey || !appId) {
+	if (!particleProjectId || !clientKey || !appId) {
 		throw new Error('Missing environment variables for Particle provider');
 	}
 	const chainName = particleChainNames[chainId];
@@ -18,13 +21,15 @@ export const initParticle = (chainId: ChainId) => {
 		throw new Error('Missing chainName for Particle provider');
 	}
 
-	return new ParticleAuthModule.ParticleNetwork({
-		projectId,
+	const connectKit = new ParticleConnect({
+		projectId: particleProjectId,
 		clientKey,
 		appId,
-		chainId,
-		chainName,
-		wallet: {
+		chains: [particleChains[chainId]],
+		wallets: evmWallets({
+			projectId: wcProjectId
+		}),
+		particleWalletEntry: {
 			displayWalletEntry: false,
 			uiMode: 'light',
 			supportChains: [
@@ -33,53 +38,43 @@ export const initParticle = (chainId: ChainId) => {
 					name: chainName
 				}
 			]
-		}
+		},
+		preload: true
 	});
+	return connectKit;
 };
 
-export const getProvider = (
-	particle: ParticleAuthModule.ParticleNetwork
-): providers.Web3Provider | undefined => {
+export async function getCachedProvider(
+	connectKit: ParticleConnect
+): Promise<providers.Web3Provider | undefined> {
 	try {
-		const particleProvider = new ParticleProvider(particle.auth);
-		const w3Provider = new providers.Web3Provider(particleProvider, 'any');
-		return w3Provider;
+		const cachedProvider = await connectKit.connectToCachedProvider();
+		if (cachedProvider) return new providers.Web3Provider(cachedProvider as EVMProvider, 'any');
+		else if (connectKit.particle.auth.isLogin()) return getSocialProvider(connectKit);
+		else return undefined;
 	} catch (error) {
-		console.error(error);
+		console.error('Failed to get cached provider:', error);
 	}
-};
+}
 
-export const signOut = async (particle: ParticleAuthModule.ParticleNetwork): Promise<void> => {
+export async function getSocialProvider(
+	connectKit: ParticleConnect
+): Promise<providers.Web3Provider | undefined> {
 	try {
-		await particle.auth.logout();
-	} catch (error) {
-		console.error('Problem with Logout', error);
-	}
-};
+		const particleProvider = new ParticleProvider(
+			connectKit.particle.auth as unknown as ParticleAuthModule.Auth
+		);
 
-export const getUserInfo = async (
-	particle: ParticleAuthModule.ParticleNetwork
-): Promise<ParticleUserInfo | null | undefined> => {
-	try {
-		let userInfo;
-		if (!particle.auth.isLogin()) {
-			userInfo = await particle.auth.login();
-		} else {
-			userInfo = particle.auth.userInfo();
-		}
-		return userInfo;
+		return new providers.Web3Provider(particleProvider, 'any');
 	} catch (error) {
-		console.error('Problem with getUserInfo', error);
+		console.error('Failed to get particle provider:', error);
 	}
-};
+}
 
-export const signIn = async (
-	particle: ParticleAuthModule.ParticleNetwork
-): Promise<ParticleUserInfo | null | undefined> => {
-	try {
-		const userInfo = await particle.auth.login();
-		return userInfo;
-	} catch (error) {
-		console.error('Problem with Login', error);
-	}
+export const signOut = async (connectKit: ParticleConnect): Promise<void> => {
+	// all settled doesn't throw an error if one of the promises fails
+	// we try both disconnection methods
+	await Promise.allSettled([connectKit.disconnect(), connectKit.particle.auth.logout()]);
+	// clear the cached provider
+	localStorage.removeItem(LOCAL_STORAGE_KEYS.PARTICLE_CACHED_PROVIDER);
 };

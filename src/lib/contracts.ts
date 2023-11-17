@@ -1,6 +1,7 @@
 import type { BigNumber, BigNumberish, ethers } from 'ethers';
 import type { EthereumAddress } from './utils';
 import { ChainId } from '@biconomy/core-types';
+import type { ChainInfo } from '@particle-network/connect';
 
 export const SupportedTokens = ['USDC', 'WETH', 'aWETH', 'wstETH', 'ETH'] as const;
 export const SupportedContracts = [

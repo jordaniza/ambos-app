@@ -102,6 +102,7 @@ export async function increaseDebtWETH({
 	updateTransaction(store, id, {
 		state: 'SIGNING'
 	});
+
 	await batchSponsoredTx(store, id, transactions, smartAccount);
 }
 

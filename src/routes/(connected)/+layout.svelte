@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { connect } from '$stores/account';
+	import { initAccountStore, setConnectKit, initMulticallProvider } from '$stores/account';
 	import { onMount } from 'svelte';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
@@ -17,12 +17,19 @@
 	import Footer from './footer.svelte';
 	import Splash from './splash.svelte';
 	import { page } from '$app/stores';
-	import { EXCLUDED_FOOTER_ROUTES } from '$lib/constants';
+	import { EXCLUDED_FOOTER_ROUTES, ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
 	import NotificationHandler from './notifications/notificationHandler.svelte';
 	import { fade } from 'svelte/transition';
-	import LoginReminder from './login-reminder.svelte';
+	import { ethers } from 'ethers';
+	import type { EVMProvider, ParticleConnect } from '@particle-network/connect';
+	import { getCachedProvider } from '$stores/account/particle';
+	import { toast } from 'svelte-sonner';
+	import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
 	import { PUBLIC_CHAIN_ID } from '$env/static/public';
+	import { goto } from '$app/navigation';
+	import { particleChains } from '$stores/account/particle-chains';
+	import type { ChainId } from '@biconomy/core-types';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -43,8 +50,9 @@
 	let txStore = getTxStore();
 
 	let lastTxCount = 0;
-	// has the application loaded for the first time
-	let firstLoad = true;
+	let toastId: number | string | null = null;
+	let onSupportedChain: boolean | null = null;
+	let walletAddress = '';
 
 	// adjust the chain id here for the whole app
 	let chainId = Number(PUBLIC_CHAIN_ID);
@@ -56,15 +64,76 @@
 	const WATCH_INTERVAL = 30; // seconds
 
 	$: provider = $accountStore?.provider;
+	$: connectKit = $accountStore?.connectKit;
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
 	$: smartAccount = $accountStore?.smartAccount;
+	$: showSplash = !isConnected && currentPage !== ROUTES.LOGIN;
 	$: currentPage = browser ? $page.url.pathname : '';
 
 	// don't show the footer on certain pages
 	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(
 		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
 	);
+
+	async function checkChainAndSetupListeners(
+		p: MulticallProvider | ethers.providers.Web3Provider | undefined = provider
+	) {
+		try {
+			if (!connectKit || !p) {
+				console.warn('No connectKit or provider');
+				return;
+			}
+			const multiP = initMulticallProvider(p as ethers.providers.Web3Provider)!;
+			onSupportedChain = await checkChainIdIsCorrect(multiP);
+
+			if (onSupportedChain === false) {
+				const success = await trySwitchChain(connectKit);
+				if (!success) return;
+			}
+
+			if (!address || !smartAccount) {
+				console.warn('No address or smartAccount found, cannot set listeners');
+				return;
+			}
+
+			await initializeTxStore(txStore, address, multiP, smartAccount);
+			p.removeAllListeners();
+
+			console.log('watching');
+			watchW3Store(web3Store, address, multiP, WATCH_INTERVAL);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async function checkChainIdIsCorrect(p: MulticallProvider): Promise<boolean | null> {
+		if (!p) return null;
+		const currentNetwork = await p.getNetwork();
+		return currentNetwork.chainId === chainId;
+	}
+
+	async function trySwitchChain(kit: ParticleConnect): Promise<boolean> {
+		try {
+			await kit.switchChain(particleChains[chainId as ChainId]);
+			onSupportedChain = true;
+			return true;
+		} catch (e) {
+			console.log('Error switching chains: usually a problem with the wallet');
+			return false;
+		}
+	}
+
+	$: {
+		if (onSupportedChain === false && browser) {
+			const chainName = particleChains[chainId as ChainId].fullname;
+			toastId = toast.error(`Unsupported chain, please switch to ${chainName}`, {
+				duration: Infinity
+			});
+		} else if (onSupportedChain && toastId !== null) {
+			toast.dismiss(toastId);
+		}
+	}
 
 	// keep the localStorage transactions in sync with the txStore
 	$: {
@@ -85,34 +154,56 @@
 
 	onMount(async () => {
 		try {
-			// load globals and connect to web3
 			loadTheme();
 			setChainId(web3Store, chainId);
-			await connect(chainId);
-			firstLoad = false;
-			// setup data watchers and fetch initial data
-			if (provider && address && smartAccount) {
-				await initializeTxStore(txStore, address, provider, smartAccount);
-				watchW3Store(web3Store, address, provider, WATCH_INTERVAL);
+
+			// init the connection
+			const kit = setConnectKit(accountStore, chainId);
+
+			// setup listeners at the root
+			kit.on('connect', (p) => {
+				if (!chainId) throw new Error('No chain id');
+				const evmp = p as EVMProvider;
+				const provider = new ethers.providers.Web3Provider(evmp, 'any');
+				provider.listAccounts().then((accounts) => {
+					walletAddress = accounts[0];
+				});
+				initAccountStore(accountStore, chainId, provider);
+				checkChainAndSetupListeners(provider);
+			});
+
+			// watch for chain changes
+			kit.on('chainChanged', () => {
+				checkChainAndSetupListeners();
+			});
+
+			// connect will try to use a cached provider if it exists
+			if (!isConnected) {
+				const cachedProvider = await getCachedProvider(kit);
+				if (!cachedProvider) goto(ROUTES.LOGIN);
+				else {
+					initAccountStore(accountStore, chainId, cachedProvider);
+					checkChainAndSetupListeners(cachedProvider);
+				}
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);
+			goto(ROUTES.LOGIN);
 		}
 	});
 </script>
 
 {#if browser}
 	<Toast />
-	<LoginReminder bind:firstLoad />
 	<NotificationHandler />
 {/if}
-<Splash isLoading={!isConnected} />
+<Splash {showSplash} />
 {#key currentPage}
 	<div in:fade={{ duration: 200 }} class="md:max-w-[1990px] h-full">
 		<slot />
 	</div>
 {/key}
 <!-- Footer nav on most pages -->
-{#if !excludedRoute}
+{#if !excludedRoute && isConnected}
 	<Footer />
 {/if}
