@@ -100,7 +100,6 @@
 			await initializeTxStore(txStore, address, multiP, smartAccount);
 			p.removeAllListeners();
 
-			console.log('watching');
 			watchW3Store(web3Store, address, multiP, WATCH_INTERVAL);
 		} catch (e) {
 			console.error(e);
