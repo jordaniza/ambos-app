@@ -9,18 +9,14 @@
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import {
-		getAmbosFee,
-		getAmbosFee as getFeesAndCharges,
-		getMaxBorrow
-	} from '$lib/components/calculator/calculator';
+	import { getAmbosFee, getMaxBorrow } from '$lib/components/calculator/calculator';
 	import { onMount } from 'svelte';
 	import {
 		setBorrowUsd,
 		setIncreaseDebtBuilderStage,
 		setSupplyEth
 	} from '$stores/transactions/builders';
-	import { increaseDebt } from '$stores/transactions/batchActions';
+	import { increaseDebtETH, increaseDebtWETH } from '$stores/transactions/batchActions';
 	import { ethers } from 'ethers';
 	import { InterestRateMode } from '$stores/web3/getPoolData';
 	import { makeTxId, TX_STATES_SUMMARY } from '$stores/transactions/state';
@@ -30,6 +26,7 @@
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
 	import FeesAndCharges from '$lib/components/calculator/fees-and-charges.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
@@ -42,12 +39,16 @@
 	let estimatedNetworkFee = 0.01;
 	let checked = false;
 
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 	$: ethSupplyValueUSD = ethSupply * ethPrice;
 
 	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
-	$: totalBorrow = borrowAmount + estimatedNetworkFee + getAmbosFee(borrowAmount);
+	// if we are using ETH, then the user pays the Tx, else we have to pay it and add it to the total borrow
+	$: borrowedNetworkFee = ethType === 'ETH' ? 0 : estimatedNetworkFee;
+	$: totalBorrow = borrowAmount + getAmbosFee(borrowAmount) + borrowedNetworkFee;
 
 	$: maxLTV = $web3Store.poolReserveData['WETH'].ltv.small ?? 0;
 	$: liquidationPrice = getLiquidationPrice(borrowAmount, ethSupply, maxLTV);
@@ -123,17 +124,31 @@
 
 		txId = makeTxId();
 
-		increaseDebt({
-			id: txId,
-			store: txStore,
-			borrower: address,
-			amountInWeth: BN(ethSupply),
-			// usdc
-			amountOutUsdc: ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
-			interestRateMode: InterestRateMode.VARIABLE_IR,
-			provider,
-			smartAccount
-		});
+		if (ethType === 'ETH') {
+			increaseDebtETH({
+				id: txId,
+				store: txStore,
+				borrower: address,
+				amountInEth: BN(ethSupply),
+				// usdc
+				amountOutUsdc: ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
+				interestRateMode: InterestRateMode.VARIABLE_IR,
+				provider,
+				smartAccount
+			});
+		} else if (ethType === 'WETH') {
+			increaseDebtWETH({
+				id: txId,
+				store: txStore,
+				borrower: address,
+				amountInEth: BN(ethSupply),
+				// usdc
+				amountOutUsdc: ethers.utils.parseUnits(borrowAmount.toFixed(6), 6),
+				interestRateMode: InterestRateMode.VARIABLE_IR,
+				provider,
+				smartAccount
+			});
+		}
 	}
 </script>
 
@@ -235,12 +250,11 @@
 					<p class="font-bold">Confirm</p>
 					<p class="flex items-center justify-center gap-2">
 						I have reviewed the loan terms
-						<Checkbox bind:checked />
+						<Checkbox {checked} />
 					</p>
 				</button>
 			</Card>
 
-			<!-- {#if notEnoughETH}<p class="text-destructive w-full text-center">Not enough ETH</p>{/if} -->
 			<Button on:click={handleSubmit} disabled={isConfirmDisabled} class="w-full py-5">
 				{#if isPending}
 					<LoadingSpinner class="text-popover animate-spin" />
@@ -248,7 +262,6 @@
 					Confirm & Get Loan
 				{/if}
 			</Button>
-			<!-- <Button variant="link">Repayment Terms</Button> -->
 		</Card>
 	</div>
 </BaseScreen>

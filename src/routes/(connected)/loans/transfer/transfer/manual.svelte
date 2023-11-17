@@ -4,13 +4,14 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { getAccountStore } from '$lib/context/getStores';
+	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 	import { AMBOS_FAQ, NETWORKS_AND_BRIDGING } from '$lib/constants';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
 	import NetworkNames from '$lib/components/ui/network/network-names.svelte';
 	import * as Accordion from '$lib/components/ui/accordion';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	// show the verification spinner
 	export let showVerification: boolean;
@@ -19,10 +20,13 @@
 	export let startVerification: boolean;
 
 	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
 	let canvas: HTMLCanvasElement;
 	let accordionOpen: boolean;
 	let padding = 'py-2';
 
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
 	$: address = $accountStore.address ?? '0x...';
 	$: blurClass = checked ? ' blur-none ' : ' blur-sm ';
 
@@ -92,8 +96,8 @@
 							<a href={NETWORKS_AND_BRIDGING} target="_blank"> Learn More</a></button
 						>
 						<p>
-							<b>Sending {'WETH'} from the wrong network can result in irreversible loss!</b>
-							<br /><br />Double check that you are only sending {'WETH'} on the
+							<b>Sending {ethType} from the wrong network can result in irreversible loss!</b>
+							<br /><br />Double check that you are only sending {ethType} on the
 							<span class="inline-block"><NetworkNames /></span> network. Always ensure that the address
 							you are sending crypto to fully matches the one displayed in the app.
 						</p>

@@ -39,6 +39,7 @@ export const getPoolReserveData = async (
 	provider: AppProvider
 ) => {
 	const poolAddress = await getAavePoolDataProvider(provider);
+
 	const dataProvider = AaveProtocolDataProvider__factory.connect(poolAddress, provider);
 	return await dataProvider.getReserveData(reserveTokenAddress);
 };
@@ -156,6 +157,7 @@ export async function getSetPoolData(
 			getPoolReserveAndConfigData(reserveTokens['WETH'], provider),
 			getPoolReserveAndConfigData(reserveTokens['USDC'], provider)
 		]);
+
 		setPoolDataUser(store, userPoolData, blockNumber);
 		setPoolDataReserve(store, { token: 'WETH', ...poolReserveDataWETH }, blockNumber);
 		setPoolDataReserve(store, { token: 'USDC', ...poolReserveDataUSDC }, blockNumber);

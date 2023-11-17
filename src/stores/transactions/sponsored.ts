@@ -5,12 +5,10 @@ import {
 	type SponsorUserOperationDto,
 	type FeeQuotesOrDataDto
 } from '@biconomy/paymaster';
-import type { PopulatedTransaction } from 'ethers';
+import type { PopulatedTransaction, ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
 import { updateTransaction, type UUID, type TxStore, increaseTxCounter } from './state';
 import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
-import { TESTNET_ADDITIONAL_CONTRACTS } from '$lib/contracts';
-import { ChainId } from '@biconomy/core-types';
 
 export async function sponsoredTx(
 	store: TxStore,
@@ -70,6 +68,7 @@ export async function sponsoredTx(
 export type UserOpTx = {
 	to: EthereumAddress;
 	data: PopulatedTransaction['data'];
+	value?: ethers.BigNumberish;
 };
 export async function batchSponsoredTx(
 	store: TxStore,
@@ -96,6 +95,44 @@ export async function batchSponsoredTx(
 			state: 'SIGNED',
 			userOpReceiptHash: userOpResponse.userOpHash as `0x${string}`,
 			sponsored: true
+		});
+
+		const { receipt } = await userOpResponse.wait(confirmations);
+		if (receipt.status === 0) {
+			updateTransaction(store, id, {
+				state: 'REJECTED'
+			});
+		} else {
+			increaseTxCounter(store);
+			updateTransaction(store, id, {
+				state: 'SUCCESSFUL',
+				finalTxHash: receipt.transactionHash as `0x${string}`
+			});
+		}
+	} catch (err: any) {
+		updateTransaction(store, id, {
+			error: err.message ?? err,
+			state: 'FAILED'
+		});
+		console.error(err);
+	}
+}
+
+export async function batchUserTransaction(
+	store: TxStore,
+	id: UUID,
+	txs: UserOpTx[],
+	smartAccount: BiconomySmartAccount,
+	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
+) {
+	try {
+		const userOp = await smartAccount.buildUserOp(txs);
+		const userOpResponse = await smartAccount.sendUserOp(userOp);
+
+		updateTransaction(store, id, {
+			state: 'SIGNED',
+			userOpReceiptHash: userOpResponse.userOpHash as `0x${string}`,
+			sponsored: false
 		});
 
 		const { receipt } = await userOpResponse.wait(confirmations);

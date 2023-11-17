@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_WALLETCONNECT_PROJECT_ID } from '$env/static/public';
-	import { evmInjectedWallet, evmWallets } from '@particle-network/connect';
+	import { evmWallets } from '@particle-network/connect';
 	import { onMount } from 'svelte';
 	import type { AuthTypes } from '@particle-network/auth';
 	import Card from '$lib/components/ui/card/card.svelte';
@@ -15,7 +15,6 @@
 	import { toast } from 'svelte-sonner';
 	import { getSocialProvider } from '$stores/account/particle';
 	import { initAccountStore } from '$stores/account';
-	import { ethers, providers } from 'ethers';
 
 	const SUPPORTED_WALLETS = ['injected', 'metamask', 'walletconnect_v2'];
 
@@ -86,7 +85,7 @@
 </script>
 
 {#if pending}
-	<div class="absolute inset-0 flex items-center justify-center bg-black opacity-60">
+	<div class="absolute inset-0 flex items-center justify-center bg-black opacity-60 z-20">
 		<div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary" />
 	</div>
 {/if}

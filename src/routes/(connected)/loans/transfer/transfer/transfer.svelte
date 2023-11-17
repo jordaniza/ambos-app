@@ -10,6 +10,7 @@
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { increaseTxCounter } from '$stores/transactions/state';
 	import { onDestroy } from 'svelte';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	export let transferred: number;
 	export let toBeTransferred: number;
@@ -26,7 +27,9 @@
 	let showSuccess = false;
 	let isVerifying = false;
 
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: useTransfer = transferBuy[transferBuyIndex] === 'Transfer ETH';
 	$: useBuy = transferBuy[transferBuyIndex] === 'Buy ETH';
 	$: hasEth = $txStore.builders.INCREASE_DEBT.hasEth;

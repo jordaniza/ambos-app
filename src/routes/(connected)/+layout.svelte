@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { initAccountStore, setConnectKit, initMulticallProvider } from '$stores/account';
 	import { onMount } from 'svelte';
-	import { ChainId } from '@biconomy/core-types';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
@@ -20,15 +19,17 @@
 	import { page } from '$app/stores';
 	import { EXCLUDED_FOOTER_ROUTES, ROUTES } from '$lib/constants';
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
 	import NotificationHandler from './notifications/notificationHandler.svelte';
 	import { fade } from 'svelte/transition';
 	import { ethers } from 'ethers';
 	import type { EVMProvider, ParticleConnect } from '@particle-network/connect';
 	import { getCachedProvider } from '$stores/account/particle';
-	import { ChainMap } from '$lib/contracts';
 	import { toast } from 'svelte-sonner';
 	import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
+	import { PUBLIC_CHAIN_ID } from '$env/static/public';
+	import { goto } from '$app/navigation';
+	import { particleChains } from '$stores/account/particle-chains';
+	import type { ChainId } from '@biconomy/core-types';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -54,7 +55,12 @@
 	let walletAddress = '';
 
 	// adjust the chain id here for the whole app
-	const chainId = ChainId.POLYGON_MUMBAI;
+	let chainId = Number(PUBLIC_CHAIN_ID);
+
+	if (!chainId) {
+		throw new Error('Chain ID not found in the Environment');
+	}
+
 	const WATCH_INTERVAL = 30; // seconds
 
 	$: provider = $accountStore?.provider;
@@ -62,8 +68,8 @@
 	$: address = $accountStore?.address;
 	$: isConnected = $accountStore?.isConnected;
 	$: smartAccount = $accountStore?.smartAccount;
-	$: currentPage = $page.url.pathname;
 	$: showSplash = !isConnected && currentPage !== ROUTES.LOGIN;
+	$: currentPage = browser ? $page.url.pathname : '';
 
 	// don't show the footer on certain pages
 	$: excludedRoute = EXCLUDED_FOOTER_ROUTES.includes(
@@ -93,6 +99,8 @@
 
 			await initializeTxStore(txStore, address, multiP, smartAccount);
 			p.removeAllListeners();
+
+			console.log('watching');
 			watchW3Store(web3Store, address, multiP, WATCH_INTERVAL);
 		} catch (e) {
 			console.error(e);
@@ -107,7 +115,7 @@
 
 	async function trySwitchChain(kit: ParticleConnect): Promise<boolean> {
 		try {
-			await kit.switchChain(ChainMap[chainId]);
+			await kit.switchChain(particleChains[chainId as ChainId]);
 			onSupportedChain = true;
 			return true;
 		} catch (e) {
@@ -118,7 +126,7 @@
 
 	$: {
 		if (onSupportedChain === false && browser) {
-			const chainName = ChainMap[chainId].fullname;
+			const chainName = particleChains[chainId as ChainId].fullname;
 			toastId = toast.error(`Unsupported chain, please switch to ${chainName}`, {
 				duration: Infinity
 			});
@@ -173,7 +181,10 @@
 			if (!isConnected) {
 				const cachedProvider = await getCachedProvider(kit);
 				if (!cachedProvider) goto(ROUTES.LOGIN);
-				else initAccountStore(accountStore, chainId, cachedProvider);
+				else {
+					initAccountStore(accountStore, chainId, cachedProvider);
+					checkChainAndSetupListeners(cachedProvider);
+				}
 			}
 		} catch (e) {
 			console.log('Failed to connect', e);

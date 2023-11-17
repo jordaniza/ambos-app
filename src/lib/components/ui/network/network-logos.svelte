@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getWeb3Store } from '$lib/context/getStores';
+	import { ChainId } from '@biconomy/core-types';
 
 	export let chainId: number | string | undefined = undefined;
 
@@ -10,13 +11,21 @@
 	$: logo = logos[_chainId as keyof typeof logos] ?? logos[1];
 
 	const logos = {
-		1: {
+		[ChainId.MAINNET]: {
 			img: '/external/eth.png',
 			alt: 'Ethereum'
 		},
-		80001: {
+		[ChainId.POLYGON_MUMBAI]: {
 			img: '/external/polygon.png',
 			alt: 'Polygon'
+		},
+		[ChainId.ARBITRUM_ONE_MAINNET]: {
+			img: '/external/arbitrum.png',
+			alt: 'Arbitrum'
+		},
+		[ChainId.ARBITRUM_GOERLI_TESTNET]: {
+			img: '/external/arbitrum.png',
+			alt: 'Arbitrum'
 		}
 	};
 </script>

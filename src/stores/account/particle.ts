@@ -2,10 +2,8 @@ import type { ChainId } from '@biconomy/core-types';
 import { ParticleAuthModule, ParticleProvider } from '@biconomy/particle-auth';
 import { providers } from 'ethers';
 import * as process from '$env/static/public';
-import { particleChainNames } from './particleChainNames';
+import { particleChainNames, particleChains } from './particle-chains';
 import { evmWallets, ParticleConnect, type EVMProvider } from '@particle-network/connect';
-import type { ParticleNetwork } from '@particle-network/auth';
-import { PolygonMumbai } from '@particle-network/chains';
 import { LOCAL_STORAGE_KEYS } from '$lib/constants';
 export type ParticleUserInfo = ParticleAuthModule.UserInfo;
 
@@ -23,18 +21,23 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 		throw new Error('Missing chainName for Particle provider');
 	}
 
-	console.warn('Auth is configured to use the Polygon chain');
-
 	const connectKit = new ParticleConnect({
 		projectId: particleProjectId,
 		clientKey,
 		appId,
-		chains: [PolygonMumbai],
+		chains: [particleChains[chainId]],
 		wallets: evmWallets({
 			projectId: wcProjectId
 		}),
 		particleWalletEntry: {
-			displayWalletEntry: false
+			displayWalletEntry: false,
+			uiMode: 'light',
+			supportChains: [
+				{
+					id: chainId,
+					name: chainName
+				}
+			]
 		},
 		preload: true
 	});
@@ -44,9 +47,14 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 export async function getCachedProvider(
 	connectKit: ParticleConnect
 ): Promise<providers.Web3Provider | undefined> {
-	const cachedProvider = await connectKit.connectToCachedProvider();
-	if (!cachedProvider) return;
-	return new providers.Web3Provider(cachedProvider as EVMProvider, 'any');
+	try {
+		const cachedProvider = await connectKit.connectToCachedProvider();
+		if (cachedProvider) return new providers.Web3Provider(cachedProvider as EVMProvider, 'any');
+		else if (connectKit.particle.auth.isLogin()) return getSocialProvider(connectKit);
+		else return undefined;
+	} catch (error) {
+		console.error('Failed to get cached provider:', error);
+	}
 }
 
 export async function getSocialProvider(
@@ -56,6 +64,7 @@ export async function getSocialProvider(
 		const particleProvider = new ParticleProvider(
 			connectKit.particle.auth as unknown as ParticleAuthModule.Auth
 		);
+
 		return new providers.Web3Provider(particleProvider, 'any');
 	} catch (error) {
 		console.error('Failed to get particle provider:', error);

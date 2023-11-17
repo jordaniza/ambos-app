@@ -57,3 +57,31 @@ Vitest can be run in unit, integration or e2e mode. Scripts are in the package.j
 Define each test suite by creating a file with the {unit,integration,e2e}.spec.ts extension.
 
 Vitest scans for all files in src that contains {unit,integration,e2e}.spec.ts and runs them.
+
+Biconomy Paymasters are a bit tricky to test as they require the API. I recommend building the transactions on a network fork using hardhat, and then porting the JS code across.
+
+## Deployment
+
+Currently, Ambos is single chain, but can be deployed on multiple chains. When deploying for a new chain, ensure a few things:
+
+1. The chain has been configured as the root chain in the +layout.svelte file
+2. Ensure the ethers providers, particle and biconomy components have been set to suppor the chain
+3. Ensure the contract addresses are set for the chain
+
+- ADDRESSES struct is updated
+- If needed, a different testnet USDC can be set for the biconomy paymaster.
+- Add to the BLOCK EXPLORERS in the same file
+
+4. Ensure the API keys are correctly set:
+
+- Particle
+- Transak
+  - Transak options are set
+- Biconomy Paymasters
+  - Gas tank created
+  - Contracts whitelisted
+
+5. On sidechains, configure to use WETH over ETH, on rollups, use ETH
+6. Ensure the logos are set in Network Names, Network Logos
+7. Ensure Vercel is updated
+8. Ensure the fee collector actually receives fees
