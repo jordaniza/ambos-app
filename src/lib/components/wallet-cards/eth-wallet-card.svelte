@@ -1,11 +1,14 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import { getWeb3Store } from '$lib/context/getStores';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 	import { e } from '$lib/utils';
 
 	let web3Store = getWeb3Store();
 
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 </script>
 
 <Card

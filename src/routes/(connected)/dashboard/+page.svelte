@@ -14,16 +14,19 @@
 	import EthSparkline from './ethSparkline.svelte';
 	import { goto } from '$app/navigation';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	let web3Store = getWeb3Store();
 	let openEthDialog: () => void;
 
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
 	$: aWethBalance = $web3Store.balances['aWETH'].small ?? 0;
 	$: liquidationThreshold = $web3Store.userPoolData?.currentLiquidationThreshold.small ?? 0;
 	$: variableRateIR = ($web3Store.poolReserveData?.['USDC'].variableBorrowingRate.small ?? 0) * 100;
 	$: liquidationPrice = getLiquidationPrice(owedUSD, aWethBalance, liquidationThreshold);
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
-	$: ethBalance = $web3Store?.balances['WETH']?.small ?? 0;
+	$: ethBalance = $web3Store?.balances[ethType]?.small ?? 0;
 	$: owedUSD = $web3Store.userPoolData?.totalDebtBase.small ?? 0;
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 	$: ethSupplied = $web3Store.balances['aWETH'].small ?? 0;

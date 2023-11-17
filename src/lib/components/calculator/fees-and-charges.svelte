@@ -1,24 +1,31 @@
 <script lang="ts">
 	import * as Accordion from '$lib/components/ui/accordion';
-	import { f, pc } from '$lib/utils';
+	import { f, pc, e } from '$lib/utils';
 	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
-	import { getAmbosFee, getNewEthPrice } from '$lib/components/calculator/calculator';
+	import { getAmbosFee } from '$lib/components/calculator/calculator';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
 	import type { BiconomySmartAccount } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	export let borrowAmountUSD: number;
 	let accountStore = getAccountStore();
+	let web3Store = getWeb3Store();
 	let estimatedNetworkFee = 0.01;
 
 	// Computed values
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
 	$: ambosFee = getAmbosFee(borrowAmountUSD);
 	$: totalFees = ambosFee + estimatedNetworkFee;
 	$: feePercent = borrowAmountUSD === 0 ? 0 : (totalFees / borrowAmountUSD) * 100;
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
+	$: ethPrice = $web3Store.ethPrice.small ?? 0;
+
+	$: estimatedFeeEth = ethPrice > 0 ? e(estimatedNetworkFee / ethPrice) : 0;
 
 	$: {
 		if (smartAccount && provider) {
@@ -61,7 +68,10 @@
 				<div class="flex w-full justify-between">
 					<p>Est. Network Fees</p>
 					<div>
-						<p>{f(estimatedNetworkFee)}</p>
+						<p>
+							{f(estimatedNetworkFee)}
+							{#if ethType === 'ETH'} / {estimatedFeeEth} ETH {/if}
+						</p>
 					</div>
 				</div>
 			</div>

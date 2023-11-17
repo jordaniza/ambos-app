@@ -1,6 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
-import { ADDRESSES, type ERC20, SupportedTokens, type TSupportedTokens } from '$lib/contracts';
+import {
+	ADDRESSES,
+	type ERC20,
+	SupportedTokens,
+	type TSupportedTokens,
+	CHAIN_ETH_TYPE
+} from '$lib/contracts';
 import { handleError, type Web3Store, type web3Store } from '.';
 import { get } from 'svelte/store';
 import { USDC__factory, WETH__factory } from '$lib/abis/ts';
@@ -82,6 +88,20 @@ export async function getSetTokenBalance(
 	}
 }
 
+export async function getSetEthBalance(
+	provider: AppProvider,
+	userAddress: EthereumAddress,
+	store: typeof web3Store,
+	blockNumber: number
+): Promise<void> {
+	try {
+		const balance = await provider.getBalance(userAddress);
+		setTokenBalance('ETH', store, balance, blockNumber, 18);
+	} catch (e) {
+		handleError(store, e as Error, 'getSetEthBalance error');
+	}
+}
+
 async function getSupportedTokenContracts(
 	provider: AppProvider
 ): Promise<[ERC20, TSupportedTokens][]> {
@@ -105,6 +125,7 @@ export async function getSetSupportedTokenBalances(
 	tokens.forEach(([token, name]) => {
 		getSetTokenBalance(token, name, userAddress, store, 0);
 	});
+	getSetEthBalance(provider, userAddress, store, 0);
 }
 
 export async function watchTokenBalance(
@@ -123,6 +144,21 @@ export async function watchTokenBalance(
 	});
 }
 
+export async function watchEthBalance(
+	provider: AppProvider,
+	userAddress: EthereumAddress,
+	store: typeof web3Store,
+	interval: number
+): Promise<void> {
+	const currentBlock = await provider.getBlockNumber();
+	await getSetEthBalance(provider, userAddress, store, currentBlock);
+	provider.on('block', async (blockNumber) => {
+		if (blockNumber % interval === 0) {
+			await getSetEthBalance(provider, userAddress, store, blockNumber);
+		}
+	});
+}
+
 export async function watchSupportedTokenBalances(
 	userAddress: EthereumAddress,
 	provider: AppProvider,
@@ -133,4 +169,5 @@ export async function watchSupportedTokenBalances(
 	tokens.forEach(([token, name]) => {
 		watchTokenBalance(token, name, userAddress, store, interval);
 	});
+	watchEthBalance(provider, userAddress, store, interval);
 }

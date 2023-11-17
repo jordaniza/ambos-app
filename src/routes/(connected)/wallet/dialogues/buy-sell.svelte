@@ -2,6 +2,8 @@
 	import Ramp from '$lib/components/ramp/ramp.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { ITransakDto } from '$lib/components/ramp/Interface';
+	import { getWeb3Store } from '$lib/context/getStores';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	export const trigger = () => {
 		open = true;
@@ -16,6 +18,10 @@
 		defaultCryptoCurrency: 'ETH',
 		cryptoCurrencyList: 'ETH,WETH'
 	};
+
+	let web3Store = getWeb3Store();
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
 
 	type HandleBuyProps = {
 		currency: 'ETH' | 'WETH' | 'USDC';
@@ -57,7 +63,7 @@
 		<Dialog.Title class="font-xl font-extrabold text-center">{title}</Dialog.Title>
 		<div class="flex flex-col gap-3">
 			<button
-				on:click={() => handleBuySell({ currency: 'WETH' })}
+				on:click={() => handleBuySell({ currency: ethType })}
 				class="bg-background cursor-pointer rounded-2xl p-3 font-bold text-sm flex items-center justify-between shadow-none"
 			>
 				<div class="flex items-center gap-2">

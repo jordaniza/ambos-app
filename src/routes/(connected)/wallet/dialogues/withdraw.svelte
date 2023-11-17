@@ -15,7 +15,7 @@
 	import EthWalletCard from '$lib/components/wallet-cards/eth-wallet-card.svelte';
 	import UsdcWalletCard from '$lib/components/wallet-cards/usdc-wallet-card.svelte';
 	import EthAddressInput from '$lib/components/ui/input/ethAddressInput.svelte';
-	import { sendUSDC, sendWETH } from '$stores/transactions/actions';
+	import { sendETH, sendUSDC, sendWETH } from '$stores/transactions/actions';
 	import { ethers } from 'ethers';
 	import { TX_STATES_SUMMARY, makeTxId } from '$stores/transactions/state';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
@@ -24,6 +24,7 @@
 	import type { AppProvider } from '$stores/account';
 	import { getTransferFeeQuote } from '$stores/transactions/fees';
 	import { cacheFetch } from '$lib/cache';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	export const trigger = () => {
 		open = true;
@@ -45,7 +46,9 @@
 	let isPending = false;
 	let estimatedNetworkFee = 0.01;
 
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store.balances[ethType].small ?? 0;
 	$: ethPrice = $web3Store.ethPrice?.small ?? 0;
 	$: usdcBalance = $web3Store.balances.USDC.small ?? 0;
 	$: withdrawETHUSDValue = withdrawQty * ethPrice;
@@ -86,14 +89,25 @@
 
 		txId = makeTxId();
 		if (currency === 'ETH') {
-			sendWETH({
-				id: txId,
-				store: txStore,
-				smartAccount: smartAccount,
-				provider: provider,
-				recipient: sendAddress as EthereumAddress,
-				amount: ethers.utils.parseEther(withdrawQty.toString())
-			});
+			if (ethType === 'WETH') {
+				sendWETH({
+					id: txId,
+					store: txStore,
+					smartAccount: smartAccount,
+					provider: provider,
+					recipient: sendAddress as EthereumAddress,
+					amount: ethers.utils.parseEther(withdrawQty.toString())
+				});
+			} else if (ethType === 'ETH') {
+				sendETH({
+					id: txId,
+					store: txStore,
+					smartAccount: smartAccount,
+					provider: provider,
+					recipient: sendAddress as EthereumAddress,
+					amount: ethers.utils.parseEther(withdrawQty.toString())
+				});
+			}
 		} else if (currency === 'USDC') {
 			sendUSDC({
 				id: txId,
@@ -120,7 +134,7 @@
 	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
 		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_TRANSFER;
 		const expiry = 1 * 30 * 1000; // 30 seconds
-		const token = currency === 'ETH' ? 'WETH' : currency;
+		const token = currency === 'ETH' ? ethType : currency;
 		const transferQty =
 			currency === 'ETH'
 				? ethers.utils.parseEther(withdrawQty.toString())
@@ -145,7 +159,7 @@
 <!-- Select currency -->
 <Dialog.Root bind:open>
 	<Dialog.FlyInContent class="bg-popover">
-		<Dialog.Title class="font-xl font-extrabold text-center">Receive/Transfer</Dialog.Title>
+		<Dialog.Title class="font-xl font-extrabold text-center">Withdraw</Dialog.Title>
 		<div class="flex flex-col gap-3">
 			<button
 				on:click={() => handleClick('ETH')}

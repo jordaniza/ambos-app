@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Eth from '$lib/eth.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
@@ -15,21 +14,25 @@
 	import { goto } from '$app/navigation';
 	import Counter from '$lib/components/ui/counter/counter.svelte';
 	import NetworkNameLogo from '$lib/components/ui/network/network-name-logo.svelte';
-	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import EthWalletCard from '$lib/components/wallet-cards/eth-wallet-card.svelte';
+	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	// bound to the transfer component to trigger the animation
 	let transferred: number;
 	// flag to show the ticker
 	let showNewETH = false;
+	let recommendedGas = 0.01;
 
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
 
+	$: chainId = $web3Store.chainId ?? 1;
+	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
+	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: ethBuilderSupply = $txStore.builders.INCREASE_DEBT.ethToSupply ?? 0;
-	$: ethBalance = $web3Store.balances.WETH.small ?? 0;
-	$: toBeTransferred = Math.max(0, ethBuilderSupply - ethBalance);
+	$: toBeTransferred = Math.max(0, ethBuilderSupply - ethBalance + recommendedGas);
 	$: hasEnough = ethBalance >= ethBuilderSupply;
+	$: hasEnoughPlusFees = ethBalance >= ethBuilderSupply + recommendedGas;
 
 	$: {
 		if (transferred > 0) {
@@ -81,9 +84,15 @@
 				<!-- Transfer Widget -->
 				<div class="flex flex-col gap-3">
 					<div class="flex flex-col max-w-2/3 gap-3 text-center px-10 pb-3 pt-1 items-center">
-						{#if hasEnough}
-							<p class="text-primary text-sm">
-								You have enough ETH in your wallet to proceed with your loan
+						{#if hasEnoughPlusFees}
+							<p class="text-primary text-sm">You have enough ETH to proceed with your loan.</p>
+							<Button class="w-40" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}
+								>Review Loan Details</Button
+							>
+						{:else if hasEnough}
+							<p class="text-destructive text-sm">
+								You have enough ETH to proceed with your loan but we recommend adding {recommendedGas}
+								additional ETH to cover network fees.
 							</p>
 							<Button class="w-40" on:click={() => goto(ROUTES.LOANS_V2_REVIEW)}
 								>Review Loan Details</Button
@@ -91,18 +100,19 @@
 						{:else}
 							<p class="text-secondary text-sm">
 								We need to transfer {e(toBeTransferred)} ETH more into your Ambos wallet to continue
-								with your loan. Please use one of the transfer or buy options below.
+								with your loan. This includes an additional {recommendedGas} ETH to cover network fees.
+								Please use one of the transfer or buy options below.
 							</p>
 						{/if}
 					</div>
 
 					{#if !hasEnough && toBeTransferred > 0}
 						<div class="w-full flex justify-between font-bold tracking-wide">
-							<p>Amount to deposit</p>
+							<p>Amount to deposit (+ Fees)</p>
 						</div>
 						<div class="border border-secondary p-1 rounded-xl flex">
 							<p class="w-full px-4 py-2 font-bold flex items-center justify-between mr-2 text-sm">
-								{toBeTransferred} ETH
+								{e(toBeTransferred)} ETH
 							</p>
 							<Button variant="secondary" class="px-5" on:click={copyBalanceToClipboard}
 								>Copy</Button
