@@ -2,7 +2,7 @@ import { AavePool__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import { N, type EthereumAddress, delay } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
-import type { BiconomySmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
 import { ethers } from 'ethers';
 import { batchERC20Tx, batchSponsoredTx, batchUserTransaction } from './sponsored';
 import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';
@@ -20,7 +20,7 @@ type IncreaseDebtProps = {
 	amountOutUsdc: ethers.BigNumber;
 	interestRateMode: InterestRateMode;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 
@@ -74,7 +74,6 @@ export async function increaseDebtWETH({
 		borrower
 	});
 
-	console.warn('estimated network fees will return 0 if undefined');
 	const total = totalPlusBorrowFee.add(estimatedNetworkFee.big);
 
 	// populate the transactions ready for signing
@@ -127,7 +126,7 @@ export async function increaseDebtETH({
 
 	// add the fee
 	const fee = amountOutUsdc.mul(AMBOS_BORROW_FEE_PERCENT).div(100);
-	const totalPlusBorrowFee = amountOutUsdc.add(fee);
+	const total = amountOutUsdc.add(fee);
 
 	// fetch the addresses
 	const promiseWeth = getTokenAddress(provider, 'WETH');
@@ -139,17 +138,6 @@ export async function increaseDebtETH({
 	const weth = WETH__factory.connect(wethAddr, provider);
 	const pool = AavePool__factory.connect(poolAddr, provider);
 	const usdc = USDC__factory.connect(usdcAddr, provider);
-
-	const estimatedNetworkFee = await getBorrowFeeQuote({
-		smartAccount,
-		provider,
-		amountInWeth: amountInEth,
-		totalBorrow: totalPlusBorrowFee,
-		borrower
-	});
-
-	console.warn('estimated network fees will return 0 if undefined');
-	const total = totalPlusBorrowFee.add(estimatedNetworkFee.big);
 
 	// populate the transactions ready for signing
 	const data1 = await weth.populateTransaction.approve(poolAddr, ethers.constants.MaxUint256);
@@ -185,7 +173,7 @@ type DecreaseDebtProps = {
 	id: string;
 	borrower: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 };
 
 export async function getDecreaseDebtFeeQuote({

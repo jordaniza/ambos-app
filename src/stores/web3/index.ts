@@ -123,7 +123,7 @@ const DEFAULT_STORE: Web3Store = {
 
 export const web3Store = writable(DEFAULT_STORE);
 
-export function watchW3Store(
+export async function watchW3Store(
 	store: typeof web3Store,
 	userAddress: EthereumAddress,
 	provider: AppProvider,

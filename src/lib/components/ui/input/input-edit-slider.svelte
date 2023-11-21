@@ -41,6 +41,7 @@
 		</div>
 	{/if}
 	<FormatInput
+		{max}
 		bind:value
 		formatter={() => formatter(...formatterArgs)}
 		disabled={!showRange}
