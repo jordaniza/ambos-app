@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { initAccountStore, setConnectKit, initMulticallProvider } from '$stores/account';
+	import {
+		initAccountStore,
+		setConnectKit,
+		initMulticallProvider,
+		type AppProvider
+	} from '$stores/account';
 	import { onMount } from 'svelte';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
@@ -25,7 +30,6 @@
 	import type { EVMProvider, ParticleConnect } from '@particle-network/connect';
 	import { getCachedProvider } from '$stores/account/particle';
 	import { toast } from 'svelte-sonner';
-	import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
 	import { PUBLIC_CHAIN_ID } from '$env/static/public';
 	import { goto } from '$app/navigation';
 	import { particleChains } from '$stores/account/particle-chains';
@@ -76,16 +80,13 @@
 		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
 	);
 
-	async function checkChainAndSetupListeners(
-		p: MulticallProvider | ethers.providers.Web3Provider | undefined = provider
-	) {
+	async function checkChainAndSetupListeners(p: AppProvider | undefined = provider) {
 		try {
 			if (!connectKit || !p) {
 				console.warn('No connectKit or provider');
 				return;
 			}
-			const multiP = initMulticallProvider(p as ethers.providers.Web3Provider)!;
-			onSupportedChain = await checkChainIdIsCorrect(multiP);
+			onSupportedChain = await checkChainIdIsCorrect(p);
 
 			if (onSupportedChain === false) {
 				const success = await trySwitchChain(connectKit);
@@ -97,16 +98,16 @@
 				return;
 			}
 
-			await initializeTxStore(txStore, address, multiP, smartAccount);
+			await initializeTxStore(txStore, address, p, smartAccount);
 			p.removeAllListeners();
 
-			watchW3Store(web3Store, address, multiP, WATCH_INTERVAL);
+			watchW3Store(web3Store, address, p, WATCH_INTERVAL);
 		} catch (e) {
 			console.error(e);
 		}
 	}
 
-	async function checkChainIdIsCorrect(p: MulticallProvider): Promise<boolean | null> {
+	async function checkChainIdIsCorrect(p: AppProvider): Promise<boolean | null> {
 		if (!p) return null;
 		const currentNetwork = await p.getNetwork();
 		return currentNetwork.chainId === chainId;

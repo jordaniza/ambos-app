@@ -6,11 +6,11 @@ import { writable } from 'svelte/store';
 import type { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers';
 import { get } from 'svelte/store';
 import type { ParticleConnect } from '@particle-network/connect';
-import type { providers } from 'ethers';
+import type { ethers, providers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
 
 // standardize the typing for use across the application
-export type AppProvider = MulticallProvider;
+export type AppProvider = ethers.providers.Web3Provider;
 
 export interface SmartAccountStore {
 	smartAccount: BiconomySmartAccountV2 | undefined;
@@ -55,13 +55,12 @@ export async function initAccountStore(
 		store.update((state) => ({ ...state, loading: true }));
 
 		const scw = await biconomy.getSmartAccount({ chainId, provider });
-		const multicallProvider = initMulticallProvider(provider);
 		const address = (await scw?.getAccountAddress()) as EthereumAddress;
 
 		store.update((state) => ({
 			...state,
 			smartAccount: scw,
-			provider: multicallProvider,
+			provider,
 			address,
 			isConnected: true,
 			loading: false

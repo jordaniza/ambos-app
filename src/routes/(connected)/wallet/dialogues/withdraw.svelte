@@ -20,7 +20,7 @@
 	import { TX_STATES_SUMMARY, makeTxId } from '$stores/transactions/state';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import { LOCAL_STORAGE_KEYS } from '$lib/constants';
-	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { BiconomySmartAccountV2 } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { getTransferFeeQuote } from '$stores/transactions/fees';
 	import { cacheFetch } from '$lib/cache';
@@ -45,6 +45,7 @@
 	let inputValid: boolean;
 	let isPending = false;
 	let estimatedNetworkFee = 0.01;
+	let maxWithdraw = 0;
 
 	$: chainId = $web3Store.chainId ?? 1;
 	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
@@ -58,6 +59,8 @@
 	$: provider = $accountStore.provider;
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
+	$: interval = currency === 'ETH' ? 0.005 : 0.01;
+	$: showFeeWarning = withdrawQty > 0 && maxWithdraw - withdrawQty < interval;
 
 	$: if (state !== undefined) {
 		// the state should be loading while pending
@@ -74,7 +77,24 @@
 	}
 
 	$: {
-		if (openWithdraw) {
+		if (withdrawQty > maxWithdraw) {
+			withdrawQty = maxWithdraw;
+		}
+	}
+
+	$: {
+		if (smartAccount && provider) {
+			tryQuoteFromCache(smartAccount, provider);
+		}
+	}
+
+	$: {
+		if (currency === 'ETH') {
+			// estimate gas in eth and sub from the max
+			maxWithdraw = Math.max(ethBalance - 0.005, 0);
+		} else if (currency === 'USDC') {
+			// estimate gas in usdc and sub from the max
+			maxWithdraw = Math.max(usdcBalance - estimatedNetworkFee, 0);
 		}
 	}
 
@@ -125,13 +145,7 @@
 		else return f(withdrawQty);
 	}
 
-	$: {
-		if (smartAccount && provider) {
-			tryQuoteFromCache(smartAccount, provider);
-		}
-	}
-
-	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccountV2, provider: AppProvider) {
 		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_TRANSFER;
 		const expiry = 1 * 30 * 1000; // 30 seconds
 		const token = currency === 'ETH' ? ethType : currency;
@@ -201,12 +215,17 @@
 			<!-- Select how much -->
 			<InputEditSlider
 				title={`How much ${currency} do you want to withdraw?`}
-				max={currency === 'ETH' ? ethBalance : usdcBalance}
-				step={0.01}
+				max={maxWithdraw}
+				step={interval}
 				showRange={true}
 				bind:value={withdrawQty}
 				{formatter}
 			/>
+			{#if showFeeWarning}
+				<p class="text-xs text-secondary text-center -mt-5">
+					Remaining {currency} is reserved for network fees.
+				</p>
+			{/if}
 
 			<!-- Network -->
 			<Card class="flex justify-between px-3 py-2 text-sm shadow-none">

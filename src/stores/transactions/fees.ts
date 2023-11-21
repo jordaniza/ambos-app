@@ -2,7 +2,7 @@ import { AavePool__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import type { AppProvider } from '$stores/account';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { InterestRateMode, getAavePool } from '$stores/web3/getPoolData';
-import type { BiconomySmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
 import {
 	PaymasterMode,
 	type IHybridPaymaster,
@@ -17,7 +17,7 @@ async function getFeeQuoteFromUserOp({
 	smartAccount,
 	transactions
 }: {
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	transactions: Array<{ to: EthereumAddress; data: string }>;
 }): Promise<{
 	big: ethers.BigNumber;
@@ -71,7 +71,7 @@ async function getFeeQuoteInWETH(usdFeeQuote: number): Promise<string | undefine
 }
 
 type GetTrasferFeeQuoteProps = {
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	provider: AppProvider;
 	transferQty: ethers.BigNumber;
 	token: TSupportedTokens;
@@ -130,7 +130,7 @@ export async function getTransferFeeQuoteEth({
 }
 
 type GetBorrowFeeQuoteProps = {
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	provider: AppProvider;
 	totalBorrow?: ethers.BigNumber;
 	borrower?: EthereumAddress;

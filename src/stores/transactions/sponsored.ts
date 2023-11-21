@@ -1,4 +1,4 @@
-import type { BiconomySmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
 import {
 	type IHybridPaymaster,
 	PaymasterMode,
@@ -15,7 +15,7 @@ export async function sponsoredTx(
 	id: UUID,
 	addressTo: EthereumAddress,
 	data: PopulatedTransaction['data'],
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {
 	try {
@@ -74,7 +74,7 @@ export async function batchSponsoredTx(
 	store: TxStore,
 	id: UUID,
 	txs: UserOpTx[],
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {
 	try {
@@ -122,7 +122,7 @@ export async function batchUserTransaction(
 	store: TxStore,
 	id: UUID,
 	txs: UserOpTx[],
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {
 	try {
@@ -160,7 +160,7 @@ export async function batchERC20Tx(
 	store: TxStore,
 	id: UUID,
 	txs: UserOpTx[],
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	paymasterToken: EthereumAddress,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {

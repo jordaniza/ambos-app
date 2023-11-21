@@ -8,10 +8,12 @@
 
 	type $$Props = {
 		formatter: (value: number) => string;
+		max?: number | undefined;
 	} & HTMLInputAttributes;
 
 	export let value: $$Props['value'] = undefined;
 	export let formatter: (...args: number[]) => string;
+	export let max: number | undefined = undefined;
 
 	let isFocused = false;
 	let tempValue: string = formatter(value);
@@ -51,7 +53,11 @@
 
 	// when the user clicks away from the input, we want to show the formatted value
 	function onBlur(): void {
-		data.raw = parseFloat(tempValue) || 0; // Convert the string value back to a float
+		let parsed = parseFloat(tempValue) || 0;
+		if (max && parsed > max) {
+			parsed = max;
+		}
+		data.raw = parsed; // Convert the string value back to a float
 		value = data.raw; // Update the depositValue based on input
 		data.formatted = formatter(data.raw);
 		tempValue = data.formatted;

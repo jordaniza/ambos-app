@@ -143,7 +143,6 @@ export async function watchTokenBalance(
 		}
 	});
 }
-
 export async function watchEthBalance(
 	provider: AppProvider,
 	userAddress: EthereumAddress,

@@ -1,7 +1,7 @@
 import { AavePool__factory, Faucet__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import type { EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
-import type { BiconomySmartAccount } from '@biconomy/account';
+import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
 import { ethers, type BigNumber } from 'ethers';
 import {
 	setNewTransaction,
@@ -30,7 +30,7 @@ async function handleSponsoredTransaction(
 	store: TxStore,
 	transactionType: SupportedSingleTransaction,
 	provider: AppProvider,
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	id: string,
 	transactionBuilder: (
 		provider: AppProvider,
@@ -50,7 +50,7 @@ async function handleUserPaidTransaction(
 	store: TxStore,
 	transactionType: SupportedSingleTransaction,
 	provider: AppProvider,
-	smartAccount: BiconomySmartAccount,
+	smartAccount: BiconomySmartAccountV2,
 	id: string,
 	transactionBuilder: (
 		provider: AppProvider,
@@ -71,7 +71,7 @@ type ApproveWethSmartAccountProps = {
 	addressToApprove: EthereumAddress;
 	amount: BigNumber;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function approveWethSmartAccount({
@@ -102,7 +102,7 @@ type SendWethSmartAccountProps = {
 	addressTo: EthereumAddress;
 	amount: BigNumber;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function sendWethSmartAccount({
@@ -133,7 +133,7 @@ type SupplyWethToAavePoolProps = {
 	amount: BigNumber;
 	onBehalfOf: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function supplyWethToAavePool({
@@ -165,7 +165,7 @@ type BorrowUsdcFromAavePoolProps = {
 	amount: BigNumber;
 	borrower: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	interestRateMode: InterestRateMode;
 	id: string;
 };
@@ -205,7 +205,7 @@ type RequestWETHFromTestnetFaucetProps = {
 	amount: BigNumber;
 	recipient: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function requestWETHFromTestnetFaucet({
@@ -238,7 +238,7 @@ type SendWETHProps = {
 	amount: BigNumber;
 	recipient: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function sendWETH({ store, amount, recipient, provider, smartAccount, id }: SendWETHProps) {
@@ -287,7 +287,7 @@ type SendETHProps = {
 	amount: BigNumber;
 	provider: AppProvider;
 	recipient: EthereumAddress;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export function sendETH({ store, amount, recipient, provider, smartAccount, id }: SendETHProps) {
@@ -320,7 +320,7 @@ type SendUSDCProps = {
 	amount: BigNumber;
 	recipient: EthereumAddress;
 	provider: AppProvider;
-	smartAccount: BiconomySmartAccount;
+	smartAccount: BiconomySmartAccountV2;
 	id: string;
 };
 export async function sendUSDC({
