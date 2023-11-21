@@ -59,6 +59,8 @@
 	$: provider = $accountStore.provider;
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
+	$: interval = currency === 'ETH' ? 0.005 : 0.01;
+	$: showFeeWarning = withdrawQty > 0 && maxWithdraw - withdrawQty < interval;
 
 	$: if (state !== undefined) {
 		// the state should be loading while pending
@@ -89,7 +91,7 @@
 	$: {
 		if (currency === 'ETH') {
 			// estimate gas in eth and sub from the max
-			maxWithdraw = Math.max(ethBalance - 0.001, 0);
+			maxWithdraw = Math.max(ethBalance - 0.005, 0);
 		} else if (currency === 'USDC') {
 			// estimate gas in usdc and sub from the max
 			maxWithdraw = Math.max(usdcBalance - estimatedNetworkFee, 0);
@@ -214,12 +216,12 @@
 			<InputEditSlider
 				title={`How much ${currency} do you want to withdraw?`}
 				max={maxWithdraw}
-				step={currency === 'ETH' ? 0.0001 : 0.01}
+				step={interval}
 				showRange={true}
 				bind:value={withdrawQty}
 				{formatter}
 			/>
-			{#if withdrawQty > 0 && withdrawQty === maxWithdraw}
+			{#if showFeeWarning}
 				<p class="text-xs text-secondary text-center -mt-5">
 					Remaining {currency} is reserved for network fees.
 				</p>
