@@ -13,6 +13,7 @@
 	import { goto } from '$app/navigation';
 	import { LEARN_LIQUIDATIONS, ROUTES } from '$lib/constants';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
+	import Remove from './(remove)/remove.svelte';
 
 	let openRepay = false;
 	let web3Store = getWeb3Store();
@@ -58,6 +59,7 @@
 </script>
 
 <RepaySelect bind:open={openRepay} />
+<Remove />
 
 <!-- <Faq /> -->
 <TopBar page="Manage Your Loan" />
