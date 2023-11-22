@@ -16,7 +16,7 @@
 	import { getSocialProvider } from '$stores/account/particle';
 	import { initAccountStore } from '$stores/account';
 
-	const SUPPORTED_WALLETS = ['injected', 'metamask', 'walletconnect_v2'];
+	const SUPPORTED_WALLETS = ['injected', 'walletconnect_v2'];
 
 	let wallets: ReturnType<typeof evmWallets> = [];
 	let pending = false;
@@ -25,6 +25,8 @@
 	let timedOut = false;
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
+
+	let message = '';
 
 	$: isConnected = $accountStore?.isConnected;
 	$: connectKit = $accountStore?.connectKit;
@@ -67,14 +69,17 @@
 		if (!connectKit) throw new Error('No connect kit');
 		pendingCrypto = true;
 		timedOut = false;
-		withTimeout(
-			// root listener will set the remaining state
-			connectKit.connect(id).then(() => {
+		// withTimeout(
+		// root listener will set the remaining state
+		connectKit
+			.connect(id)
+			.then(() => {
 				selectCryptoWallet = false;
-			}),
-			20_000
-		)
-			.catch(() => {
+			})
+			// 1000
+			// )
+			.catch((e) => {
+				message = e;
 				timedOut = true;
 			})
 			.finally(() => {
@@ -95,7 +100,7 @@
 		class="bg-destructive text-white flex items-center text-center justify-center w-full absolute top-0 p-2"
 	>
 		There was an error connecting to your wallet. Please try again and ensure you can connect on
-		your phone.
+		your phone. {message}
 	</div>
 {/if}
 
