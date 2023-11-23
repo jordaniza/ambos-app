@@ -85,10 +85,25 @@ export async function batchSponsoredTx(
 			smartAccountInfo: {
 				name: 'BICONOMY',
 				version: '2.0.0'
-			}
+			},
+			calculateGasLimits: true
 		});
 
-		userOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
+		if (
+			paymasterAndDataResponse.callGasLimit &&
+			paymasterAndDataResponse.verificationGasLimit &&
+			paymasterAndDataResponse.preVerificationGas
+		) {
+			// Returned gas limits must be replaced in your op as you update paymasterAndData.
+			// Because these are the limits paymaster service signed on to generate paymasterAndData
+			// If you receive AA34 error check here..
+			userOp.callGasLimit = paymasterAndDataResponse.callGasLimit;
+			userOp.verificationGasLimit = paymasterAndDataResponse.verificationGasLimit;
+			userOp.preVerificationGas = paymasterAndDataResponse.preVerificationGas;
+		} else {
+			throw new Error('No gas limits were returned');
+		}
+
 		const userOpResponse = await smartAccount.sendUserOp(userOp);
 
 		updateTransaction(store, id, {
@@ -138,7 +153,8 @@ export async function batchUserTransaction(
 		const { receipt } = await userOpResponse.wait(confirmations);
 		if (receipt.status === 0) {
 			updateTransaction(store, id, {
-				state: 'REJECTED'
+				state: 'REJECTED',
+				finalTxHash: receipt.transactionHash as `0x${string}`
 			});
 		} else {
 			increaseTxCounter(store);
@@ -226,7 +242,8 @@ export async function batchERC20Tx(
 		const { receipt } = await userOpResponse.wait(confirmations);
 		if (receipt.status === 0) {
 			updateTransaction(store, id, {
-				state: 'REJECTED'
+				state: 'REJECTED',
+				finalTxHash: receipt.transactionHash as `0x${string}`
 			});
 		} else {
 			increaseTxCounter(store);
