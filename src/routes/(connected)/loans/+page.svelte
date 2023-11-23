@@ -16,6 +16,7 @@
 	import Remove from './(remove)/remove.svelte';
 
 	let openRepay = false;
+	let openRemove = false;
 	let web3Store = getWeb3Store();
 
 	$: interestRate = ($web3Store.poolReserveData['USDC'].variableBorrowingRate.small ?? 0) * 100;
@@ -39,6 +40,10 @@
 		return borrowedOutOfSupplied / maxLTV;
 	}
 
+	function handleClickRemoveETH() {
+		openRemove = true;
+	}
+
 	function getLiquidationStatus(liquidationPercentage: number): string {
 		if (liquidationPercentage < 0.5) {
 			return 'Low';
@@ -59,7 +64,7 @@
 </script>
 
 <RepaySelect bind:open={openRepay} />
-<Remove />
+<Remove bind:open={openRemove} />
 
 <!-- <Faq /> -->
 <TopBar page="Manage Your Loan" />
@@ -104,7 +109,9 @@
 					</div>
 				</div>
 				<section class="flex gap-2">
-					<Button disabled={true} variant="outline" class="w-1/2 text-primary">Remove ETH</Button>
+					<Button on:click={handleClickRemoveETH} variant="outline" class="w-1/2 text-primary"
+						>Remove ETH</Button
+					>
 					<Button disabled={true} class="w-1/2">Add ETH</Button>
 				</section>
 			</Card>

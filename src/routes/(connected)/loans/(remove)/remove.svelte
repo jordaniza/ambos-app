@@ -2,20 +2,18 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
-	import { USDC, e, f, stbl } from '$lib/utils';
+	import { BN, N, e, f } from '$lib/utils';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
-	import { decreaseDebt, getDecreaseDebtFeeQuote } from '$stores/transactions/batchActions';
+	import { getRemoveCollateralFeeQuote, removeCollateral } from '$stores/transactions/batchActions';
 	import { makeTxId } from '$stores/transactions/state';
 	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
-	import UsdcWalletCard from '$lib/components/wallet-cards/usdc-wallet-card.svelte';
 	import { onMount } from 'svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import { CHAIN_ETH_TYPE } from '$lib/contracts';
-	import EthWalletCard from '$lib/components/wallet-cards/eth-wallet-card.svelte';
 
-	export let open = true;
+	export let open = false;
 
 	let pending = false;
 	let removeQty = 0;
@@ -24,6 +22,7 @@
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();
 	let estimatedFee = 0;
+	let interval = 0.001;
 	let id: string = '';
 
 	$: chainId = $web3Store.chainId ?? 1;
@@ -39,7 +38,8 @@
 	$: maxDebt = collateralValue / 2;
 	$: capacity = maxDebt - debtValue;
 	$: maxRemove = Math.max(capacity, 0);
-	$: showWarning = removeQty === maxRemove && maxRemove < supplied;
+	$: showWarning = maxRemove - removeQty < interval && maxRemove < collateralValue;
+	$: removeQtyInEth = ethPrice ? Number(N(BN(removeQty).div(ethPrice).toString())) : 0;
 
 	$: smartAccount = $accountStore?.smartAccount;
 	$: provider = $accountStore?.provider;
@@ -55,20 +55,20 @@
 	}
 
 	function formatter() {
-		return e(removeQty) + ' ETH';
+		return f(removeQty) + ` - ${e(removeQtyInEth)} ETH`;
 	}
 
 	function maxFormatter() {
-		return e(maxRemove) + ' ETH';
+		return f(maxRemove);
 	}
 
 	function handleClick() {
 		if (!smartAccount || !provider || !address) return;
 		pending = true;
 		id = makeTxId();
-		decreaseDebt({
+		removeCollateral({
 			store: txStore,
-			repayAmountinUSDC: USDC(removeQty),
+			removeAmountInWei: BN(removeQtyInEth),
 			id,
 			borrower: address,
 			smartAccount,
@@ -80,9 +80,9 @@
 
 	function getFeeQuote() {
 		if (!smartAccount || !provider || !address) return;
-		getDecreaseDebtFeeQuote({
+		getRemoveCollateralFeeQuote({
 			borrower: address,
-			repayAmountinUSDC: USDC(removeQty),
+			removeAmountInWei: BN(removeQtyInEth),
 			smartAccount,
 			provider
 		}).then((quote) => {
@@ -116,20 +116,20 @@
 				</div>
 			</div>
 			<!-- Wallet balance and 'credit card' -->
-			<EthWalletCard />
+			<!-- <EthWalletCard /> -->
 			<InputEditSlider
 				showRange={true}
 				max={maxRemove}
 				showMax={true}
 				{maxFormatter}
 				title="How much ETH do you want to withdraw from your collateral?"
-				step={0.001}
+				step={interval}
 				bind:value={removeQty}
 				{formatter}
 			/>
 			{#if showWarning}<p class="text-xs text-destructive text-center -mt-5">
-					You must maintain at least 50% of your debt in collateral to avoid liquidation, you can
-					withdraw up to {f(maxRemove)} in ETH
+					You must maintain at least 50% of your debt in collateral to avoid liquidation, repay your
+					loan to wihdraw more.
 				</p>
 			{/if}
 
