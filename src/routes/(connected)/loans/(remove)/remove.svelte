@@ -28,7 +28,6 @@
 	$: chainId = $web3Store.chainId ?? 1;
 	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
 
-	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: supplied = $web3Store?.balances['aWETH'].small ?? 0;
 	$: debtValue = $web3Store?.userPoolData?.totalDebtBase?.small ?? 0;
 	$: collateralValue = $web3Store?.userPoolData?.totalCollateralBase?.small ?? 0;
@@ -39,7 +38,7 @@
 	$: capacity = maxDebt - debtValue;
 	$: maxRemove = Math.max(capacity, 0);
 	$: showWarning = maxRemove - removeQty < interval && maxRemove < collateralValue;
-	$: removeQtyInEth = ethPrice ? Number(N(BN(removeQty).div(ethPrice).toString())) : 0;
+	$: removeQtyInEth = ethPrice ? removeQty / ethPrice : 0;
 
 	$: smartAccount = $accountStore?.smartAccount;
 	$: provider = $accountStore?.provider;
