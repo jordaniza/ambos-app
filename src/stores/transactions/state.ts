@@ -39,7 +39,9 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 	'APPROVE_AWETH',
 	'APPROVE_USDC',
 	'REPAY_USDC',
-	'WITHDRAW_WETH',
+
+	// withdraw
+	'REMOVE_COLLATERAL',
 
 	// eth/weth
 	'UNWRAP_WETH',
@@ -87,6 +89,9 @@ export const SUPPORTED_TRANSACTIONS = [
 export type TxContext = {
 	INCREASE_DEBT: Omit<TxBuilders['INCREASE_DEBT'], 'stage' | 'hasEth'>;
 	DECREASE_DEBT: {
+		amount: number;
+	};
+	REMOVE_COLLATERAL: {
 		amount: number;
 	};
 	TRANSFER: {

@@ -268,3 +268,110 @@ export async function decreaseDebt({
 
 	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
 }
+
+type RemoveETHProps = {
+	store: TxStore;
+	removeAmountInWei: ethers.BigNumber;
+	id: string;
+	borrower: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccountV2;
+};
+
+export async function getRemoveCollateralFeeQuote({
+	removeAmountInWei,
+	borrower,
+	provider,
+	smartAccount
+}: Omit<RemoveETHProps, 'id' | 'store'>) {
+	const promiseAWETH = getTokenAddress(provider, 'aWETH');
+	const promiseWETH = getTokenAddress(provider, 'WETH');
+	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
+
+	const [aWETHAddr, wethAddr, poolAddr, network] = await Promise.all([
+		promiseAWETH,
+		promiseWETH,
+		promisePool,
+		promiseNetwork
+	]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	// we can use the WETH interface to interact with aWETH as a standard ERC20
+	const aWETH = WETH__factory.connect(aWETHAddr, provider);
+	const weth = WETH__factory.connect(wethAddr, provider);
+
+	const data0 = await aWETH.populateTransaction.approve(poolAddr, removeAmountInWei);
+	const data1 = await pool.populateTransaction.withdraw(wethAddr, removeAmountInWei, borrower);
+	// unwrap the weth to eth
+	const data2 = await weth.populateTransaction.approve(wethAddr, removeAmountInWei);
+	const data3 = await weth.populateTransaction.withdraw(removeAmountInWei);
+
+	const tx0 = { to: aWETHAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+	const tx2 = { to: wethAddr, data: data2.data };
+	const tx3 = { to: wethAddr, data: data3.data };
+
+	const transactions = [tx0, tx1, tx2, tx3];
+
+	const userOp = await smartAccount.buildUserOp(transactions);
+	const paymaster = smartAccount.paymaster as IHybridPaymaster<FeeQuotesOrDataDto>;
+
+	const feeQuotesResponse = await paymaster.getPaymasterFeeQuotesOrData(userOp, {
+		mode: PaymasterMode.ERC20,
+		tokenList: [PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC]
+	});
+
+	console.log({ feeQuotesResponse });
+
+	return feeQuotesResponse?.feeQuotes?.[0] ?? null;
+}
+
+export async function removeCollateral({
+	store,
+	removeAmountInWei,
+	id,
+	borrower,
+	provider,
+	smartAccount
+}: RemoveETHProps) {
+	const transactionType = 'REMOVE_COLLATERAL';
+	setNewTransaction<TxContext['REMOVE_COLLATERAL']>(store, transactionType, id, {
+		amount: Number(ethers.utils.formatUnits(removeAmountInWei, 18))
+	});
+
+	const promiseAWETH = getTokenAddress(provider, 'aWETH');
+	const promiseWETH = getTokenAddress(provider, 'WETH');
+	const promisePool = getAavePool(provider);
+	const promiseNetwork = provider.getNetwork();
+
+	const [aWETHAddr, wethAddr, poolAddr, _] = await Promise.all([
+		promiseAWETH,
+		promiseWETH,
+		promisePool,
+		promiseNetwork
+	]);
+
+	const pool = AavePool__factory.connect(poolAddr, provider);
+	// we can use the WETH interface to interact with aWETH as a standard ERC20
+	const aWETH = WETH__factory.connect(aWETHAddr, provider);
+	const weth = WETH__factory.connect(wethAddr, provider);
+
+	const data0 = await aWETH.populateTransaction.approve(poolAddr, removeAmountInWei);
+	const data1 = await pool.populateTransaction.withdraw(wethAddr, removeAmountInWei, borrower);
+	// unwrap the weth to eth
+	const data2 = await weth.populateTransaction.approve(wethAddr, removeAmountInWei);
+	const data3 = await weth.populateTransaction.withdraw(removeAmountInWei);
+
+	const tx0 = { to: aWETHAddr, data: data0.data };
+	const tx1 = { to: poolAddr, data: data1.data };
+	const tx2 = { to: wethAddr, data: data2.data };
+	const tx3 = { to: wethAddr, data: data3.data };
+
+	const transactions = [tx0, tx1, tx2, tx3];
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+
+	return await batchSponsoredTx(store, id, transactions, smartAccount);
+}

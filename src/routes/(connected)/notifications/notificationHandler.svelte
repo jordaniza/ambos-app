@@ -2,6 +2,7 @@
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 	import GetLoan from './handlers/get-loan.svelte';
+	import RemoveCollateral from './handlers/remove-collateral.svelte';
 	import RepayLoan from './handlers/repay-loan.svelte';
 	import Transfer from './handlers/transfer.svelte';
 
@@ -23,5 +24,7 @@
 		<Transfer {tx} currency={ethType} />
 	{:else if tx.txType === 'SEND_USDC'}
 		<Transfer {tx} currency="USDC" />
+	{:else if tx.txType === 'REMOVE_COLLATERAL'}
+		<RemoveCollateral {tx} />
 	{/if}
 {/each}
