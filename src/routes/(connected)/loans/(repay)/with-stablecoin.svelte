@@ -27,7 +27,7 @@
 	$: usdcBalance = $web3Store?.balances.USDC.small ?? 0;
 	$: borrowed = $web3Store.userPoolData.totalDebtBase.small ?? 0;
 
-	$: maxRepay = Math.min(usdcBalance, borrowed);
+	$: maxRepay = Math.max(0, Math.min(usdcBalance, borrowed) - estimatedFee);
 	$: showWarning = repayQty === maxRepay && maxRepay < borrowed;
 
 	$: smartAccount = $accountStore?.smartAccount;
@@ -35,6 +35,10 @@
 	$: address = $accountStore?.address;
 
 	$: tx = $txStore.transactions[id];
+
+	$: if (repayQty > maxRepay) {
+		repayQty = maxRepay;
+	}
 
 	// listen for a tx past the signed stage and shut the modal
 	$: {
@@ -113,7 +117,8 @@
 				{formatter}
 			/>
 			{#if showWarning}<p class="text-xs text-destructive text-center -mt-5">
-					Add more USDC to your Ambos wallet to repay the rest of the loan
+					Add more USDC to your Ambos wallet to repay the rest of the loan. {f(estimatedFee)} USDC is
+					required to pay for network fees.
 				</p>
 			{/if}
 

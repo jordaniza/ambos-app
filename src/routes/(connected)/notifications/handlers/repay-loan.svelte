@@ -62,7 +62,7 @@
 				<p>You're almost done!<br />We're waiting for your loan to be repaid.</p>
 				<Separator />
 				<p class="text-muted-foreground">
-					We will send you a notification once your ETH has arrived.
+					We will send you a notification once your USDC has been repaid.
 				</p>
 				<Button
 					variant="outline"
