@@ -59,7 +59,7 @@
 	$: provider = $accountStore.provider;
 	$: transaction = $txStore.transactions[txId];
 	$: state = transaction?.state;
-	$: interval = currency === 'ETH' ? 0.005 : 0.01;
+	$: interval = currency === 'ETH' ? 0.0001 : 0.01;
 	$: showFeeWarning = withdrawQty > 0 && maxWithdraw - withdrawQty < interval;
 
 	$: if (state !== undefined) {
