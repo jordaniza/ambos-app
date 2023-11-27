@@ -25,17 +25,14 @@
 	let interval = 0.001;
 	let id: string = '';
 
-	$: chainId = $web3Store.chainId ?? 1;
-	$: ethType = CHAIN_ETH_TYPE[chainId] ?? 'ETH';
-
 	$: supplied = $web3Store?.balances['aWETH'].small ?? 0;
 	$: debtValue = $web3Store?.userPoolData?.totalDebtBase?.small ?? 0;
 	$: collateralValue = $web3Store?.userPoolData?.totalCollateralBase?.small ?? 0;
 
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 
-	$: maxDebt = collateralValue / 2;
-	$: capacity = maxDebt - debtValue;
+	$: minCollateralUSD = debtValue * 2;
+	$: capacity = collateralValue - minCollateralUSD;
 	$: maxRemove = Math.max(capacity, 0);
 	$: showWarning = maxRemove - removeQty < interval && maxRemove < collateralValue;
 	$: removeQtyInEth = ethPrice ? removeQty / ethPrice : 0;
@@ -51,6 +48,13 @@
 		if (['SIGNED', 'SUCCESSFUL'].includes(tx?.state)) {
 			open = false;
 		}
+	}
+
+	function calculateMaxRemove() {
+		// max remove is such that the ETH supplied can be up to 2x the debt
+		const minCollateralUSD = debtValue * 2;
+		const maxRemoveUSD = Math.max(collateralValue - minCollateralUSD, 0);
+		const maxRemove = ethPrice ? maxRemoveUSD / ethPrice : 0;
 	}
 
 	function formatter() {

@@ -28,7 +28,7 @@
 	$: borrowed = $web3Store.userPoolData.totalDebtBase.small ?? 0;
 
 	$: maxRepay = Math.max(0, Math.min(usdcBalance, borrowed) - estimatedFee);
-	$: showWarning = repayQty === maxRepay && maxRepay < borrowed;
+	$: showWarning = maxRepay - repayQty < 0.01 && maxRepay < borrowed;
 
 	$: smartAccount = $accountStore?.smartAccount;
 	$: provider = $accountStore?.provider;
@@ -59,9 +59,10 @@
 		if (!smartAccount || !provider || !address) return;
 		pending = true;
 		id = makeTxId();
+		const repayMax6Decimals = Math.floor(repayQty * 1000000) / 1000000;
 		decreaseDebt({
 			store: txStore,
-			repayAmountinUSDC: USDC(repayQty),
+			repayAmountinUSDC: USDC(repayMax6Decimals),
 			id,
 			borrower: address,
 			smartAccount,
