@@ -41,7 +41,7 @@
 	];
 </script>
 
-<div class="flex flex-wrap items-center w-full justify-center text-base p-5 md:p-0">
+<div class="flex flex-col items-center w-full justify-center text-base p-5 md:p-0">
 	<div class=" grow w-full flex items-center justify-center">
 		<img src="/ambos-header.png" alt="ambos logo" class="h-16 my-5" />
 	</div>
