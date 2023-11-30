@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import * as env from '$env/static/public';
 	import { onMount } from 'svelte';
 	import '../app.postcss';
@@ -35,9 +34,11 @@
 <svelte:head>
 	{@html webManifestLink}
 </svelte:head>
+
 {#if gtmNoscript}
 	{@html gtmNoscript}
 {/if}
+
 <slot />
 
 {#await import('$lib/components/pwa/ReloadPrompt.svelte') then { default: ReloadPrompt }}

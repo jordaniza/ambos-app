@@ -20,6 +20,7 @@ export interface SmartAccountStore {
 	address: `0x${string}` | undefined;
 	isConnected: boolean;
 	connectKit: ParticleConnect | undefined;
+	eoa: EthereumAddress | undefined;
 }
 
 const defaults: SmartAccountStore = {
@@ -29,7 +30,8 @@ const defaults: SmartAccountStore = {
 	provider: undefined,
 	address: undefined,
 	isConnected: false,
-	connectKit: undefined
+	connectKit: undefined,
+	eoa: undefined
 };
 
 export const accountStore = writable<SmartAccountStore>(defaults);
@@ -56,6 +58,7 @@ export async function initAccountStore(
 
 		const scw = await biconomy.getSmartAccount({ chainId, provider });
 		const address = (await scw?.getAccountAddress()) as EthereumAddress;
+		const eoa = (await provider.getSigner().getAddress()) as EthereumAddress;
 
 		store.update((state) => ({
 			...state,
@@ -63,7 +66,8 @@ export async function initAccountStore(
 			provider,
 			address,
 			isConnected: true,
-			loading: false
+			loading: false,
+			eoa
 		}));
 	} catch (error) {
 		console.error(error);
@@ -92,6 +96,7 @@ export async function disconnect(store: typeof accountStore) {
 		loading: false,
 		error: undefined,
 		provider: undefined,
+		eoa: undefined,
 		address: undefined,
 		isConnected: false
 	});
