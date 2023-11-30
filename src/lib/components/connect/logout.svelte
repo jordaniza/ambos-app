@@ -9,6 +9,7 @@
 
 	async function logout(): Promise<void> {
 		localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME);
+		localStorage.removeItem(LOCAL_STORAGE_KEYS.LOG_ETHEREUM_ADDRESS);
 		await disconnect(accountStore);
 		goto(ROUTES.LOGIN);
 	}

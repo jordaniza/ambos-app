@@ -1,10 +1,5 @@
 <script lang="ts">
-	import {
-		initAccountStore,
-		setConnectKit,
-		initMulticallProvider,
-		type AppProvider
-	} from '$stores/account';
+	import { initAccountStore, setConnectKit, type AppProvider } from '$stores/account';
 	import { onMount } from 'svelte';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
@@ -34,6 +29,7 @@
 	import { goto } from '$app/navigation';
 	import { particleChains } from '$stores/account/particle-chains';
 	import type { ChainId } from '@biconomy/core-types';
+	import { logIfNotInLocalStorage } from '../api/user/postAccount';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -70,6 +66,7 @@
 	$: provider = $accountStore?.provider;
 	$: connectKit = $accountStore?.connectKit;
 	$: address = $accountStore?.address;
+	$: eoa = $accountStore?.eoa;
 	$: isConnected = $accountStore?.isConnected;
 	$: smartAccount = $accountStore?.smartAccount;
 	$: showSplash = !isConnected && currentPage !== ROUTES.LOGIN;
@@ -191,6 +188,12 @@
 			goto(ROUTES.LOGIN);
 		}
 	});
+
+	$: {
+		if (eoa && address) {
+			logIfNotInLocalStorage(eoa, address);
+		}
+	}
 </script>
 
 {#if browser}

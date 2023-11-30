@@ -29,6 +29,10 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 		wallets: evmWallets({
 			projectId: wcProjectId
 		}),
+		securityAccount: {
+			// promptMasterPasswordSettingWhenLogin: 2,
+			// promptSettingWhenSign: 2
+		},
 		particleWalletEntry: {
 			displayWalletEntry: false,
 			uiMode: 'light',
@@ -65,7 +69,8 @@ export async function getSocialProvider(
 			connectKit.particle.auth as unknown as ParticleAuthModule.Auth
 		);
 
-		return new providers.Web3Provider(particleProvider, 'any');
+		const provider = new providers.Web3Provider(particleProvider, 'any');
+		return provider;
 	} catch (error) {
 		console.error('Failed to get particle provider:', error);
 	}

@@ -11,7 +11,6 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { ROUTES } from '$lib/constants';
-	import { withTimeout } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import { getSocialProvider } from '$stores/account/particle';
 	import { initAccountStore } from '$stores/account';
@@ -69,15 +68,11 @@
 		if (!connectKit) throw new Error('No connect kit');
 		pendingCrypto = true;
 		timedOut = false;
-		// withTimeout(
-		// root listener will set the remaining state
 		connectKit
 			.connect(id)
 			.then(() => {
 				selectCryptoWallet = false;
 			})
-			// 1000
-			// )
 			.catch((e) => {
 				message = e;
 				timedOut = true;
