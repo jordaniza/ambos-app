@@ -18,7 +18,12 @@
 				dl = l != 'dataLayer' ? '&l=' + l : '';
 			j.async = true;
 			j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-			f.parentNode.insertBefore(j, f);
+			// Check if the target element exists, otherwise use the head as a fallback
+			if (f && f.parentNode) {
+				f.parentNode.insertBefore(j, f);
+			} else {
+				d.head.appendChild(j);
+			}
 		})(window, document, 'script', 'dataLayer', gtmTag);
 	});
 
