@@ -3,6 +3,7 @@
 /* eslint-disable */
 export { AavePool__factory } from "./AavePool__factory";
 export { AaveProtocolDataProvider__factory } from "./AaveProtocolDataProvider__factory";
+export { Entrypoint__factory } from "./Entrypoint__factory";
 export { Faucet__factory } from "./Faucet__factory";
 export { Oracle__factory } from "./Oracle__factory";
 export { USDC__factory } from "./USDC__factory";

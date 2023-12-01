@@ -1,8 +1,8 @@
 import { AavePool__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
-import { N, type EthereumAddress, delay } from '$lib/utils';
+import { N, type EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
-import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
+import type { BiconomySmartAccountV2 } from '@biconomy/account';
 import { ethers } from 'ethers';
 import { batchERC20Tx, batchSponsoredTx, batchUserTransaction } from './sponsored';
 import { setNewTransaction, updateTransaction, type TxStore, type TxContext } from './state';

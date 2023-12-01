@@ -52,7 +52,6 @@
 	let lastTxCount = 0;
 	let toastId: number | string | null = null;
 	let onSupportedChain: boolean | null = null;
-	let walletAddress = '';
 
 	// adjust the chain id here for the whole app
 	let chainId = Number(PUBLIC_CHAIN_ID);
@@ -77,30 +76,33 @@
 		currentPage as (typeof EXCLUDED_FOOTER_ROUTES)[number]
 	);
 
-	async function checkChainAndSetupListeners(p: AppProvider | undefined = provider) {
+	async function checkChainAndSetupListeners(
+		p: AppProvider | undefined = provider
+	): Promise<boolean> {
 		try {
 			if (!connectKit || !p) {
 				console.warn('No connectKit or provider');
-				return;
+				return false;
 			}
 			onSupportedChain = await checkChainIdIsCorrect(p);
 
 			if (onSupportedChain === false) {
 				const success = await trySwitchChain(connectKit);
-				if (!success) return;
+				if (!success) return false;
 			}
 
 			if (!address || !smartAccount) {
 				console.warn('No address or smartAccount found, cannot set listeners');
-				return;
+				return false;
 			}
 
 			await initializeTxStore(txStore, address, p, smartAccount);
 			p.removeAllListeners();
-
-			watchW3Store(web3Store, address, p, WATCH_INTERVAL);
+			await watchW3Store(web3Store, address, p, WATCH_INTERVAL);
+			return true;
 		} catch (e) {
 			console.error(e);
+			return false;
 		}
 	}
 
@@ -149,6 +151,13 @@
 		}
 	}
 
+	$: {
+		// if the address changes, refresh the web3Store
+		if (address && web3Store) {
+			refreshW3Store(web3Store, address, provider);
+		}
+	}
+
 	onMount(async () => {
 		try {
 			loadTheme();
@@ -158,13 +167,11 @@
 			const kit = setConnectKit(accountStore, chainId);
 
 			// setup listeners at the root
+			// this works for external providers but not social logins
 			kit.on('connect', (p) => {
 				if (!chainId) throw new Error('No chain id');
 				const evmp = p as EVMProvider;
 				const provider = new ethers.providers.Web3Provider(evmp, 'any');
-				provider.listAccounts().then((accounts) => {
-					walletAddress = accounts[0];
-				});
 				initAccountStore(accountStore, chainId, provider);
 				checkChainAndSetupListeners(provider);
 			});

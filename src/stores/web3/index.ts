@@ -172,3 +172,7 @@ export function handleError(store: typeof web3Store, e: Error, logMessage?: stri
 		console.error(logMessage ?? '', e);
 	}
 }
+
+export function resetStore(store: typeof web3Store): void {
+	store.set(DEFAULT_STORE);
+}
