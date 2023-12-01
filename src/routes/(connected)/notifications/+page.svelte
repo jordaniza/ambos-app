@@ -3,16 +3,17 @@
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
 	import { HistoryIcon } from 'lucide-svelte';
 	import BackButton from '$lib/components/ui/back-button/back-button.svelte';
-	import Logout from '$lib/components/connect/logout.svelte';
 	import { getTxStore, getWeb3Store } from '$lib/context/getStores';
 	import { BLOCK_EXPLORER_URLS } from '$lib/contracts';
 	import { updateTransaction, type TXDetail } from '$stores/transactions/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import NotificationCircle from '$lib/components/ui/notification/notificationCircle.svelte';
 	import { onDestroy } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	const txStore = getTxStore();
 	const web3Store = getWeb3Store();
+	let toastId: string | number = 0;
 
 	$: transactions = Object.entries($txStore.transactions).sort(sortFunctions.updatedOn) as [
 		string,
@@ -63,6 +64,16 @@
 		const minute = String(date.getMinutes()).padStart(2, '0');
 
 		return `${month} ${day} ${year} - ${hour}:${minute}`;
+	}
+
+	function showError(err: unknown) {
+		toastId = toast.error(err as string, {
+			duration: 10_000,
+			action: {
+				label: 'Dismiss',
+				onClick: () => toast.dismiss(toastId)
+			}
+		});
 	}
 
 	onDestroy(() => {
@@ -119,6 +130,8 @@
 											target="_blank">Details</a
 										>
 									</Button>
+								{:else if item.error}
+									<Button on:click={() => showError(item.error)} variant="link">Details</Button>
 								{/if}
 							</div>
 						</Card>

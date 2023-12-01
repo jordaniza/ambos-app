@@ -9,6 +9,8 @@ import type { PopulatedTransaction, ethers } from 'ethers';
 import type { EthereumAddress } from '$lib/utils';
 import { updateTransaction, type UUID, type TxStore, increaseTxCounter } from './state';
 import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
+import { userOpSuccess } from './handler';
+import Success from '../../routes/(connected)/loans/transfer/transfer/success.svelte';
 
 export async function sponsoredTx(
 	store: TxStore,
@@ -44,7 +46,8 @@ export async function sponsoredTx(
 		});
 
 		const { receipt } = await userOpResponse.wait(confirmations);
-		if (receipt.status === 0) {
+		const aaSuccess = userOpSuccess(receipt);
+		if (!aaSuccess) {
 			updateTransaction(store, id, {
 				finalTxHash: receipt.transactionHash as `0x${string}`,
 				state: 'REJECTED'
@@ -113,7 +116,8 @@ export async function batchSponsoredTx(
 		});
 
 		const { receipt } = await userOpResponse.wait(confirmations);
-		if (receipt.status === 0) {
+		const aaSuccess = userOpSuccess(receipt);
+		if (!aaSuccess) {
 			updateTransaction(store, id, {
 				state: 'REJECTED'
 			});
@@ -151,7 +155,8 @@ export async function batchUserTransaction(
 		});
 
 		const { receipt } = await userOpResponse.wait(confirmations);
-		if (receipt.status === 0) {
+		const aaSuccess = userOpSuccess(receipt);
+		if (!aaSuccess) {
 			updateTransaction(store, id, {
 				state: 'REJECTED',
 				finalTxHash: receipt.transactionHash as `0x${string}`
@@ -240,7 +245,8 @@ export async function batchERC20Tx(
 		});
 
 		const { receipt } = await userOpResponse.wait(confirmations);
-		if (receipt.status === 0) {
+		const aaSuccess = userOpSuccess(receipt);
+		if (!aaSuccess) {
 			updateTransaction(store, id, {
 				state: 'REJECTED',
 				finalTxHash: receipt.transactionHash as `0x${string}`
