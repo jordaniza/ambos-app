@@ -388,3 +388,12 @@ export function migrate(account: EthereumAddress, old: TransactionStore['transac
 	localStorage.setItem(getUserStorageKey(account), JSON.stringify(old));
 	localStorage.removeItem(LOCAL_STORAGE_KEYS.TRANSACTIONS);
 }
+
+export function resetStore(store: typeof txStore): void {
+	store.set({
+		transactions: {},
+		txCounter: 0,
+		builders: defaultBuilders,
+		watchedTransactionIds: []
+	});
+}
