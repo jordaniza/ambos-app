@@ -2,17 +2,12 @@ import { json } from '@sveltejs/kit';
 import { supabase } from '../supabaseClient.js';
 
 export const POST = async ({ request }): Promise<Response> => {
-	const { signerAddress, smartAccountAddress } = (await request.json()) as {
-		signerAddress: string;
-		smartAccountAddress: string;
+	const { feedback, scw } = (await request.json()) as {
+		feedback: string;
+		scw: string;
 	};
 
-	const { error } = await supabase
-		.from('smartAccounts')
-		.upsert([{ eoa: signerAddress.toLowerCase(), scw: smartAccountAddress.toLowerCase() }], {
-			onConflict: 'scw'
-		})
-		.single();
+	const { error } = await supabase.from('feedback').insert([{ feedback, scw: scw.toLowerCase() }]);
 
 	if (error) {
 		// Handle error
@@ -31,7 +26,7 @@ export const POST = async ({ request }): Promise<Response> => {
 	// Successful operation
 	return json(
 		{
-			message: 'Successfully wrote to database'
+			message: 'Successfully addee feedback to database'
 		},
 		{
 			status: 200,
