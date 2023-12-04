@@ -162,10 +162,11 @@
 
 <button
 	on:click={() => (showHelpModal = true)}
-	class="rounded-full absolute bottom-20 right-5 z-10 bg-secondary shadow-md p-1"
+	class="rounded-full fixed bottom-20 right-5 z-10 bg-secondary shadow-lg p-1"
 >
 	<HelpCircle class="h-8 w-8 stroke-[1px] text-white" />
 </button>
+
 <BaseScreen>
 	<div
 		slot="background"
