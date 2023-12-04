@@ -5,7 +5,7 @@
 		Banknote as Loans,
 		Wallet as Wallet,
 		Calculator as Calculator,
-		User as User
+		Settings
 	} from 'lucide-svelte';
 	import MenuLink from './menu-link.svelte';
 	import { page } from '$app/stores';
@@ -21,11 +21,10 @@
 <footer
 	class="fixed bottom-0 left-0 select-none w-full flex justify-between items-center py-3 px-4 bg-popover z-10 text-xs pb-4"
 >
-	<!-- Dashboard Icon -->
 	<MenuLink href={ROUTES.DASHBOARD_V2} name="Dashboard">
 		<Dashboard class={iconHeightClass} />
 	</MenuLink>
-	<!-- Loans Icon -->
+
 	<MenuLink href={ROUTES.LOANS_V2} name="Loans">
 		<Loans class={iconHeightClass} />
 	</MenuLink>
@@ -56,14 +55,12 @@
 		<p class={'text-center ' + walletTextColor}>Wallet</p>
 	</div>
 
-	<!-- Calculator Icon -->
 	<MenuLink href={ROUTES.CALCULATOR} name="Calculator">
 		<Calculator class={iconHeightClass} />
 	</MenuLink>
 
-	<!-- Profile Icon -->
-	<MenuLink href={ROUTES.PROFILE} name="Profile">
-		<User class={iconHeightClass} />
+	<MenuLink href={ROUTES.SETTINGS} name="Settings">
+		<Settings class={iconHeightClass} />
 	</MenuLink>
 </footer>
 
