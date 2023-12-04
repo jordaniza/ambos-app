@@ -75,7 +75,6 @@
 	async function getValidReferralCodes(): Promise<{ codes: string[] } | []> {
 		try {
 			const response = await fetch(`/api/codes`);
-			console.log(response);
 			if (!response.ok) {
 				if (response.status === 404) return [];
 				throw new Error(`Error: ${response.statusText}`);
@@ -129,13 +128,11 @@
 			.then((data) => {
 				if (!data) throw new Error('Failed to fetch valid referral codes');
 				if (!('codes' in data)) throw new Error('Failed to fetch valid referral codes');
-
 				const codes = data.codes;
 				if (codes && codes.length > 0) validCodes = codes;
 				else {
 					throw new Error('Failed to fetch valid referral codes');
 				}
-				console.log(validCodes);
 			})
 			.catch((e) => {
 				console.warn(e);
