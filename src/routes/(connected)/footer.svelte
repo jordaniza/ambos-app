@@ -5,7 +5,8 @@
 		Banknote as Loans,
 		Wallet as Wallet,
 		Calculator as Calculator,
-		Settings
+		Settings,
+		UserIcon
 	} from 'lucide-svelte';
 	import MenuLink from './menu-link.svelte';
 	import { page } from '$app/stores';
@@ -59,8 +60,8 @@
 		<Calculator class={iconHeightClass} />
 	</MenuLink>
 
-	<MenuLink href={ROUTES.SETTINGS} name="Settings">
-		<Settings class={iconHeightClass} />
+	<MenuLink href={ROUTES.PROFILE} name="Profile">
+		<UserIcon class={iconHeightClass} />
 	</MenuLink>
 </footer>
 
