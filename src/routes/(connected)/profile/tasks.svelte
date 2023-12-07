@@ -21,7 +21,7 @@
 			else return acc;
 		}, 0) ?? 0;
 
-	$: progress = currentPoints ? (maxPoints / currentPoints) * 100 : 0;
+	$: progress = currentPoints ? (currentPoints / maxPoints) * 100 : 0;
 
 	$: taskUsername = tasks.find((task) => task.id === NAMED_TASKS.SET_USERNAME);
 	$: taskInstall = tasks.find((task) => task.id === NAMED_TASKS.INSTALL_APP);
