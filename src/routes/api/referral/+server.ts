@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { supabase } from '../supabaseClient.js';
 import type { RequestHandler } from '@sveltejs/kit';
+import { DB_TABLES } from '$lib/constants.js';
 
 export const GET: RequestHandler = async ({ request }): Promise<Response> => {
 	const url = new URL(request.url);
@@ -15,7 +16,7 @@ export const GET: RequestHandler = async ({ request }): Promise<Response> => {
 
 	try {
 		const { data, error } = await supabase
-			.from('referrals')
+			.from(DB_TABLES.REFERRALS)
 			.select('*')
 			.eq('scw', scw.toLowerCase())
 			.order('created_at', { ascending: false })
@@ -52,7 +53,7 @@ export const POST: RequestHandler = async ({ request }): Promise<Response> => {
 
 		// Insert or update the referral code
 		const { error } = await supabase
-			.from('referrals')
+			.from(DB_TABLES.REFERRALS)
 			.upsert({ scw: scw.toLowerCase(), code_used: referralCode }, { onConflict: 'scw' });
 
 		if (error) throw error;
