@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { e, f, pc } from '$lib/utils';
-	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
@@ -30,7 +29,7 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
-	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { BiconomySmartAccountV2 } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
 	import FeesAndCharges from './fees-and-charges.svelte';
@@ -91,7 +90,7 @@
 		}
 	}
 
-	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccountV2, provider: AppProvider) {
 		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
 		const expiry = 5 * 60 * 1000; // 5 minutes
 		try {

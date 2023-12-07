@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
-import { type BigNumberish, ethers } from 'ethers';
+import { type BigNumberish, ethers, BigNumber } from 'ethers';
 
 export type EthereumAddress = `0x${string}`;
 export const BN = (n: BigNumberish) => ethers.utils.parseEther(n.toString());
@@ -155,4 +155,30 @@ export function withTimeout<T>(promise: Promise<T>, timeout: number): Promise<T>
 				reject(reason);
 			});
 	});
+}
+
+// Serializable Value
+type SV =
+	| string
+	| number
+	| boolean
+	| string[]
+	| number[]
+	| boolean[]
+	| BigNumber
+	| BigNumber[]
+	| undefined;
+
+export function objToQsp<T extends Record<string, SV>>(obj: T): string {
+	return Object.keys(obj)
+		.map((key: keyof T) => {
+			const value = obj[key];
+			if (Array.isArray(value)) {
+				return value
+					.map((v) => `${encodeURIComponent(key as string)}=${encodeURIComponent(String(v))}`)
+					.join('&');
+			}
+			return `${encodeURIComponent(key as string)}=${encodeURIComponent(String(value))}`;
+		})
+		.join('&');
 }

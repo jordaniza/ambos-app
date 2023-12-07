@@ -11,7 +11,6 @@
 	import { toast } from 'svelte-sonner';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import { onMount } from 'svelte';
-	import type { EthereumAddress } from '$lib/utils';
 
 	let web3Store = getWeb3Store();
 	let accountStore = getAccountStore();
