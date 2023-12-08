@@ -227,7 +227,7 @@
 				<div class="w-full flex flex-col gap-5 px-5">
 					<Button
 						target="_blank"
-						href="https://discord.gg/hhXMdH8QKW"
+						href="https://galxe.com/8WhvS8hHj7roJsBx2wYc2z/campaign/GCHjwtt4CD"
 						variant="secondary"
 						class="rounded-2xl">Get Up to $300 in Fees Credit*</Button
 					>

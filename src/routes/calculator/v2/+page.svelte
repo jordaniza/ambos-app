@@ -50,9 +50,13 @@
 <Layout>
 	<span slot="banner">
 		<Card variant="popover" padding="base" class="flex flex-col gap-5 relative pt-6 mb-10">
-			<div class="w-full flex items-center justify-center">
+			<a
+				href="https://ambos.finance?openSignupForm=true"
+				target="_blank"
+				class="w-full flex items-center justify-center"
+			>
 				<img src="/illustrations/calculator.png" alt="calculator" class="h-32 w-32" />
-			</div>
+			</a>
 			<div class="flex w-full justify-between text-center">
 				<p class="text-base md:text-lg font-bold w-full">
 					Unlock the Full Potential Of Your Crypto
