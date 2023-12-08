@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_KEYS } from '$lib/constants';
+import { API_ROUTES, LOCAL_STORAGE_KEYS } from '$lib/constants';
 import type { EthereumAddress } from '$lib/utils';
 
 async function logEthereumAddresses(
@@ -6,7 +6,7 @@ async function logEthereumAddresses(
 	smartAccountAddress: EthereumAddress
 ): Promise<boolean> {
 	try {
-		const response = await fetch('/api/user', {
+		const response = await fetch(API_ROUTES.POST.SMART_ACCOUNT, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

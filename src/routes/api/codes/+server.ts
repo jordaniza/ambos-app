@@ -1,10 +1,11 @@
 import { json } from '@sveltejs/kit';
 import { supabase } from '../supabaseClient.js';
 import type { RequestHandler } from '@sveltejs/kit';
+import { DB_TABLES } from '$lib/constants.js';
 
 export const GET: RequestHandler = async (): Promise<Response> => {
 	try {
-		const { data, error } = await supabase.from('codes').select('code');
+		const { data, error } = await supabase.from(DB_TABLES.CODES).select('code');
 
 		if (error) throw error;
 		if (data.length > 0) {

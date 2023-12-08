@@ -15,7 +15,7 @@
 	import { getSocialProvider } from '$stores/account/particle';
 	import { initAccountStore } from '$stores/account';
 
-	const SUPPORTED_WALLETS = ['injected', 'walletconnect_v2'];
+	const SUPPORTED_WALLETS = ['injected', 'walletconnect_v2', 'metamask'];
 
 	let wallets: ReturnType<typeof evmWallets> = [];
 	let pending = false;

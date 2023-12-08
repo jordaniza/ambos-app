@@ -20,8 +20,8 @@ export const ROUTES = {
 	DASHBOARD_V2: '/dashboard',
 	WALLET: '/wallet',
 	WELCOME: '/welcome',
-	PROFILE: '/settings',
-	SETTINGS: '/settings',
+	PROFILE: '/profile',
+	SETTINGS: '/profile',
 	NOTIFICATIONS: '/notifications',
 	LANDING_PAGE: '/',
 	FAUCET: '/faucet',
@@ -36,6 +36,39 @@ export const ROUTES = {
 	DOWNLOAD: '/download',
 	LOGIN: '/login'
 } as const;
+
+export const API_ROUTES = {
+	GET: {
+		REFERRAL_CODES: '/api/codes',
+		REFERRAL: '/api/referral',
+		USER: '/api/user',
+		TASKS: '/api/tasks',
+		TASK_COMPLETIONS: '/api/tasks/completions'
+	},
+	POST: {
+		FEEDBACK: '/api/feedback',
+		EXPORT_EMAILS: '/api/cron/export-emails',
+		REFERRAL: '/api/referral',
+		USER: '/api/user',
+		SMART_ACCOUNT: '/api/smartAccount',
+		TASK_COMPLETIONS: '/api/tasks/completions'
+	},
+	PATCH: {
+		USER: '/api/user',
+		TASK_COMPLETIONS: '/api/tasks/completions'
+	}
+} as const;
+
+export const DB_TABLES = {
+	CODES: 'codes',
+	FEEDBACK: 'feedback',
+	REFERRALS: 'referrals',
+	SMART_ACCOUNTS: 'smartAccounts',
+	USERS: 'users',
+	TASKS: 'tasks',
+	TASK_COMPLETIONS: 'taskCompletions',
+	TASK_STATUSES: 'taskStatuses'
+};
 
 // dont show footer on these routes
 export const EXCLUDED_FOOTER_ROUTES = [
