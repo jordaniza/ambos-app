@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import Logout from '$lib/components/connect/logout.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import { API_ROUTES } from '$lib/constants';
@@ -16,14 +14,16 @@
 	$: username = $accountStore.username;
 	$: disabled = submitting || !pendingUsername || pendingUsername === username;
 
-	let pendingUsername = username;
+	let pendingUsername: string | null = null;
 
-	async function updateUsername(username: string, scw: EthereumAddress): Promise<void> {
+	async function updateUsername(
+		username: string,
+		scw: EthereumAddress,
+		patchOrPost: 'PATCH' | 'POST'
+	) {
 		try {
-			const patchOrPost = username ? 'PATCH' : 'POST';
-
-			const response = await fetch(API_ROUTES[patchOrPost ? 'PATCH' : 'POST'].USER, {
-				method: patchOrPost ? 'PATCH' : 'POST',
+			const response = await fetch(API_ROUTES[patchOrPost].USER, {
+				method: patchOrPost,
 				headers: {
 					'Content-Type': 'application/json'
 				},
@@ -32,6 +32,7 @@
 			if (!response.ok) {
 				throw new Error(`Error: ${response.statusText}`);
 			}
+			return response.status;
 		} catch (error) {
 			console.warn('Failed to update username:', error);
 		}
@@ -42,9 +43,12 @@
 
 		try {
 			submitting = true;
-			await updateUsername(pendingUsername, address);
+			const patchOrPost = username ? 'PATCH' : 'POST';
+			const result = await updateUsername(pendingUsername, address, patchOrPost);
+			if (result !== 200) throw new Error('Failed to update username');
+
 			accountStore.update((s) => {
-				s.username = pendingUsername;
+				s.username = pendingUsername!;
 				return s;
 			});
 			toast.success('Username updated successfully');
@@ -79,6 +83,4 @@
 			{/if}
 		</button>
 	</div>
-	<!-- <div class="h-[1px] w-full bg-background my-3" /> -->
-	<!-- <Logout class="w-full bg-transparent text-secondary border-secondary border-[1px] rounded-xl" /> -->
 </Card>

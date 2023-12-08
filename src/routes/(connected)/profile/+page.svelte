@@ -40,7 +40,7 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<TopBar page="Settings" />
+<TopBar page="Profile" />
 
 <button
 	on:click={() => (showHelpModal = true)}

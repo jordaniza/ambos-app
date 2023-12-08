@@ -60,7 +60,7 @@ async function fetchUsername(scw: EthereumAddress): Promise<string | null> {
 			return null;
 		}
 		const data = await response.json();
-		return data.user.username;
+		return data?.user?.username;
 	} catch (error) {
 		console.warn('Failed to fetch username:', error);
 		return null;

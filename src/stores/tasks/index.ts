@@ -78,7 +78,6 @@ export async function fetchTaskCompletions(
 
 export async function fetchTasksAndCompletions(address: EthereumAddress): Promise<Task[] | null> {
 	const [tasks, completions] = await Promise.all([fetchTasks(), fetchTaskCompletions(address)]);
-
 	if (!tasks || !completions) return null;
 	return tasks.map((task) => {
 		const completion = completions.find((c) => c.taskId === task.id);
