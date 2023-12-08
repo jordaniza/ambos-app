@@ -27,7 +27,6 @@ export const GET = async ({ request }): Promise<Response> => {
 				{ status: 404, statusText: 'Not Found' }
 			);
 		}
-		console.log(data);
 
 		return json({ taskCompletions: data }, { status: 200, statusText: 'OK' });
 	} catch (error) {
