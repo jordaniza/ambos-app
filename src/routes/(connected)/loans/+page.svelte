@@ -53,14 +53,6 @@
 			return 'High';
 		}
 	}
-
-	// capitalise first letter of every word and lower case the rest
-	function toProperCase(str: string): string {
-		return str.replace(
-			/\w\S*/g,
-			(txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-		);
-	}
 </script>
 
 <RepaySelect bind:open={openRepay} />

@@ -3,8 +3,15 @@
 	import { onMount } from 'svelte';
 	import { loadTheme } from '$lib/components/ui/theme-toggle';
 	import Toast from './toast.svelte';
-	import { getAccountStore, getTxStore, getWeb3Store } from '$lib/context/getStores';
+	import {
+		TASK_KEY,
+		getAccountStore,
+		getTaskStore,
+		getTxStore,
+		getWeb3Store
+	} from '$lib/context/getStores';
 	import { accountStore as _accountStore } from '$stores/account';
+	import { taskStore as _taskStore } from '$stores/tasks';
 	import { setContext } from 'svelte';
 	import { web3Store as _web3Store, watchW3Store, refreshW3Store } from '$stores/web3';
 	import {
@@ -29,7 +36,8 @@
 	import { goto } from '$app/navigation';
 	import { particleChains } from '$stores/account/particle-chains';
 	import type { ChainId } from '@biconomy/core-types';
-	import { logIfNotInLocalStorage } from '../api/user/postAccount';
+	import { logIfNotInLocalStorage } from '../api/smartAccount/postAccount';
+	import { initializeTaskStore } from '$stores/tasks';
 
 	/**
 	 * SvelteKit offers Server-Side Rendering (SSR) out of the box,
@@ -43,11 +51,13 @@
 	setContext(WEB3_KEY, _web3Store);
 	setContext(ACCOUNT_KEY, _accountStore);
 	setContext(TX_KEY, _txStore);
+	setContext(TASK_KEY, _taskStore);
 
 	// use these in your components to access the stores instead of the stores directly
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
 	let txStore = getTxStore();
+	let taskStore = getTaskStore();
 
 	let lastTxCount = 0;
 	let toastId: number | string | null = null;
@@ -158,6 +168,12 @@
 		}
 	}
 
+	$: {
+		if (address && taskStore) {
+			initializeTaskStore(taskStore, address);
+		}
+	}
+
 	onMount(async () => {
 		try {
 			loadTheme();
@@ -190,6 +206,8 @@
 					checkChainAndSetupListeners(cachedProvider);
 				}
 			}
+
+			if (address) initializeTaskStore(taskStore, address);
 		} catch (e) {
 			console.log('Failed to connect', e);
 			goto(ROUTES.LOGIN);
