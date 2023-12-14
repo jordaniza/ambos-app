@@ -34,7 +34,8 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 			// promptSettingWhenSign: 2
 		},
 		particleWalletEntry: {
-			displayWalletEntry: false,
+			// displayWalletEntry: true,
+			// defaultWalletEntryPosition: ParticleAuthModule.WalletEntryPosition.TL,
 			uiMode: 'light',
 			supportChains: [
 				{

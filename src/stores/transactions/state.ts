@@ -6,6 +6,8 @@ import type { AppProvider } from '$stores/account';
 import type { BiconomySmartAccountV2 as SmartAccount } from '@biconomy/account';
 import { v4 } from 'uuid';
 import type { TSupportedTokens } from '$lib/contracts';
+import type { FinalQuote } from '../../routes/(connected)/swap/quote';
+import type { Token } from '$lib/components/ui/swap/swap';
 
 export type UUID = string;
 export const makeTxId = (): UUID => v4();
@@ -47,15 +49,9 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 	'UNWRAP_WETH',
 	'WRAP_WETH',
 
-	// swaps
-	'SWAP_WETH_USDC',
-	'SWAP_USDC_WETH',
-
-	'SWAP_WETH_ETH',
-	'SWAP_ETH_WETH',
-
-	'SWAP_ETH_USDC',
-	'SWAP_USDC_ETH',
+	// swap
+	'APPROVE_TOKEN',
+	'SWAP_TOKEN',
 
 	// send tokens
 	'SEND_USDC',
@@ -98,6 +94,17 @@ export type TxContext = {
 		amount: number;
 		recipient: EthereumAddress;
 		token: TSupportedTokens;
+	};
+	APPROVE_TOKEN: {
+		amount: number;
+		token: EthereumAddress;
+		owner: EthereumAddress;
+		spender: EthereumAddress;
+	};
+	SWAP_TOKEN: {
+		quote: FinalQuote;
+		inToken: Token;
+		outToken: Token;
 	};
 };
 

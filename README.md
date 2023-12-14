@@ -60,6 +60,8 @@ Vitest scans for all files in src that contains {unit,integration,e2e}.spec.ts a
 
 Biconomy Paymasters are a bit tricky to test as they require the API. I recommend building the transactions on a network fork using hardhat, and then porting the JS code across.
 
+Aave and Biconomy use different testing tokens, which makes reconciling the two a bit of a challenge. The same for the 0x API, which doesn't have test endpoints that work well with the other two. In general, try and test component parts in isolation - it may be that small value transactions on live are the only real option to test everything together at this stage.
+
 ## Deployment
 
 Currently, Ambos is single chain, but can be deployed on multiple chains. When deploying for a new chain, ensure a few things:

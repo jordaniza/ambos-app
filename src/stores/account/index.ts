@@ -73,8 +73,6 @@ export async function initAccountStore(
 	provider: providers.Web3Provider
 ) {
 	try {
-		store.update((state) => ({ ...state, loading: true }));
-
 		const scw = await biconomy.getSmartAccount({ chainId, provider });
 		const address = (await scw?.getAccountAddress()) as EthereumAddress;
 		const eoa = (await provider.getSigner().getAddress()) as EthereumAddress;
@@ -87,7 +85,6 @@ export async function initAccountStore(
 			username: username ?? undefined,
 			address,
 			isConnected: true,
-			loading: false,
 			eoa
 		}));
 	} catch (error) {
@@ -95,8 +92,7 @@ export async function initAccountStore(
 
 		store.update((state) => ({
 			...state,
-			error: 'Error fetching account details',
-			loading: false
+			error: 'Error fetching account details'
 		}));
 	}
 }

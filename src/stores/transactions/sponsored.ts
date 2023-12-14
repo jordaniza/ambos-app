@@ -1,4 +1,4 @@
-import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
+import type { BiconomySmartAccountV2 } from '@biconomy/account';
 import {
 	type IHybridPaymaster,
 	PaymasterMode,
@@ -10,7 +10,7 @@ import type { EthereumAddress } from '$lib/utils';
 import { updateTransaction, type UUID, type TxStore, increaseTxCounter } from './state';
 import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
 import { userOpSuccess } from './handler';
-import Success from '../../routes/(connected)/loans/transfer/transfer/success.svelte';
+import type { Transaction } from '@biconomy/core-types';
 
 export async function sponsoredTx(
 	store: TxStore,
@@ -76,7 +76,7 @@ export type UserOpTx = {
 export async function batchSponsoredTx(
 	store: TxStore,
 	id: UUID,
-	txs: UserOpTx[],
+	txs: Transaction[],
 	smartAccount: BiconomySmartAccountV2,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {
@@ -140,7 +140,7 @@ export async function batchSponsoredTx(
 export async function batchUserTransaction(
 	store: TxStore,
 	id: UUID,
-	txs: UserOpTx[],
+	txs: Transaction[],
 	smartAccount: BiconomySmartAccountV2,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS
 ) {
@@ -180,7 +180,7 @@ export async function batchUserTransaction(
 export async function batchERC20Tx(
 	store: TxStore,
 	id: UUID,
-	txs: UserOpTx[],
+	txs: Transaction[],
 	smartAccount: BiconomySmartAccountV2,
 	paymasterToken: EthereumAddress,
 	confirmations: number = DEFAULT_BLOCK_CONFIRMATIONS

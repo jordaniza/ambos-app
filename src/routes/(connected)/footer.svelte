@@ -5,7 +5,6 @@
 		Banknote as Loans,
 		Wallet as Wallet,
 		Calculator as Calculator,
-		Settings,
 		UserIcon
 	} from 'lucide-svelte';
 	import MenuLink from './menu-link.svelte';

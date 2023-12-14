@@ -20,5 +20,5 @@ echo "sending 10000 USDC to the user account"
 cast send $USDC_ADDRESS_ARBITRUM --from $USDC_WHALE --unlocked \
   "transfer(address,uint256)" $USER_EOA_ARBITRUM 10000000000 $RPC_FLAG
 
-echo "sending 1 ETH to the user account"
-cast send --from $ETH_WHALE --unlocked $USER_EOA_ARBITRUM --value 1ether $RPC_FLAG
+echo "sending 10 ETH to the user account"
+cast send --from $ETH_WHALE --unlocked $USER_EOA_ARBITRUM --value 10ether $RPC_FLAG

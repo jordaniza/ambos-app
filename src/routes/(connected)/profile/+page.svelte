@@ -70,5 +70,6 @@
 		<Feedback />
 		<Referrals />
 		<Logout class="w-full bg-secondary text-popover border-[1px] mt-2" />
+		<div class="h-24" />
 	</div>
 </BaseScreen>
