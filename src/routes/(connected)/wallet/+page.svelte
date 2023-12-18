@@ -1,8 +1,15 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { e, f, stbl } from '$lib/utils';
-	import { CopyIcon, DollarSign, ExternalLink, HistoryIcon, WalletIcon } from 'lucide-svelte';
+	import { e, f, stbl, type EthereumAddress } from '$lib/utils';
+	import {
+		ArrowLeftRightIcon,
+		CopyIcon,
+		DollarSign,
+		ExternalLink,
+		HistoryIcon,
+		WalletIcon
+	} from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
@@ -14,11 +21,31 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
+	import { getSupportedTokensFromCoinGecko, type Token } from '$lib/components/ui/swap/swap';
+	import Swap from '../swap/swap.svelte';
+	import type { AppProvider } from '$stores/account';
+	import { USDC__factory as GenericERC20__factory } from '$lib/abis/ts';
+	import { ethers } from 'ethers';
+
+	type TokenAndBalance = Token & { balance: number };
 
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
+	let tokenListWithBalances = [] as TokenAndBalance[];
+	let showMoreTokens = false;
+	let showSwap = false;
 
+	let triggers = {
+		buy: () => {},
+		sell: () => {},
+		receive: () => {},
+		transfer: () => {},
+		withdraw: () => {}
+	};
+
+	$: tokenList = [] as TokenAndBalance[];
 	$: address = $accountStore.address;
+	$: provider = $accountStore.provider;
 	$: usdcBalance = $web3Store?.balances['USDC']?.small ?? 0;
 	$: ethPrice = $web3Store?.ethPrice?.small ?? 0;
 	$: ethBalanceUSD = ethBalance * ethPrice;
@@ -28,6 +55,40 @@
 	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: explorerURL = BLOCK_EXPLORER_URLS[chainId] + '/address/' + address;
 
+	$: {
+		if (chainId && tokenList.length === 0) {
+			getSupportedTokensFromCoinGecko(chainId).then((tokens) => {
+				const tokenList = tokens.out.list;
+				fetchTokenBalances(tokenList).then((tokensWithBalances) => {
+					tokenListWithBalances = tokensWithBalances.filter((token) => token.balance > 0);
+				});
+			});
+		}
+	}
+
+	async function fetchSingleTokenBalance(
+		token: Token,
+		provider: AppProvider,
+		address: EthereumAddress
+	): Promise<TokenAndBalance> {
+		const contract = GenericERC20__factory.connect(token.address, provider);
+		const balance = await contract.balanceOf(address);
+		const balanceSmall = ethers.utils.formatUnits(balance, token.decimals);
+		return {
+			...token,
+			balance: Number(balanceSmall)
+		};
+	}
+
+	async function fetchTokenBalances(ls: Token[]): Promise<TokenAndBalance[] | []> {
+		if (ls.length > 0 && provider && address) {
+			const promises = ls.map((token) => fetchSingleTokenBalance(token, provider!, address!));
+			return await Promise.all(promises);
+		} else {
+			return [];
+		}
+	}
+
 	function handleCopy() {
 		if (address) {
 			toast.success('Copied to clipboard');
@@ -36,14 +97,6 @@
 			toast.error('Error copying address');
 		}
 	}
-
-	let triggers = {
-		buy: () => {},
-		sell: () => {},
-		receive: () => {},
-		transfer: () => {},
-		withdraw: () => {}
-	};
 </script>
 
 <!-- <Faq /> -->
@@ -146,37 +199,59 @@
 						<p class="text-sm">{f(usdcBalance)}</p>
 					</div>
 				</div>
-
+				{#if showMoreTokens}
+					{#each tokenListWithBalances as token}
+						{#if token.balance > 0}
+							<div class="flex justify-between items-center gap-2">
+								<div class="flex items-center gap-2">
+									<div
+										class="h-10 w-10 bg-background rounded-full flex items-center justify-center"
+									>
+										<img class="h-8 w-8" src={token.logoURI} alt={token.symbol} />
+									</div>
+									<div>
+										<p class="font-bold">{token.name}</p>
+									</div>
+								</div>
+								<div class="text-end">
+									<p class="font-bold">{token?.balance ?? 0} {token.symbol}</p>
+								</div>
+							</div>
+						{/if}
+					{/each}
+				{:else if tokenListWithBalances.length > 0}
+					<Button
+						variant="ghost"
+						class="text-xs text-secondary"
+						on:click={() => (showMoreTokens = true)}
+						>Show {tokenListWithBalances.length} more {tokenListWithBalances.length === 1
+							? 'token'
+							: 'tokens'}...</Button
+					>
+				{/if}
 				<div class="flex w-full gap-3">
-					<Button on:click={triggers.buy} class="w-1/2">Buy</Button>
+					<Button on:click={triggers.buy} class="w-1/3">Buy</Button>
 					<Button
 						on:click={triggers.sell}
-						class="w-1/2 text-secondary border-secondary"
+						class="w-1/3 text-secondary border-secondary"
 						variant="outline">Sell</Button
 					>
+					<Button on:click={() => (showSwap = !showSwap)} class="w-1/3">Swap (New)</Button>
 				</div>
 			</Card>
-			<!-- Wallet History -->
-			<!-- <Card variant="popover" padding="base" class="flex text-sm flex-col gap-4 py-4 w-full">
-				<div class="flex justify-between items-center">
-					<div class="flex gap-3 items-center justify-start">
-						<HistoryIcon class="text-muted-foreground h-4 w-4" />
-						<p class=" font-bold pt-[1.5px]">Wallet History</p>
+			{#if showSwap}
+				<Card variant="popover" padding="base" class="flex flex-col w-full gap-4 py-4 text-sm">
+					<div class="flex w-full justify-between">
+						<div class="flex items-center gap-3">
+							<ArrowLeftRightIcon class="text-muted-foreground h-4 w-4" />
+							<p class="font-bold">Swap Tokens</p>
+							<p />
+						</div>
+						<TooltipIcon text={TOOLTIPS.SWAPS} />
 					</div>
-				</div>
-				{#each historyItems as item}
-					<Card padding="base" class="flex flex-col shadow-none justify-between items-center gap-2">
-						<div class="flex justify-between items-center w-full text-muted-foreground">
-							<p>{toProperCase(item.action)}</p>
-							<p>{formatTimestamp(item.timestamp)}</p>
-						</div>
-						<div class="flex justify-between items-center w-full">
-							<p>{item.currency}</p>
-							<p>{f(item.usdValue)}</p>
-						</div>
-					</Card>
-				{/each}
-			</Card> -->
+					<Swap />
+				</Card>
+			{/if}
 		</div>
 	</div>
 	<div class="h-32" />

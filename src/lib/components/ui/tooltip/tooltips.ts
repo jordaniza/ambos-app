@@ -1,6 +1,8 @@
 import { MAX_BORROW_PERCENTAGE } from '$lib/constants';
 
 export const TOOLTIPS = {
+	SWAPS:
+		'Swaps are a new feature, currently in beta, that let you trade USDC for another token on Arbitrum. More Tokens coming soon!',
 	ETH_DEPOSIT: `When you take out a loan, your ETH is held as collateral until you repay the loan. With Ambos you can borrow up to ${MAX_BORROW_PERCENTAGE}% of the USD value of your ETH.`,
 	TOTAL_BORROW:
 		'The total USD value that you will be borrowing, this includes the Ambos fee and any network fees, which will be added to the total amount you need to repay.',

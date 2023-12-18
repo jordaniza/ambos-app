@@ -9,13 +9,9 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import { getTxStore } from '$lib/context/getStores';
-	import {
-		extractCoinGecko,
-		type CoinGeckoAPIResponse,
-		type Token
-	} from '$lib/components/ui/swap/swap';
+	import { type Token, getSupportedTokensFromCoinGecko } from '$lib/components/ui/swap/swap';
 	import type { Nullable } from 'vitest';
-	import { ADDRESSES, SWAP_URL, TOKEN_LIST_URL } from '$lib/contracts';
+	import { ADDRESSES, SWAP_URL, SupportedSwapTokens, TOKEN_LIST_URL } from '$lib/contracts';
 	import type { ChainId } from '@biconomy/core-types';
 	import { browser } from '$app/environment';
 	import { USDC__factory } from '$lib/abis/ts';
@@ -31,18 +27,10 @@
 	import { getApproveFeeQuote, getFinalSwapFeeQuote } from '$stores/transactions/fees';
 	import mockQuote from './quote.json';
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
+	import { PUBLIC_ENV } from '$env/static/public';
 
-	// constants
-
-	const supportIn = {
-		list: ['USDC'],
-		default: 'USDC'
-	};
-
-	const supportOut = {
-		list: ['WBTC', 'WETH', 'LINK', 'UNI', 'AAVE', 'ARB', 'WMATIC', 'USDC'],
-		default: 'WETH'
-	};
+	const supportIn = SupportedSwapTokens.in;
+	const supportOut = SupportedSwapTokens.out;
 
 	// variables
 	let showModal = false;
@@ -85,6 +73,7 @@
 
 	$: address = $accountStore.address;
 	$: chainId = $web3Store.chainId ?? (1 as ChainId);
+	// we only support the USDC token for now as an intoken
 	$: inTokenBalance = $web3Store.balances.USDC.small ?? 0;
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
@@ -164,12 +153,7 @@
 		if (!inToken?.address || !provider || !swapRouterAddress || !address) return;
 		try {
 			inTokenApprovalLoading = true;
-
-			// using the usdc interface as generic for all erc20s
-			// inToken will fail if using the token list from mainnet
 			const erc20 = USDC__factory.connect(inToken.address, provider);
-			// const erc20 = USDC__factory.connect(ADDRESSES[chainId].USDC, provider);
-
 			const allowance = await erc20.allowance(address, swapRouterAddress);
 			inTokenApproval = Number(ethers.utils.formatUnits(allowance, inToken.decimals));
 		} catch (e) {
@@ -181,26 +165,11 @@
 	}
 
 	async function initSwaps() {
-		const url = TOKEN_LIST_URL[chainId];
-		if (!url) return;
-		const tokens = localStorage.getItem(url);
-		if (!tokens) {
-			fetch(url)
-				.then((res) => res.json())
-				.then((data) => {
-					localStorage.setItem(url, JSON.stringify(data));
-					console.log(data);
-				});
-		} else {
-			const parsedArray = JSON.parse(tokens) as CoinGeckoAPIResponse;
-			const justTokens = extractCoinGecko(parsedArray);
-
-			inTokens = justTokens.filter((token: Token) => supportIn.list.includes(token.symbol));
-			outTokens = justTokens.filter((token: Token) => supportOut.list.includes(token.symbol));
-
-			inToken = inTokens.find((token) => token.symbol === supportIn.default)!;
-			outToken = outTokens.find((token) => token.symbol === supportOut.default)!;
-		}
+		const supported = await getSupportedTokensFromCoinGecko(chainId);
+		inTokens = supported.in.list;
+		outTokens = supported.out.list;
+		inToken = supported.in.default;
+		outToken = supported.out.default;
 	}
 
 	quoteInterval = setInterval(() => {
@@ -307,18 +276,18 @@
 
 	async function handleConfirmSwap() {
 		showModal = true;
-		await fetchQuote(QuoteType.Final);
-		// finalQuote = mockQuote as any;
+		if (PUBLIC_ENV === 'development') {
+			finalQuote = mockQuote as any;
+		} else {
+			await fetchQuote(QuoteType.Final);
+		}
 	}
 
 	async function handleSwap() {
-		console.log('handleSwap', {
-			finalQuote,
-			txStore,
-			smartAccount,
-			inToken,
-			outToken
-		});
+		if (PUBLIC_ENV === 'development') {
+			alert('Swap is disabled in development mode');
+			return;
+		}
 		if (!finalQuote || !txStore || !smartAccount || !inToken || !outToken || !provider) return;
 		try {
 			swapping = true;
@@ -357,7 +326,6 @@
 </script>
 
 <AlertDialog.Root open={showModal}>
-	<AlertDialog.Trigger>Open</AlertDialog.Trigger>
 	<AlertDialog.Content class="bg-popover">
 		<button class="absolute top-2 right-2" on:click={() => (showModal = false)}><X /></button>
 		<AlertDialog.Header>

@@ -12,8 +12,20 @@ export const SupportedContracts = [
 	'SWAP_ROUTER'
 ] as const;
 
+// TODO: swap tokens need to be phased into all parts of the application
 export type TSupportedTokens = (typeof SupportedTokens)[number];
 export type TSupportedContracts = (typeof SupportedContracts)[number];
+
+export const SupportedSwapTokens = {
+	out: {
+		list: ['WBTC', 'WETH', 'LINK', 'UNI', 'AAVE', 'ARB', 'WMATIC'],
+		default: 'WETH'
+	},
+	in: {
+		list: ['USDC'],
+		default: 'USDC'
+	}
+} as const;
 
 export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, EthereumAddress>> = {
 	[ChainId.POLYGON_MUMBAI]: {
