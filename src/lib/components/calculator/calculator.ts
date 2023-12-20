@@ -11,7 +11,7 @@ export function getEthValue(value: number, ethPrice: number): number {
  * @param suppliedETH in ETH, not wei
  * @param ethPrice in USD
  * @param maxBorrowPercentage in whole numbers
- * @returns
+ * @returns the maximum amount of USD that can be borrowed
  */
 export function getMaxBorrow(
 	suppliedETH: number,

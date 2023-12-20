@@ -15,7 +15,7 @@
 	import { getSocialProvider } from '$stores/account/particle';
 	import { initAccountStore } from '$stores/account';
 
-	const SUPPORTED_WALLETS = ['injected', 'walletconnect_v2', 'metamask'];
+	const SUPPORTED_WALLETS = ['injected', 'walletconnect_v2'];
 
 	let wallets: ReturnType<typeof evmWallets> = [];
 	let pending = false;
@@ -55,7 +55,7 @@
 
 			await connectKit.particle.auth.login(loginOptions);
 			const provider = await getSocialProvider(connectKit);
-			initAccountStore(accountStore, chainId, provider!);
+			initAccountStore(accountStore, chainId, provider!, 'social');
 		} catch (e) {
 			toast.error('Error With Login, please try again');
 			console.error(e);

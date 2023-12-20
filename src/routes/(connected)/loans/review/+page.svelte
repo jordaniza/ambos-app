@@ -36,7 +36,7 @@
 	let borrowAmount = $txStore.builders.INCREASE_DEBT.usdToBorrow ?? 0;
 	let isPending = false;
 	let txId: string;
-	let estimatedNetworkFee = 0.01;
+	let estimatedNetworkFee: number;
 	let checked = false;
 
 	$: chainId = $web3Store.chainId ?? 1;
@@ -44,6 +44,10 @@
 	$: ethBalance = $web3Store?.balances[ethType].small ?? 0;
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
 	$: ethSupplyValueUSD = ethSupply * ethPrice;
+
+	$: maxSupply =
+		ethPrice === 0 ? ethBalance : Math.max(0, ethBalance - estimatedNetworkFee / ethPrice);
+	$: showSupplyWarning = maxSupply - ethSupply <= 0.0001 && estimatedNetworkFee > 0;
 
 	$: maxBorrow = getMaxBorrow(ethSupply, ethPrice);
 	// if we are using ETH, then the user pays the Tx, else we have to pay it and add it to the total borrow
@@ -76,6 +80,18 @@
 			checked = false;
 			ethSupply = 0;
 			borrowAmount = 0;
+		}
+	}
+
+	$: {
+		if (ethSupply > maxSupply) {
+			ethSupply = maxSupply;
+		}
+	}
+
+	$: {
+		if (borrowAmount > maxBorrow) {
+			borrowAmount = maxBorrow;
 		}
 	}
 
@@ -187,11 +203,11 @@
 			<InputEditSlider
 				title="You Supply"
 				bind:value={ethSupply}
-				max={ethBalance}
+				max={maxSupply}
 				showMax={true}
-				allowEdit={false}
+				allowEdit={true}
 				maxFormatter={formatETHValue}
-				step={0.01}
+				step={0.0001}
 				formatter={() => `${ethSupply} ETH`}
 			>
 				<div slot="below-input-left" class="text-xs flex justify-between">
@@ -201,14 +217,19 @@
 					</div>
 				</div>
 			</InputEditSlider>
+			{#if showSupplyWarning}
+				<p class="text-secondary text-xs -mt-6">
+					Remaining ETH is required for network fees of {f(estimatedNetworkFee)}
+				</p>
+			{/if}
 			<InputEditSlider
 				title="Borrowing"
 				bind:value={borrowAmount}
 				max={maxBorrow}
 				showMax={true}
-				allowEdit={false}
+				allowEdit={true}
 				maxFormatter={f}
-				step={1}
+				step={0.01}
 				formatter={() => formatBorrowValue(borrowAmount)}
 			/>
 			<div
@@ -221,7 +242,7 @@
 				</div>
 			</div>
 
-			<FeesAndCharges bind:borrowAmountUSD={borrowAmount} />
+			<FeesAndCharges bind:borrowAmountUSD={borrowAmount} bind:estimatedNetworkFee />
 
 			<div
 				class="bg-background text-xs py-2 rounded-2xl px-4 flex w-full justify-between items-center"

@@ -1,7 +1,6 @@
 import type { BigNumber, BigNumberish, ethers } from 'ethers';
 import type { EthereumAddress } from './utils';
 import { ChainId } from '@biconomy/core-types';
-import type { ChainInfo } from '@particle-network/connect';
 
 export const SupportedTokens = ['USDC', 'WETH', 'aWETH', 'wstETH', 'ETH'] as const;
 export const SupportedContracts = [
@@ -9,11 +8,24 @@ export const SupportedContracts = [
 	'POOL',
 	'ORACLE',
 	'POOL_DATA_PROVIDER',
-	'TESTNET_FAUCET'
+	'TESTNET_FAUCET',
+	'SWAP_ROUTER'
 ] as const;
 
+// TODO: swap tokens need to be phased into all parts of the application
 export type TSupportedTokens = (typeof SupportedTokens)[number];
 export type TSupportedContracts = (typeof SupportedContracts)[number];
+
+export const SupportedSwapTokens = {
+	out: {
+		list: ['WBTC', 'WETH', 'LINK', 'UNI', 'AAVE', 'ARB', 'WMATIC'],
+		default: 'WETH'
+	},
+	in: {
+		list: ['USDC'],
+		default: 'USDC'
+	}
+} as const;
 
 export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, EthereumAddress>> = {
 	[ChainId.POLYGON_MUMBAI]: {
@@ -27,7 +39,8 @@ export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, Eth
 		TESTNET_FAUCET: '0x2c95d10bA4BBEc79e562e8B3f48687751808C925',
 		// not supported
 		wstETH: '0x',
-		ETH: '0x'
+		ETH: '0x',
+		SWAP_ROUTER: '0x'
 	},
 	[ChainId.ARBITRUM_GOERLI_TESTNET]: {
 		USDC: '0xd513e4537510c75e24f941f159b7cafa74e7b3b9',
@@ -39,7 +52,9 @@ export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, Eth
 		TESTNET_FAUCET: '0xc1b3cc37cf2f922abDFE7F01A17bc932F4078665',
 		ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
 		// not supported
-		wstETH: '0x'
+		wstETH: '0x',
+		// mainnet swap router
+		SWAP_ROUTER: '0xdef1c0ded9bec7f1a1670819833240f027b25eff'
 	},
 	[ChainId.ARBITRUM_ONE_MAINNET]: {
 		USDC: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
@@ -50,6 +65,7 @@ export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, Eth
 		ORACLE: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7',
 		POOL_DATA_PROVIDER: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
 		ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+		SWAP_ROUTER: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',
 		// not supported
 		TESTNET_FAUCET: '0x'
 	}
@@ -90,4 +106,24 @@ export const CHAIN_ETH_TYPE: Record<number | ChainId, 'ETH' | 'WETH'> = {
 	[ChainId.POLYGON_MUMBAI]: 'WETH',
 	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'ETH',
 	[ChainId.ARBITRUM_ONE_MAINNET]: 'ETH'
+};
+
+// 0x API endpoints
+export const SWAP_URL: Partial<Record<ChainId, string>> = {
+	[ChainId.POLYGON_MUMBAI]: 'https://mumbai.api.0x.org',
+	// we can't test swaps on goerli because the 0x api doesn't support it
+	// and it adds a ton of extra complexity to the code to support it
+	// so best to fork arbitrum mainnet and test there
+	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'https://arbitrum.api.0x.org',
+	[ChainId.ARBITRUM_ONE_MAINNET]: 'https://arbitrum.api.0x.org'
+};
+
+// lists of tokens to use for the chain
+export const TOKEN_LIST_URL: Partial<Record<ChainId, string>> = {
+	[ChainId.POLYGON_MUMBAI]: 'https://tokens.coingecko.com/polygon-pos/all.json',
+	[ChainId.ARBITRUM_ONE_MAINNET]: 'https://tokens.coingecko.com/arbitrum-one/all.json',
+	// again, testing is difficult because
+	// biconomy, aave and 0x use different test tokens. if you're testing swaps
+	// use a fork
+	[ChainId.ARBITRUM_GOERLI_TESTNET]: 'https://tokens.coingecko.com/arbitrum-one/all.json'
 };

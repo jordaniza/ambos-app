@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { e, f, pc } from '$lib/utils';
-	import * as Accordion from '$lib/components/ui/accordion';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
@@ -8,7 +7,7 @@
 	import Range from '$lib/components/range/range.svelte';
 	import CalculatorBars from '$lib/components/charts/calculatorBars.svelte';
 	import { goto } from '$app/navigation';
-	import { LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
+	import { INTEREST_RATES, LOCAL_STORAGE_KEYS, ROUTES } from '$lib/constants';
 	import InputEditSlider from '$lib/components/ui/input/input-edit-slider.svelte';
 	import {
 		getEthValue,
@@ -30,10 +29,12 @@
 	import TooltipIcon from '$lib/components/ui/tooltip/tooltip-icon.svelte';
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
-	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { BiconomySmartAccountV2 } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
 	import FeesAndCharges from './fees-and-charges.svelte';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { GhostIcon, InfoIcon } from 'lucide-svelte';
 
 	let ethMaxValue = 10;
 	let ethSupplyQty = 5;
@@ -44,6 +45,7 @@
 	let txStore = getTxStore();
 	let accountStore = getAccountStore();
 	let estimatedNetworkFee = 0.01;
+	let dialogOpen = false;
 
 	// Computed values
 	$: ethPrice = $web3Store.ethPrice.small ?? 0;
@@ -91,7 +93,7 @@
 		}
 	}
 
-	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccountV2, provider: AppProvider) {
 		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
 		const expiry = 5 * 60 * 1000; // 5 minutes
 		try {
@@ -121,6 +123,27 @@
 		setIncreaseDebtBuilderStage(txStore, 'calculate');
 	});
 </script>
+
+<Dialog.Root open={dialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px] text-center">
+		<div class="flex w-full justify-center">
+			<GhostIcon class="w-16 h-16 inline-block text-secondary stroke-1 " />
+		</div>
+		<p>
+			Interest rates on Ambos are variable and change over time, depending on how much demand there
+			is for loans. A high figure now will often not stay high for very long. Please see the Ambos
+			and Aave docs for more details.
+		</p>
+		<Button variant="link">
+			<a href={INTEREST_RATES} target="_blank" rel="noopener noreferrer">
+				Learn more about interest rates on Aave and Ambos
+			</a>
+		</Button>
+		<Dialog.Footer>
+			<Button on:click={() => (dialogOpen = false)}>Understood</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
 
 <div class="p-4 flex flex-col gap-5 pb-20">
 	<Card class=" text-center bg-popover">
@@ -179,7 +202,12 @@
 						<p>{f(minDepositValue)}</p>
 					</div>
 					<div class="bg-background w-1/2 rounded-2xl px-3 py-2 text-left">
-						<p class="font-bold">Interest Rate</p>
+						<div class="flex w-full justify-between">
+							<p class="font-bold">Interest Rate</p>
+							<button on:click={() => (dialogOpen = true)}>
+								<InfoIcon class="w-4 h-4 inline-block text-muted-foreground" />
+							</button>
+						</div>
 						<p>{pc(interestRate ?? 0)}</p>
 					</div>
 				</div>
@@ -196,11 +224,14 @@
 				<FeesAndCharges bind:borrowAmountUSD />
 
 				<Button
-					class="w-full rounded-xl mt-2 py-6 text-base"
+					class="w-full rounded-xl p-6 text-base"
 					disabled={isDisabled}
 					on:click={handleStartBorrowing}>Start Borrowing Now!</Button
 				>
-				<!-- <Button variant="link" class="pb-0">Check out the loan terms</Button> -->
+				<div class="flex justify-center items-center -my-4">
+					<p>Powered by</p>
+					<img src="/external/aave.png" alt="Aave" class="w-20 inline-block" />
+				</div>
 			</section>
 		</CardContent>
 	</Card>

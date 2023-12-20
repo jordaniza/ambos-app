@@ -13,6 +13,8 @@ import { API_ROUTES } from '$lib/constants';
 // standardize the typing for use across the application
 export type AppProvider = ethers.providers.Web3Provider;
 
+export type SignInMethod = 'social' | 'wallet';
+
 export interface SmartAccountStore {
 	smartAccount: BiconomySmartAccountV2 | undefined;
 	loading: boolean;
@@ -21,6 +23,7 @@ export interface SmartAccountStore {
 	address: `0x${string}` | undefined;
 	isConnected: boolean;
 	connectKit: ParticleConnect | undefined;
+	signInMethod: SignInMethod | undefined;
 	eoa: EthereumAddress | undefined;
 	username: string | undefined;
 }
@@ -31,6 +34,7 @@ const defaults: SmartAccountStore = {
 	error: undefined,
 	provider: undefined,
 	address: undefined,
+	signInMethod: undefined,
 	isConnected: false,
 	connectKit: undefined,
 	eoa: undefined,
@@ -70,11 +74,10 @@ async function fetchUsername(scw: EthereumAddress): Promise<string | null> {
 export async function initAccountStore(
 	store: typeof accountStore,
 	chainId: number,
-	provider: providers.Web3Provider
+	provider: providers.Web3Provider,
+	signInMethod: SignInMethod
 ) {
 	try {
-		store.update((state) => ({ ...state, loading: true }));
-
 		const scw = await biconomy.getSmartAccount({ chainId, provider });
 		const address = (await scw?.getAccountAddress()) as EthereumAddress;
 		const eoa = (await provider.getSigner().getAddress()) as EthereumAddress;
@@ -86,8 +89,8 @@ export async function initAccountStore(
 			provider,
 			username: username ?? undefined,
 			address,
+			signInMethod,
 			isConnected: true,
-			loading: false,
 			eoa
 		}));
 	} catch (error) {
@@ -95,8 +98,7 @@ export async function initAccountStore(
 
 		store.update((state) => ({
 			...state,
-			error: 'Error fetching account details',
-			loading: false
+			error: 'Error fetching account details'
 		}));
 	}
 }
@@ -114,6 +116,7 @@ export async function disconnect(store: typeof accountStore) {
 		// keep the connectKit so we can reconnect if needed
 		connectKit,
 		smartAccount: undefined,
+		signInMethod: undefined,
 		loading: false,
 		error: undefined,
 		provider: undefined,

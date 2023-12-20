@@ -8,17 +8,19 @@ import {
 	type IHybridPaymaster,
 	type SponsorUserOperationDto
 } from '@biconomy/paymaster';
+import type { Transaction } from '@biconomy/core-types';
 import { ethers } from 'ethers';
 import { getFeeCollector } from './batchActions';
 import type { EthereumAddress } from '$lib/utils';
 import type { TSupportedTokens } from '$lib/contracts';
+import type { FinalQuote } from '../../routes/(connected)/swap/quote';
 
 async function getFeeQuoteFromUserOp({
 	smartAccount,
 	transactions
 }: {
 	smartAccount: BiconomySmartAccountV2;
-	transactions: Array<{ to: EthereumAddress; data: string }>;
+	transactions: Transaction[];
 }): Promise<{
 	big: ethers.BigNumber;
 	small: number;
@@ -95,6 +97,52 @@ export async function getTransferFeeQuote({
 
 	const tx0 = { to: promiseToken, data };
 	const transactions = [tx0];
+	return await getFeeQuoteFromUserOp({ smartAccount, transactions });
+}
+
+type GetApproveFeeQuoteProps = {
+	smartAccount: BiconomySmartAccountV2;
+	provider: AppProvider;
+	token: EthereumAddress;
+	spender: EthereumAddress;
+};
+
+export async function getApproveFeeQuote({
+	smartAccount,
+	provider,
+	token,
+	spender = '0xdef1c0ded9bec7f1a1670819833240f027b25eff'
+}: GetApproveFeeQuoteProps) {
+	// any ERC20 is fine
+	const tokenContract = USDC__factory.connect(token, provider);
+
+	// populate the transaction
+	const { data } = await tokenContract.populateTransaction.approve(
+		spender,
+		ethers.constants.MaxUint256
+	);
+	if (!data) throw new Error('no data for approve quote');
+
+	const tx0 = { to: token, data };
+	const transactions = [tx0];
+	return await getFeeQuoteFromUserOp({ smartAccount, transactions });
+}
+
+type GetFinalSwapFeeQuoteProps = {
+	smartAccount: BiconomySmartAccountV2;
+	quote: FinalQuote;
+};
+export async function getFinalSwapFeeQuote({ smartAccount, quote }: GetFinalSwapFeeQuoteProps) {
+	const transactions = [
+		{
+			gasLimit: quote.gas,
+			gasPrice: quote.gasPrice,
+			to: quote.allowanceTarget,
+			data: quote.data,
+			value: quote.value,
+			chainId: quote.chainId
+		}
+	];
 	return await getFeeQuoteFromUserOp({ smartAccount, transactions });
 }
 

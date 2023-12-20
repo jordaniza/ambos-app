@@ -188,8 +188,9 @@
 				if (!chainId) throw new Error('No chain id');
 				const evmp = p as EVMProvider;
 				const provider = new ethers.providers.Web3Provider(evmp, 'any');
-				initAccountStore(accountStore, chainId, provider);
-				checkChainAndSetupListeners(provider);
+				initAccountStore(accountStore, chainId, provider, 'wallet').then(() => {
+					checkChainAndSetupListeners(provider);
+				});
 			});
 
 			// watch for chain changes
@@ -199,10 +200,11 @@
 
 			// connect will try to use a cached provider if it exists
 			if (!isConnected) {
-				const cachedProvider = await getCachedProvider(kit);
-				if (!cachedProvider) goto(ROUTES.LOGIN);
+				const cachedProviderResponse = await getCachedProvider(kit);
+				if (!cachedProviderResponse || !cachedProviderResponse?.provider) goto(ROUTES.LOGIN);
 				else {
-					initAccountStore(accountStore, chainId, cachedProvider);
+					const { provider: cachedProvider, signInMethod } = cachedProviderResponse;
+					await initAccountStore(accountStore, chainId, cachedProvider, signInMethod);
 					checkChainAndSetupListeners(cachedProvider);
 				}
 			}

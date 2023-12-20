@@ -5,15 +5,16 @@
 	import { getAmbosFee } from '$lib/components/calculator/calculator';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
 	import { getBorrowFeeQuote } from '$stores/transactions/fees';
-	import type { BiconomySmartAccount } from '@biconomy/account';
+	import type { BiconomySmartAccountV2 } from '@biconomy/account';
 	import type { AppProvider } from '$stores/account';
 	import { cacheFetch } from '$lib/cache';
 	import { CHAIN_ETH_TYPE } from '$lib/contracts';
 
 	export let borrowAmountUSD: number;
+	export let estimatedNetworkFee = 0.01;
+
 	let accountStore = getAccountStore();
 	let web3Store = getWeb3Store();
-	let estimatedNetworkFee = 0.01;
 
 	// Computed values
 	$: chainId = $web3Store.chainId ?? 1;
@@ -33,7 +34,7 @@
 		}
 	}
 
-	async function tryQuoteFromCache(smartAccount: BiconomySmartAccount, provider: AppProvider) {
+	async function tryQuoteFromCache(smartAccount: BiconomySmartAccountV2, provider: AppProvider) {
 		const key = LOCAL_STORAGE_KEYS.CACHED_FEE_DATA_GET_LOAN;
 		const expiry = 5 * 60 * 1000; // 5 minutes
 		try {

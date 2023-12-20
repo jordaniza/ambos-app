@@ -1,7 +1,7 @@
 import { AavePool__factory, Faucet__factory, USDC__factory, WETH__factory } from '$lib/abis/ts';
 import type { EthereumAddress } from '$lib/utils';
 import { getTokenAddress } from '$stores/web3/getBalances';
-import type { BiconomySmartAccount, BiconomySmartAccountV2 } from '@biconomy/account';
+import type { BiconomySmartAccountV2 } from '@biconomy/account';
 import { ethers, type BigNumber } from 'ethers';
 import {
 	setNewTransaction,
@@ -9,14 +9,85 @@ import {
 	type TxStore,
 	type UUID,
 	type SupportedSingleTransaction,
-	type TxContext
+	type TxContext,
+	increaseTxCounter
 } from './state';
 import { batchERC20Tx, batchSponsoredTx, batchUserTransaction, sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
 import { ADDRESSES, PAYMASTER_ADDRESSES } from '$lib/contracts';
 import type { AppProvider } from '$stores/account';
 import { getFeeCollector } from './batchActions';
-import { getTransferFeeQuote, getTransferFeeQuoteEth } from './fees';
+import { getTransferFeeQuoteEth } from './fees';
+import type { FinalQuote } from '../../routes/(connected)/swap/quote';
+import type { Token } from '$lib/components/ui/swap/swap';
+import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
+
+type SendUSDCFromEOAProps = {
+	store: TxStore;
+	id: string;
+	destinationAddress: EthereumAddress;
+	eoa: EthereumAddress;
+	amount: BigNumber;
+	provider: AppProvider;
+	confirmations?: number;
+};
+export async function sendETHFromEOA({
+	store,
+	id,
+	destinationAddress,
+	eoa,
+	amount,
+	provider,
+	confirmations = DEFAULT_BLOCK_CONFIRMATIONS
+}: SendUSDCFromEOAProps) {
+	try {
+		const context: TxContext['DEPOSIT_ETH_INTO_SMART_ACCOUNT'] = {
+			amount: Number(ethers.utils.formatEther(amount)),
+			receiver: destinationAddress,
+			sender: eoa
+		};
+
+		setNewTransaction(store, 'DEPOSIT_ETH_INTO_SMART_ACCOUNT', id, context);
+
+		const signer = provider.getSigner();
+
+		updateTransaction(store, id, {
+			state: 'SIGNING',
+			sponsored: false
+		});
+
+		const tx = await signer.sendTransaction({
+			to: destinationAddress,
+			value: amount
+		});
+
+		updateTransaction(store, id, {
+			state: 'SIGNED',
+			txReceiptHash: tx.hash as `0x${string}`
+		});
+
+		const receipt = await tx.wait(confirmations);
+
+		if (receipt.status === 0) {
+			updateTransaction(store, id, {
+				state: 'REJECTED',
+				finalTxHash: receipt.transactionHash as `0x${string}`
+			});
+		} else {
+			increaseTxCounter(store);
+			updateTransaction(store, id, {
+				state: 'SUCCESSFUL',
+				finalTxHash: receipt.transactionHash as `0x${string}`
+			});
+		}
+	} catch (err: any) {
+		updateTransaction(store, id, {
+			error: err.message ?? err,
+			state: 'FAILED'
+		});
+		console.error(err);
+	}
+}
 
 /**
  * Basic handler for sponsored transactions
@@ -358,4 +429,116 @@ export async function sendUSDC({
 
 	const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
 	return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
+}
+
+type ApproveUSDCProps = {
+	store: TxStore;
+	token: EthereumAddress;
+	decimals: number;
+	amount: BigNumber;
+	spender: EthereumAddress;
+	provider: AppProvider;
+	smartAccount: BiconomySmartAccountV2;
+	address: EthereumAddress;
+	id: string;
+	usePaymaster: boolean;
+};
+
+export async function approveERC20Token({
+	store,
+	token,
+	decimals,
+	amount,
+	spender: spender,
+	provider,
+	smartAccount,
+	address,
+	id,
+	usePaymaster
+}: ApproveUSDCProps) {
+	const context: TxContext['APPROVE_TOKEN'] = {
+		amount: Number(ethers.utils.formatUnits(amount, decimals)),
+		owner: address,
+		spender: spender,
+		token
+	};
+
+	setNewTransaction(store, 'APPROVE_TOKEN', id, context);
+
+	// we use USDC but it could be any ERC20 token
+	const tokenContract = USDC__factory.connect(token, provider);
+
+	const tx0 = await tokenContract.populateTransaction.approve(spender, amount);
+	const transactions = [
+		{
+			to: token,
+			data: tx0.data
+		}
+	];
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+
+	const network = await provider.getNetwork();
+
+	// use USDC paymaster if token is USDC && user wants to use usdc
+	if (token.toLowerCase() === ADDRESSES[network.chainId]['USDC'] && usePaymaster) {
+		const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
+		return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
+	} else {
+		// user must pay for the swap
+		return await batchUserTransaction(store, id, transactions, smartAccount);
+	}
+}
+
+type SwapTokenProps = {
+	id: string;
+	store: TxStore;
+	quote: FinalQuote;
+	smartAccount: BiconomySmartAccountV2;
+	outToken: Token;
+	provider: AppProvider;
+	inToken: Token;
+	usePaymaster: boolean;
+};
+
+export async function swapToken({
+	store,
+	quote,
+	smartAccount,
+	id,
+	outToken,
+	usePaymaster,
+	provider,
+	inToken
+}: SwapTokenProps) {
+	const context: TxContext['SWAP_TOKEN'] = { quote, outToken, inToken };
+
+	setNewTransaction(store, 'SWAP_TOKEN', id, context);
+
+	const transactions = [
+		{
+			to: quote.to,
+			data: quote.data,
+			value: quote.value,
+			chainId: quote.chainId,
+			gasLimit: quote.gas,
+			gasPrice: quote.gasPrice
+		}
+	];
+
+	updateTransaction(store, id, {
+		state: 'SIGNING'
+	});
+
+	const network = await provider.getNetwork();
+
+	// use USDC paymaster if token is USDC && user wants to use usdc
+	if (usePaymaster) {
+		const paymentToken = PAYMASTER_ADDRESSES[network.chainId].PAYMASTER_USDC;
+		return await batchERC20Tx(store, id, transactions, smartAccount, paymentToken);
+	} else {
+		// user must pay for the swap
+		return await batchUserTransaction(store, id, transactions, smartAccount);
+	}
 }
