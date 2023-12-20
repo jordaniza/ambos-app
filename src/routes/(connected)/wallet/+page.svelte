@@ -61,6 +61,7 @@
 				const tokenList = tokens.out.list;
 				fetchTokenBalances(tokenList).then((tokensWithBalances) => {
 					tokenListWithBalances = tokensWithBalances.filter((token) => token.balance > 0);
+					tokenListWithBalances.sort((a, b) => b.balance - a.balance);
 				});
 			});
 		}
@@ -214,7 +215,7 @@
 									</div>
 								</div>
 								<div class="text-end">
-									<p class="font-bold">{token?.balance ?? 0} {token.symbol}</p>
+									<p class="font-bold">{token?.balance.toFixed(6) ?? 0} {token.symbol}</p>
 								</div>
 							</div>
 						{/if}
