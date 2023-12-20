@@ -5,6 +5,7 @@ import * as process from '$env/static/public';
 import { particleChainNames, particleChains } from './particle-chains';
 import { evmWallets, ParticleConnect, type EVMProvider } from '@particle-network/connect';
 import { LOCAL_STORAGE_KEYS } from '$lib/constants';
+import type { SignInMethod } from '.';
 export type ParticleUserInfo = ParticleAuthModule.UserInfo;
 
 export const initConnectKit = (chainId: ChainId): ParticleConnect => {
@@ -51,11 +52,21 @@ export const initConnectKit = (chainId: ChainId): ParticleConnect => {
 
 export async function getCachedProvider(
 	connectKit: ParticleConnect
-): Promise<providers.Web3Provider | undefined> {
+): Promise<
+	{ provider: providers.Web3Provider | undefined; signInMethod: SignInMethod } | undefined
+> {
 	try {
 		const cachedProvider = await connectKit.connectToCachedProvider();
-		if (cachedProvider) return new providers.Web3Provider(cachedProvider as EVMProvider, 'any');
-		else if (connectKit.particle.auth.isLogin()) return getSocialProvider(connectKit);
+		if (cachedProvider)
+			return {
+				provider: new providers.Web3Provider(cachedProvider as EVMProvider, 'any'),
+				signInMethod: 'wallet'
+			};
+		else if (connectKit.particle.auth.isLogin())
+			return {
+				provider: await getSocialProvider(connectKit),
+				signInMethod: 'social'
+			};
 		else return undefined;
 	} catch (error) {
 		console.error('Failed to get cached provider:', error);

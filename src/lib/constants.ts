@@ -12,6 +12,7 @@ export const AMBOS_FAQ = 'https://docs.ambos.finance/faqs/frequently-asked-quest
 export const AFFILIATE_LINK = 'https://docs.ambos.finance/affiliates';
 export const EXCHANGE_GUIDE = 'https://docs.ambos.finance/exchanges';
 export const NETWORKS_AND_BRIDGING = 'https://docs.ambos.finance/faqs/networks-and-bridging';
+export const INTEREST_RATES = 'https://docs.ambos.finance/help-center/loan-terms#interest';
 
 export const DEFAULT_BLOCK_CONFIRMATIONS = 3;
 

@@ -7,6 +7,7 @@
 	import RepayLoan from './handlers/repay-loan.svelte';
 	import SwapErc20 from './handlers/swapERC20.svelte';
 	import Transfer from './handlers/transfer.svelte';
+	import TransferEthIntoEoa from './handlers/transferETHIntoEOA.svelte';
 
 	let txStore = getTxStore();
 	let web3Store = getWeb3Store();
@@ -32,5 +33,7 @@
 		<ApproveErc20 {tx} />
 	{:else if tx.txType === 'SWAP_TOKEN'}
 		<SwapErc20 {tx} />
+	{:else if tx.txType === 'DEPOSIT_ETH_INTO_SMART_ACCOUNT'}
+		<TransferEthIntoEoa {tx} />
 	{/if}
 {/each}

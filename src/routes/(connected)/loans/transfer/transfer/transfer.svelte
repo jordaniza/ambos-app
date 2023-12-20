@@ -2,7 +2,6 @@
 	import Card from '$lib/components/ui/card/card.svelte';
 	import MultiSwitch from '$lib/components/ui/multi-switch/multi-switch.svelte';
 	import Buy from '../buy/buy.svelte';
-	import Exchange from './exchange.svelte';
 	import Manual from './manual.svelte';
 	import Success from './success.svelte';
 	import Verification from './verification.svelte';
@@ -11,12 +10,13 @@
 	import { increaseTxCounter } from '$stores/transactions/state';
 	import { onDestroy } from 'svelte';
 	import { CHAIN_ETH_TYPE } from '$lib/contracts';
+	import { accountStore } from '$stores/account';
 
 	export let transferred: number;
 	export let toBeTransferred: number;
 
-	let manualWalletExchange = ['Manual', 'Wallet', 'Exchange'];
-	let manualWalletExchangeIndex = 0;
+	const manualWallet = ['Wallet', 'Manual'];
+	let manualWalletIndex = 0;
 	let transferBuy = ['Transfer ETH', 'Buy ETH'];
 	let transferBuyIndex = 0;
 	let txStore = getTxStore();
@@ -33,10 +33,12 @@
 	$: useTransfer = transferBuy[transferBuyIndex] === 'Transfer ETH';
 	$: useBuy = transferBuy[transferBuyIndex] === 'Buy ETH';
 	$: hasEth = $txStore.builders.INCREASE_DEBT.hasEth;
+	$: isUsingWallet = $accountStore.signInMethod === 'wallet';
+	// wallet transfer only works if the user is using a wallet
+	$: headings = isUsingWallet ? manualWallet : ['Manual'];
 
-	$: useManual = manualWalletExchange[manualWalletExchangeIndex] === 'Manual';
-	$: useWallet = manualWalletExchange[manualWalletExchangeIndex] === 'Wallet';
-	$: useExchange = manualWalletExchange[manualWalletExchangeIndex] === 'Exchange';
+	$: useManual = headings[manualWalletIndex] === 'Manual';
+	$: useWallet = headings[manualWalletIndex] === 'Wallet';
 
 	// default to buy if the user doesn't have eth
 	$: {
@@ -49,7 +51,7 @@
 	$: {
 		// reset the manualWalletExchangeIndex when we switch between transfer and buy
 		// to avoid showing the wrong option when the user changes back
-		if (useBuy) manualWalletExchangeIndex = 0;
+		if (useBuy) manualWalletIndex = 0;
 	}
 
 	$: {
@@ -93,17 +95,19 @@
 	<!-- TRANSFER ETH -->
 	{#if useTransfer}
 		<Card class="bg-popover p-4 flex flex-col gap-5">
-			<div class="flex flex-col gap-5">
-				<p>Pick Your Transfer Option</p>
-				<MultiSwitch items={manualWalletExchange} bind:selectedIndex={manualWalletExchangeIndex} />
-				<!-- Network Warning -->
-			</div>
+			{#if isUsingWallet}
+				<div class="flex flex-col gap-5">
+					<p>Pick Your Transfer Option</p>
+					<MultiSwitch items={headings} bind:selectedIndex={manualWalletIndex} />
+					<!-- Network Warning -->
+				</div>
+			{/if}
 			{#if useManual}
 				<Manual bind:showVerification={showVerifying} bind:startVerification={isVerifying} />
-			{:else if useExchange}
-				<Exchange />
+				<!-- {:else if useExchange} -->
+				<!-- <Exchange /> -->
 			{:else if useWallet}
-				<Wallet />
+				<Wallet bind:showVerification={showVerifying} bind:startVerification={isVerifying} />
 			{/if}
 		</Card>
 

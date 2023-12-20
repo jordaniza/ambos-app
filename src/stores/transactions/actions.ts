@@ -9,7 +9,8 @@ import {
 	type TxStore,
 	type UUID,
 	type SupportedSingleTransaction,
-	type TxContext
+	type TxContext,
+	increaseTxCounter
 } from './state';
 import { batchERC20Tx, batchSponsoredTx, batchUserTransaction, sponsoredTx } from './sponsored';
 import { getAavePool, InterestRateMode } from '$stores/web3/getPoolData';
@@ -19,6 +20,74 @@ import { getFeeCollector } from './batchActions';
 import { getTransferFeeQuoteEth } from './fees';
 import type { FinalQuote } from '../../routes/(connected)/swap/quote';
 import type { Token } from '$lib/components/ui/swap/swap';
+import { DEFAULT_BLOCK_CONFIRMATIONS } from '$lib/constants';
+
+type SendUSDCFromEOAProps = {
+	store: TxStore;
+	id: string;
+	destinationAddress: EthereumAddress;
+	eoa: EthereumAddress;
+	amount: BigNumber;
+	provider: AppProvider;
+	confirmations?: number;
+};
+export async function sendETHFromEOA({
+	store,
+	id,
+	destinationAddress,
+	eoa,
+	amount,
+	provider,
+	confirmations = DEFAULT_BLOCK_CONFIRMATIONS
+}: SendUSDCFromEOAProps) {
+	try {
+		const context: TxContext['DEPOSIT_ETH_INTO_SMART_ACCOUNT'] = {
+			amount: Number(ethers.utils.formatEther(amount)),
+			receiver: destinationAddress,
+			sender: eoa
+		};
+
+		setNewTransaction(store, 'DEPOSIT_ETH_INTO_SMART_ACCOUNT', id, context);
+
+		const signer = provider.getSigner();
+
+		updateTransaction(store, id, {
+			state: 'SIGNING',
+			sponsored: false
+		});
+
+		const tx = await signer.sendTransaction({
+			to: destinationAddress,
+			value: amount
+		});
+
+		updateTransaction(store, id, {
+			state: 'SIGNED',
+			txReceiptHash: tx.hash as `0x${string}`
+		});
+
+		const receipt = await tx.wait(confirmations);
+
+		if (receipt.status === 0) {
+			updateTransaction(store, id, {
+				state: 'REJECTED',
+				finalTxHash: receipt.transactionHash as `0x${string}`
+			});
+		} else {
+			increaseTxCounter(store);
+			updateTransaction(store, id, {
+				state: 'SUCCESSFUL',
+				finalTxHash: receipt.transactionHash as `0x${string}`
+			});
+		}
+	} catch (err: any) {
+		updateTransaction(store, id, {
+			error: err.message ?? err,
+			state: 'FAILED'
+		});
+		console.error(err);
+	}
+}
 
 /**
  * Basic handler for sponsored transactions

@@ -58,6 +58,9 @@ export const SUPPORTED_SINGLE_TRANSACTIONS = [
 	'SEND_WETH',
 	'SEND_ETH',
 
+	// EOA
+	'DEPOSIT_ETH_INTO_SMART_ACCOUNT',
+
 	// request tokens
 	'REQUEST_WETH_FROM_FAUCET'
 ] as const;
@@ -105,6 +108,11 @@ export type TxContext = {
 		quote: FinalQuote;
 		inToken: Token;
 		outToken: Token;
+	};
+	DEPOSIT_ETH_INTO_SMART_ACCOUNT: {
+		sender: EthereumAddress;
+		receiver: EthereumAddress;
+		amount: number;
 	};
 };
 

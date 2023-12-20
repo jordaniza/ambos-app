@@ -55,7 +55,7 @@
 
 			await connectKit.particle.auth.login(loginOptions);
 			const provider = await getSocialProvider(connectKit);
-			initAccountStore(accountStore, chainId, provider!);
+			initAccountStore(accountStore, chainId, provider!, 'social');
 		} catch (e) {
 			toast.error('Error With Login, please try again');
 			console.error(e);
