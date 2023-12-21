@@ -32,6 +32,36 @@ export const stbl = (n: number, s: string) => {
 	return `${formatted.slice(1)} ${s}`;
 };
 
+// general formatting for numbers that might be very large
+// or very small, or in between
+export function fmt(n: number): string {
+	// add commas
+	// with large, round it to nearest whole
+	// if between say 10 and 100 max 2 decimals
+	// if between 1 and 10 max 4 decimals
+	// if between 0.01 and 1 max 6 decimals
+	// if between 0.0001 and 0.01 max 8 decimals
+	// if between 0.00000001 and 0.0001 max 10 decimals
+	// if less than 0.00000001 max 12 decimals
+
+	switch (true) {
+		case n > 100:
+			return n.toLocaleString();
+		case n > 10:
+			return n.toFixed(2);
+		case n > 1:
+			return n.toFixed(4);
+		case n > 0.01:
+			return n.toFixed(6);
+		case n > 0.0001:
+			return n.toFixed(8);
+		case n > 0.00000001:
+			return n.toFixed(10);
+		default:
+			return n.toFixed(12);
+	}
+}
+
 // eth formatting
 export const e = (n: number) => (n > 1 ? n.toFixed(2) : n.toFixed(4));
 

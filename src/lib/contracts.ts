@@ -16,16 +16,37 @@ export const SupportedContracts = [
 export type TSupportedTokens = (typeof SupportedTokens)[number];
 export type TSupportedContracts = (typeof SupportedContracts)[number];
 
+const sharedSupportedTokens = [
+	'WBTC',
+	'WSTETH',
+	'WETH',
+	'USDC',
+	'AAVE',
+	'ARB',
+	'WMATIC',
+	'USDT',
+	'DAI',
+	'UNI',
+	'LINK',
+	'RETH',
+	'FRXETH',
+	'SFRXETH'
+];
+
 export const SupportedSwapTokens = {
 	out: {
-		list: ['WBTC', 'WETH', 'LINK', 'UNI', 'AAVE', 'ARB', 'WMATIC'],
+		list: sharedSupportedTokens,
 		default: 'WETH'
 	},
 	in: {
-		list: ['USDC'],
+		list: sharedSupportedTokens,
 		default: 'USDC'
 	}
 } as const;
+
+export type TSupportedSwapTokens = typeof SupportedSwapTokens;
+export type TSupportedSwapTokensIn = (typeof SupportedSwapTokens.in.list)[number];
+export type TSupportedSwapTokensOut = (typeof SupportedSwapTokens.out.list)[number];
 
 export const ADDRESSES: Record<number | ChainId, Record<TSupportedContracts, EthereumAddress>> = {
 	[ChainId.POLYGON_MUMBAI]: {
