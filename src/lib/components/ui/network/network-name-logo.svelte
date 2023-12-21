@@ -4,6 +4,8 @@
 	import { TOOLTIPS } from '../tooltip/tooltips';
 	import NetworkLogos from './network-logos.svelte';
 	import NetworkNames from './network-names.svelte';
+
+	export let showTooltip: boolean = true;
 </script>
 
 <Card class="flex justify-between px-3 py-2 text-sm shadow-none w-full">
@@ -15,6 +17,8 @@
 	</div>
 	<div class="flex items-center justify-end gap-2">
 		<NetworkNames />
-		<TooltipIcon text={TOOLTIPS.NETWORK} />
+		{#if showTooltip}
+			<TooltipIcon text={TOOLTIPS.NETWORK} />
+		{/if}
 	</div>
 </Card>

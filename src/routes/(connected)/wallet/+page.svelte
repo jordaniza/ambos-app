@@ -1,15 +1,8 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card/card.svelte';
 	import BaseScreen from '$lib/components/ui/layout/baseScreen.svelte';
-	import { e, f, stbl, type EthereumAddress } from '$lib/utils';
-	import {
-		ArrowLeftRightIcon,
-		CopyIcon,
-		DollarSign,
-		ExternalLink,
-		HistoryIcon,
-		WalletIcon
-	} from 'lucide-svelte';
+	import { e, f, stbl, type EthereumAddress, fmt } from '$lib/utils';
+	import { CopyIcon, DollarSign, ExternalLink, WalletIcon } from 'lucide-svelte';
 	import TopBar from '../dashboard/top-bar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
@@ -22,10 +15,11 @@
 	import { TOOLTIPS } from '$lib/components/ui/tooltip/tooltips';
 	import EthPriceTicker from '$lib/components/charts/eth-price-ticker.svelte';
 	import { getSupportedTokensFromCoinGecko, type Token } from '$lib/components/ui/swap/swap';
-	import Swap from '../swap/swap.svelte';
 	import type { AppProvider } from '$stores/account';
 	import { USDC__factory as GenericERC20__factory } from '$lib/abis/ts';
 	import { ethers } from 'ethers';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	type TokenAndBalance = Token & { balance: number };
 
@@ -33,14 +27,14 @@
 	let web3Store = getWeb3Store();
 	let tokenListWithBalances = [] as TokenAndBalance[];
 	let showMoreTokens = false;
-	let showSwap = false;
 
 	let triggers = {
 		buy: () => {},
 		sell: () => {},
 		receive: () => {},
 		transfer: () => {},
-		withdraw: () => {}
+		withdraw: () => {},
+		swap: () => {}
 	};
 
 	$: tokenList = [] as TokenAndBalance[];
@@ -56,14 +50,27 @@
 	$: explorerURL = BLOCK_EXPLORER_URLS[chainId] + '/address/' + address;
 
 	$: {
-		if (chainId && tokenList.length === 0) {
-			getSupportedTokensFromCoinGecko(chainId).then((tokens) => {
-				const tokenList = tokens.out.list;
-				fetchTokenBalances(tokenList).then((tokensWithBalances) => {
-					tokenListWithBalances = tokensWithBalances.filter((token) => token.balance > 0);
-					tokenListWithBalances.sort((a, b) => b.balance - a.balance);
+		if (chainId && tokenList.length === 0 && provider && address) {
+			setTimeout(() => {
+				getSupportedTokensFromCoinGecko(chainId).then((tokens) => {
+					fetchTokenBalances(tokens.out.list).then((tokensWithBalances) => {
+						const filteredAndSorted = tokensWithBalances
+							.filter((token) => token.balance > 0)
+							.sort((a, b) => b.balance - a.balance);
+
+						tokenListWithBalances = [...filteredAndSorted];
+					});
 				});
-			});
+			}, 0);
+		}
+	}
+
+	async function fetchTokenBalances(ls: Token[]): Promise<TokenAndBalance[] | []> {
+		if (ls.length > 0 && provider && address) {
+			const promises = ls.map((token) => fetchSingleTokenBalance(token, provider!, address!));
+			return await Promise.all(promises);
+		} else {
+			return [];
 		}
 	}
 
@@ -79,15 +86,6 @@
 			...token,
 			balance: Number(balanceSmall)
 		};
-	}
-
-	async function fetchTokenBalances(ls: Token[]): Promise<TokenAndBalance[] | []> {
-		if (ls.length > 0 && provider && address) {
-			const promises = ls.map((token) => fetchSingleTokenBalance(token, provider!, address!));
-			return await Promise.all(promises);
-		} else {
-			return [];
-		}
 	}
 
 	function handleCopy() {
@@ -151,6 +149,23 @@
 					</div>
 				</div>
 			</div>
+			<div class="flex w-full gap-3">
+				<Button
+					on:click={triggers.buy}
+					class="w-1/3 text-secondary border-secondary"
+					variant="outline">Buy w. Fiat</Button
+				>
+				<Button
+					on:click={triggers.sell}
+					class="w-1/3 text-secondary border-secondary"
+					variant="outline">Sell to Fiat</Button
+				>
+				<Button
+					class="w-1/3 text-secondary border-secondary"
+					variant="outline"
+					on:click={triggers.swap}>Swap (New)</Button
+				>
+			</div>
 			<Card variant="popover" padding="base" class="flex flex-col w-full gap-4 py-4 text-sm">
 				<!-- header -->
 				<div class="flex w-full justify-between">
@@ -186,20 +201,6 @@
 					</div>
 				</div>
 				<Separator />
-				<div class="flex justify-between items-center gap-2">
-					<div class="flex items-center gap-2">
-						<div class="h-10 w-10 bg-background rounded-full flex items-center justify-center">
-							<DollarSign class="text-secondary stroke-2 h-7 w-7" />
-						</div>
-						<div>
-							<p class="font-bold">USDC</p>
-						</div>
-					</div>
-					<div class="text-end">
-						<p class="font-bold">{stbl(usdcBalance, 'USDC')}</p>
-						<p class="text-sm">{f(usdcBalance)}</p>
-					</div>
-				</div>
 				{#if showMoreTokens}
 					{#each tokenListWithBalances as token}
 						{#if token.balance > 0}
@@ -215,7 +216,7 @@
 									</div>
 								</div>
 								<div class="text-end">
-									<p class="font-bold">{token?.balance.toFixed(6) ?? 0} {token.symbol}</p>
+									<p class="font-bold">{fmt(token?.balance ?? 0)} {token.symbol}</p>
 								</div>
 							</div>
 						{/if}
@@ -230,29 +231,7 @@
 							: 'tokens'}...</Button
 					>
 				{/if}
-				<div class="flex w-full gap-3">
-					<Button on:click={triggers.buy} class="w-1/3">Buy</Button>
-					<Button
-						on:click={triggers.sell}
-						class="w-1/3 text-secondary border-secondary"
-						variant="outline">Sell</Button
-					>
-					<Button on:click={() => (showSwap = !showSwap)} class="w-1/3">Swap (New)</Button>
-				</div>
 			</Card>
-			{#if showSwap}
-				<Card variant="popover" padding="base" class="flex flex-col w-full gap-4 py-4 text-sm">
-					<div class="flex w-full justify-between">
-						<div class="flex items-center gap-3">
-							<ArrowLeftRightIcon class="text-muted-foreground h-4 w-4" />
-							<p class="font-bold">Swap Tokens</p>
-							<p />
-						</div>
-						<TooltipIcon text={TOOLTIPS.SWAPS} />
-					</div>
-					<Swap />
-				</Card>
-			{/if}
 		</div>
 	</div>
 	<div class="h-32" />

@@ -40,7 +40,8 @@ async function fetchCacheCoinGeckoTokenList(chainId: ChainId): Promise<Token[] |
 	}
 
 	const parsedArray = JSON.parse(tokens!) as CoinGeckoAPIResponse;
-	return extractCoinGecko(parsedArray);
+	const extracted = extractCoinGecko(parsedArray);
+	return extracted;
 }
 
 type SupportedTokenReturn = {

@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	import { getAccountStore, getWeb3Store } from '$lib/context/getStores';
-	import { f, objToQsp, type EthereumAddress, pc } from '$lib/utils';
+	import { f, objToQsp, type EthereumAddress, pc, e } from '$lib/utils';
 	import { ethers } from 'ethers';
 	import { onDestroy, onMount } from 'svelte';
 	import Input from '$lib/components/ui/swap/input.svelte';
@@ -11,7 +11,12 @@
 	import { getTxStore } from '$lib/context/getStores';
 	import { type Token, getSupportedTokensFromCoinGecko } from '$lib/components/ui/swap/swap';
 	import type { Nullable } from 'vitest';
-	import { ADDRESSES, SWAP_URL, SupportedSwapTokens, TOKEN_LIST_URL } from '$lib/contracts';
+	import {
+		ADDRESSES,
+		SWAP_URL,
+		type TSupportedSwapTokensIn,
+		type TSupportedSwapTokensOut
+	} from '$lib/contracts';
 	import type { ChainId } from '@biconomy/core-types';
 	import { browser } from '$app/environment';
 	import { USDC__factory } from '$lib/abis/ts';
@@ -29,8 +34,8 @@
 	import LoadingSpinner from '$lib/components/ui/loadingSpinner/loading-spinner.svelte';
 	import { PUBLIC_ENV } from '$env/static/public';
 
-	const supportIn = SupportedSwapTokens.in;
-	const supportOut = SupportedSwapTokens.out;
+	export let preferredInTokenSymbol: TSupportedSwapTokensIn | null = null;
+	export let preferredOutTokenSymbol: TSupportedSwapTokensOut | null = null;
 
 	// variables
 	let showModal = false;
@@ -68,17 +73,18 @@
 	let swapping = false;
 	let approveFeeEstimate = 0;
 	let swapFeeEstimate = 0;
+	let inTokenBalance = 0;
 
 	// Computed values
 
 	$: address = $accountStore.address;
 	$: chainId = $web3Store.chainId ?? (1 as ChainId);
 	// we only support the USDC token for now as an intoken
-	$: inTokenBalance = $web3Store.balances.USDC.small ?? 0;
 	$: smartAccount = $accountStore.smartAccount;
 	$: provider = $accountStore.provider;
 	$: swapRouterAddress = ADDRESSES[chainId]?.SWAP_ROUTER ?? null;
 	$: needsApproval = !priceQuote || inTokenApproval < inTokenQty;
+	$: ethBalance = $web3Store?.balances['ETH']?.small ?? 0;
 
 	$: buyAmountSmall = finalQuote?.buyAmount
 		? NBN(finalQuote.buyAmount, outToken?.decimals ?? 18)
@@ -86,6 +92,9 @@
 	$: sellAmountSmall = finalQuote?.sellAmount
 		? NBN(finalQuote.sellAmount, inToken?.decimals ?? 18)
 		: 0;
+
+	$: notEnoughFeeForApprove = ethBalance < approveFeeEstimate;
+	$: notEnoughFeeForSwap = ethBalance < swapFeeEstimate;
 
 	// watchers
 
@@ -98,6 +107,12 @@
 	$: {
 		if (chainId && inTokens.length === 0 && browser) {
 			initSwaps();
+		}
+	}
+
+	$: {
+		if (inToken && provider && address) {
+			fetchInTokenBalance();
 		}
 	}
 
@@ -139,13 +154,24 @@
 	$: {
 		if (finalQuote && smartAccount) {
 			getFinalSwapFeeQuote({ smartAccount, quote: finalQuote }).then((feeQuote) => {
-				console.log(feeQuote);
+				console.log({ feeQuote });
 				swapFeeEstimate = feeQuote.small ?? 0;
 			});
 		}
 	}
 
 	// functions
+	async function fetchInTokenBalance() {
+		if (!inToken?.address || !provider || !address) return;
+		try {
+			const erc20 = USDC__factory.connect(inToken.address, provider);
+			const balance = await erc20.balanceOf(address);
+			inTokenBalance = Number(ethers.utils.formatUnits(balance, inToken.decimals));
+		} catch (e) {
+			console.warn('In Token is fetched from mainnet, this may have caused an error');
+			console.error('Error fetching ERC20 balance', e);
+		}
+	}
 
 	const NBN = (q: string, d: number): number => Number(ethers.utils.formatUnits(q, d));
 
@@ -168,8 +194,21 @@
 		const supported = await getSupportedTokensFromCoinGecko(chainId);
 		inTokens = supported.in.list;
 		outTokens = supported.out.list;
-		inToken = supported.in.default;
-		outToken = supported.out.default;
+
+		if (preferredInTokenSymbol) {
+			inToken =
+				inTokens.find((token) => token.symbol === preferredInTokenSymbol) ?? supported.in.default;
+		} else {
+			inToken = supported.in.default;
+		}
+
+		if (preferredOutTokenSymbol) {
+			outToken =
+				outTokens.find((token) => token.symbol === preferredOutTokenSymbol) ??
+				supported.out.default;
+		} else {
+			outToken = supported.out.default;
+		}
 	}
 
 	quoteInterval = setInterval(() => {
@@ -253,7 +292,6 @@
 		try {
 			approving = true;
 			approveTx = makeTxId();
-			console.warn('Approve is using paymaster');
 			const tokenAddress = ADDRESSES[chainId].USDC;
 			await approveERC20Token({
 				id: approveTx,
@@ -264,7 +302,7 @@
 				spender: swapRouterAddress as EthereumAddress,
 				decimals: inToken.decimals,
 				amount: ethers.constants.MaxUint256,
-				usePaymaster: true,
+				usePaymaster: false,
 				address
 			});
 		} catch (e) {
@@ -276,11 +314,11 @@
 
 	async function handleConfirmSwap() {
 		showModal = true;
-		if (PUBLIC_ENV === 'development') {
-			finalQuote = mockQuote as any;
-		} else {
-			await fetchQuote(QuoteType.Final);
-		}
+		// if (PUBLIC_ENV === 'development') {
+		// finalQuote = mockQuote as any;
+		// } else {
+		await fetchQuote(QuoteType.Final);
+		// }
 	}
 
 	async function handleSwap() {
@@ -292,14 +330,13 @@
 		try {
 			swapping = true;
 			const id = makeTxId();
-			console.warn('Swap is using paymaster');
 			await swapToken({
 				store: txStore,
 				smartAccount,
 				quote: finalQuote,
 				id,
 				provider,
-				usePaymaster: true,
+				usePaymaster: false,
 				outToken,
 				inToken
 			});
@@ -311,6 +348,11 @@
 		} finally {
 			swapping = false;
 		}
+	}
+
+	// clear final quote when closing modal
+	function handleOpenChange(open: boolean) {
+		if (!open) finalQuote = null;
 	}
 
 	onMount(async () => {
@@ -325,7 +367,7 @@
 	});
 </script>
 
-<AlertDialog.Root open={showModal}>
+<AlertDialog.Root open={showModal} onOpenChange={handleOpenChange}>
 	<AlertDialog.Content class="bg-popover">
 		<button class="absolute top-2 right-2" on:click={() => (showModal = false)}><X /></button>
 		<AlertDialog.Header>
@@ -376,15 +418,20 @@
 				</div>
 			{/if}
 		</AlertDialog.Header>
-		<AlertDialog.Footer>
-			<Button disabled={swapping || !finalQuote} class="w-full" on:click={handleSwap}>
-				{#if swapping}
-					<LoadingSpinner />
-				{:else}
-					Swap
-				{/if}
-			</Button>
-		</AlertDialog.Footer>
+		<Button
+			disabled={swapping || !finalQuote || notEnoughFeeForSwap || !swapFeeEstimate}
+			class="w-full"
+			on:click={handleSwap}
+		>
+			{#if swapping}
+				<LoadingSpinner />
+			{:else}
+				Swap
+			{/if}
+		</Button>
+		{#if notEnoughFeeForSwap}
+			<p class="text-center text-xs text-destructive -mt-1">Not enough ETH for gas fees</p>
+		{/if}
 	</AlertDialog.Content>
 </AlertDialog.Root>
 
@@ -395,10 +442,10 @@
 		showRange={true}
 		max={inTokenBalance}
 		showMax={true}
-		maxFormatter={f}
-		step={0.01}
+		maxFormatter={e}
+		step={0.0001}
 		bind:value={inTokenQty}
-		formatter={() => f(inTokenQty)}
+		formatter={() => e(inTokenQty)}
 	/>
 
 	<section class="flex flex-col gap-3 py-2">
@@ -437,9 +484,19 @@
 				</Card>
 			{/if}
 			{#if needsApproval}
-				<Button disabled={!priceQuote || approving || swapping} on:click={handleERC20Approval}>
+				<Button
+					disabled={!priceQuote ||
+						approving ||
+						swapping ||
+						notEnoughFeeForApprove ||
+						!approveFeeEstimate}
+					on:click={handleERC20Approval}
+				>
 					{approving ? 'Approving...' : 'Approve'}
 				</Button>
+				{#if notEnoughFeeForApprove}
+					<p class="text-center text-xs text-destructive -mt-1">Not enough ETH for gas fees</p>
+				{/if}
 			{:else}
 				<Button disabled={!priceQuote} on:click={handleConfirmSwap}>Swap</Button>
 			{/if}
