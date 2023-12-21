@@ -85,6 +85,7 @@
 	$: swapRouterAddress = ADDRESSES[chainId]?.SWAP_ROUTER ?? null;
 	$: needsApproval = !priceQuote || inTokenApproval < inTokenQty;
 	$: ethBalance = $web3Store?.balances['ETH']?.small ?? 0;
+	$: ethPrice = $web3Store?.ethPrice.small ?? 0;
 
 	$: buyAmountSmall = finalQuote?.buyAmount
 		? NBN(finalQuote.buyAmount, outToken?.decimals ?? 18)
@@ -93,8 +94,11 @@
 		? NBN(finalQuote.sellAmount, inToken?.decimals ?? 18)
 		: 0;
 
-	$: notEnoughFeeForApprove = ethBalance < approveFeeEstimate;
-	$: notEnoughFeeForSwap = ethBalance < swapFeeEstimate;
+	$: approveFeeEstimateInEth = approveFeeEstimate ? approveFeeEstimate * ethPrice : 0;
+	$: swapFeeEstimateInEth = swapFeeEstimate ? swapFeeEstimate * ethPrice : 0;
+
+	$: notEnoughFeeForApprove = ethBalance < approveFeeEstimateInEth;
+	$: notEnoughFeeForSwap = ethBalance < swapFeeEstimateInEth;
 
 	// watchers
 
