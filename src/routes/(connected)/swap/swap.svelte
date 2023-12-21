@@ -94,8 +94,14 @@
 		? NBN(finalQuote.sellAmount, inToken?.decimals ?? 18)
 		: 0;
 
-	$: approveFeeEstimateInEth = approveFeeEstimate ? approveFeeEstimate * ethPrice : 0;
-	$: swapFeeEstimateInEth = swapFeeEstimate ? swapFeeEstimate * ethPrice : 0;
+	$: approveFeeEstimateInEth = approveFeeEstimate && ethPrice ? approveFeeEstimate / ethPrice : 0;
+	$: swapFeeEstimateInEth = swapFeeEstimate && ethPrice ? swapFeeEstimate / ethPrice : 0;
+
+	$: console.log({
+		ethBalance,
+		approveFeeEstimateInEth,
+		approveFeeEstimate
+	});
 
 	$: notEnoughFeeForApprove = ethBalance < approveFeeEstimateInEth;
 	$: notEnoughFeeForSwap = ethBalance < swapFeeEstimateInEth;
